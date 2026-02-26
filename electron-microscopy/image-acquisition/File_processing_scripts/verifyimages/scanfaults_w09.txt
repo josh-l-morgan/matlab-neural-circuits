@@ -1,0 +1,1 @@
+1 scan error  found in image ../Single_images_thousand_wafer09_High_res_st1-8/1003-w09-r1-c1_st06_sec08_attempt1.tif, at: 157

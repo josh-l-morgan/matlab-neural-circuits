@@ -1,0 +1,221 @@
+%% LOADING FILES AND DEFINING FILES TO WRITE RESULTS TO
+clear; clc;
+
+[txtFile txtPath] = uigetfile('*.txt','Select TXT_ file');
+sp = nexread2006([txtPath txtFile]);
+
+[stimFile stimPath] = uigetfile('*.mat', 'Select STIM_ file');
+load([stimPath stimFile])
+
+[resFile resPath] = uiputfile('', 'Save Results As LN_');
+
+[xlsFile xlsPath] = uiputfile('', 'Write to XLS_');
+
+analog = sp.data(1:50,[1 2]);
+
+sp.channels
+
+%% ALIGN TIME AND DELETE CHANNELS
+channelsToBeDeleted = [1 2]; %user-defined parameter
+% gaussnoiseTime = DGaussian_S;
+mcStart = analog(22,1) %#ok<NOPTS>
+mcStop = analog(22,2) %#ok<NOPTS>
+stretchFactor = (gaussnoiseTime(end) - gaussnoiseTime(1)) / (mcStop - mcStart) %#ok<NOPTS>
+frameTrain = round((gaussnoiseTime - gaussnoiseTime(1))*1000);
+channel = sp.channels;
+channel(channelsToBeDeleted) = [];
+[data] = deletecolumns (sp.data, channelsToBeDeleted);
+channel %#ok<NOPTS>
+clear sp
+
+%% COMPUTING STA AND GENERATOR SIGNAL
+
+%%% define some parameters %%%
+nTimeBins = 12;
+nValues = 50;
+nRows = 60;
+nColumns = 80;
+nFrames = length(frameTrain);
+SD = 0.175;
+centerCut = 2.5; % factor by which sd of center exceeds mean pixel sd
+minPixels = 10; % minimum number of pixels in RF
+
+[m nChannels] = size(data);
+tic
+g = waitbar(0, 'channels...');
+for i=1:nChannels %this is what is done to each channel serially
+
+    %%% isolate raw spike train of current channel %%%
+    if (data(end,i) > 0)
+        spikeTrainUnaligned = data(:,i);
+    else
+        lastPosition =  find (data(:,i) >= 0, 1, 'last');
+        spikeTrainUnaligned = data(1:lastPosition,i);
+    end
+    %     staROI = find ((mcStart < spikeTrainUnaligned) ...
+    %         & (spikeTrainUnaligned < mcStop));
+    %     staTrain = round((spikeTrainUnaligned(staROI(1) ...
+    %         : staROI(end)) - mcStart) * stretchFactor * 1000);
+    %     staTrain(staTrain < 1000)=[];
+
+
+    %%% isolate region of spike Train from which STA is computed %%%
+    staROI = find (spikeTrainUnaligned > mcStop - ((mcStop -mcStart)/2) ...
+        & (spikeTrainUnaligned < mcStop));
+    staTrain = round((spikeTrainUnaligned(staROI(1) ...
+        : staROI(end)) - mcStart) * stretchFactor * 1000);
+
+    %%% preallocate some memory %%%
+    correlationMatrix = zeros(nRows * nColumns, nTimeBins);
+    momentaryMatrix = zeros(nRows * nColumns, nTimeBins);
+
+    %%% now calculate the STA %%%
+    for j=1:length(staTrain)
+        %this is what is done to each spike of a given channel serially
+        lastFrame = find((staTrain(j) - frameTrain >= 0), 1, 'last');
+        firstFrame = lastFrame - nTimeBins +1;
+        framePosition = firstFrame : lastFrame;
+
+        for k=1:nTimeBins
+            % randn('state', stateM(:,framePosition(k)));
+            randn('state', framePosition(k));
+            checkerboard = SD * randn(nRows * nColumns,1);
+            checkerboard(1)=0;
+            checkerboard(checkerboard > 0.5) = 0.5;
+            checkerboard(checkerboard < -0.5) = -0.5;
+            momentaryMatrix(:,k) = checkerboard;
+        end
+        correlationMatrix = correlationMatrix + momentaryMatrix;
+    end
+    sdScore = std(correlationMatrix,0,2);
+    if length(find(sdScore > centerCut*mean(sdScore))) < minPixels
+        sdSorted = sort(sdScore);
+        lowestRelevantPix = sdSorted(end - minPixels);
+        centerPix = find(sdScore > lowestRelevantPix);
+        center = correlationMatrix(centerPix,:);
+    else
+        centerPix = find(sdScore > centerCut*mean(sdScore));
+        center = correlationMatrix(centerPix,:);
+    end
+    nPixelCenter = length(centerPix);
+    STA = reshape(center, nPixelCenter * nTimeBins,1)...
+        /length(staTrain);
+
+    %%% define region of frame train to use for generator signal %%%
+    lastFrameFirstHalf = round(nFrames/2);
+    nFramesFirstHalf = length(1:lastFrameFirstHalf);
+    frameTrainFirstHalf = frameTrain(1:nFramesFirstHalf);
+
+    %%% preallocate some memory %%%
+    generatorSignal = zeros(nFramesFirstHalf,1);
+    recentStimulus = zeros(nRows * nColumns, nTimeBins);
+
+    %%% now calculate the generator signal %%%
+    for j=1:nFramesFirstHalf
+        % this is what is done to each frame serially
+        for k=1:nTimeBins
+            % randn('state',stateM(:,j - nTimeBins + k))
+            randn('state',j - nTimeBins + k)
+            checkerboard = SD * randn(nRows * nColumns,1);
+            checkerboard(1)=0;
+            checkerboard(checkerboard > 0.5) = 0.5;
+            checkerboard(checkerboard < -0.5) = -0.5;
+            recentStimulus(:,k) = checkerboard;
+        end
+        centerStimulus = recentStimulus(centerPix,:);
+        generatorSignal(j) = ...
+            reshape(centerStimulus, 1, nPixelCenter * nTimeBins) * STA;
+    end
+
+    %%% now normalize generatorSignal %%
+    ratio = SD^2 / var(generatorSignal);
+
+    %%% calculate average rate during frames with similar g-value %%%
+    generatorSignal = sqrt(ratio) * generatorSignal;
+    generatorSorted = sort(generatorSignal);
+    generatorBoundaries = zeros(nValues, 2);
+    for j=1:nValues
+        generatorBoundaries(j,:) = ...
+            [generatorSorted(round((j-1)*nFramesFirstHalf/nValues)+1), ...
+            generatorSorted(round(j*nFramesFirstHalf/nValues))];
+    end
+    input = zeros(nValues, 1);
+    outputRate = zeros(nValues, 1);
+
+    %%% use the whole spike Train as a reference for input/output %%%
+    generatorROI = find ((mcStart < spikeTrainUnaligned) ...
+        & (spikeTrainUnaligned < mcStop));
+    generatorTrain = round((spikeTrainUnaligned(generatorROI(1) ...
+        : generatorROI(end)) - mcStart) * stretchFactor * 1000);
+
+    %%% now calculate input/output relation %%%
+    for j=1:nValues
+        positionVector = ...
+            find( (generatorSignal >= generatorBoundaries(j,1))...
+            & (generatorSignal < generatorBoundaries(j,2)) );
+        if positionVector(end) == nFramesFirstHalf
+            positionVector(end)=[];
+        else
+        end
+        input(j) = median(generatorSignal(positionVector));
+        momentaryOut = zeros(length(positionVector),1);
+        for k=1:length(positionVector)
+            momentaryOut(k) = ...
+                length(find(generatorTrain > frameTrainFirstHalf(positionVector(k))...
+                & generatorTrain <= frameTrainFirstHalf(positionVector(k)+1)));
+        end
+        countToRate = 1000/mean(diff(frameTrainFirstHalf));
+        outputRate(j) = (sum(momentaryOut)/length(positionVector)) * countToRate;
+        clear positionVector
+    end
+
+    %%% fit cdf to input/output relation %%%
+    muSeed = input(find(outputRate <=(max(outputRate)...
+        + min(outputRate))/2, 1, 'last'));
+    scalingOptions = statset ('MaxIter', 10000);
+    rateFit0 = [10, -muSeed];
+    passInput.x = input;
+    passInput.maximumRate = max(outputRate);
+    passInput.minimumRate = min(outputRate);
+    [rateFit] = nlinfit(passInput, outputRate, @inputoutputfit,...
+        rateFit0, scalingOptions);
+
+
+    %%% now put results in a structure and write xls file %%%
+    if i == 1
+        spikes.channel = channel;
+        spikes.input = input';
+        spikes.generatorSignal = generatorSignal';
+        spikes.outputRate = outputRate';
+        spikes.rateFit = rateFit;
+        save([resPath resFile], 'spikes');
+        clear spike* momentaryMatrix correlationMatrix pass*
+    elseif i == nChannels
+        load([resPath resFile])
+        spikes.input(i,:) = input';
+        spikes.generatorSignal(i,:) = generatorSignal';
+        spikes.outputRate(i,:) = outputRate';
+        spikes.rateFit(i,:) = rateFit;
+        save([resPath resFile], 'spikes');
+        export = [cell(channel'), num2cell(spikes.rateFit),...
+            num2cell(spikes.outputRate(:,end))];
+        xlswrite([xlsPath xlsFile], export)
+        clear spike* momentaryMatrix correlationMatrix pass*
+    else
+        load([resPath resFile])
+        spikes.input(i,:) = input';
+        spikes.generatorSignal(i,:) = generatorSignal';
+        spikes.outputRate(i,:) = outputRate';
+        spikes.rateFit(i,:) = rateFit;
+        save([resPath resFile], 'spikes');
+        clear spike* momentaryMatrix correlationMatrix pass*
+    end
+    waitbar(i/nChannels, g)
+end
+close(g)
+toc
+
+
+
+
+

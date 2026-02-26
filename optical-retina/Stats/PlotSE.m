@@ -1,0 +1,23 @@
+function[NumMeanAndSE] = PlotSE(Dat1,Dat2)
+%%Plots data in a matrix with standard error bars
+%%if...
+
+x=unique(Dat1);
+xs=length(x);
+
+scatter(Dat1,Dat2)
+hold on
+for i = 1:xs
+    y=Dat2(Dat1==x(i));    
+    N(i)=length(y);
+    E(i)=std(y)/sqrt(N(i));
+    M(i)=mean(y);
+end
+errorbar(x,M,E,'k','LineWidth',2,'MarkerSize',40)
+NumMeanAndSE=[N' M'  E'];
+
+ys=ylim;
+ylim([min(0,min(Dat2)) max(Dat2)+max(Dat2)*.01]);
+xlim([min(x)-1 max(x)+1])
+
+hold off

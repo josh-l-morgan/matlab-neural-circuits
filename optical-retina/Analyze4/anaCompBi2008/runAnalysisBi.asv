@@ -1,0 +1,18 @@
+% runAnalysis
+% requires the following folders in TPN: BiCom and C4
+clear
+%% GET DIRECTORY OF CELL
+TPN = GetMyDir;
+yxum=0.103;
+zum=0.3;
+
+%% GENERATE USE
+[Use] = MakeUse2007(TPN, yxum, zum); %#ok<NASGU>
+DotsDD2007(TPN, yxum, zum);
+[Use] = MakeUse2007(TPN, yxum, zum);
+
+%% GENERATE ONOFF
+[ONOFF] = CompairONOFF_2008(TPN, Use); 
+
+%% GENERATE CA FOR AREA
+[CA] = CA_BIaSc_2008(TPN, Use, ONOFF, yxum);

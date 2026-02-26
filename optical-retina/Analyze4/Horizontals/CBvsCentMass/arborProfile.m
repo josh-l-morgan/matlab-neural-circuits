@@ -1,0 +1,149 @@
+%%Retrieves the centers of masses from individually stored tifs
+%%and relates them to reference point
+clear all
+
+%% Get all directories
+% Got=0; TPNa={};
+% while 1
+%     Got=GetMyDir;
+%     if strcmp(Got(2),'\'),break,end
+%     TPNa{length(TPNa)+1}=Got;
+% end
+
+%% Remember
+TPNa={'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F1\PreUn\';'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F1\PreAb\';'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F2\PreAb\';'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F2\PreUn\';'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F3\PreAb\';'C:\Documents and Settings\joshm\My Documents\MyData\OtherPeoplesData\Huckfeldt\Fixed\F3\PreUn\';}
+xyum=0.23;
+
+
+%% calculate pixel by dist
+Look = 250;
+LookDs=.5:1:Look*xyum+.5;
+fsize=Look*2+2;
+field=zeros(fsize,fsize);
+mid = [Look+1 Look+1];
+[yp xp]=ind2sub([fsize fsize],find(field==0));
+DPos=dist([yp xp],mid);
+DPos=DPos*xyum;
+Pixs=hist(DPos,LookDs);
+%Pixs=Pixs(1:length(Pixs)-1);
+
+CountTer=0; CountCB = 0;
+for a = 1:length(TPNa)
+    TPN = TPNa{a};
+    TPNi= [TPN 'I\'];
+    TPNt= [TPN 'Ter\'];
+
+
+
+    TPNd=dir(TPNi);TPNd=TPNd(3:length(TPNd));
+    Names={};
+    for i = 1:length(TPNd)
+        nam=TPNd(i).name;
+        ln=length(nam);
+        if nam(ln-3:ln)=='.tif'
+            Names{length(Names)+1}=nam;
+        end
+    end
+
+    CentCB=zeros(length(Names),2);
+
+    clear Ia
+    for i = 1: length(Names)
+        Is=imread([TPNi char(Names{i})]);
+        Is=sum(Is,3);
+
+        %% Find CB
+        SE = strel('disk',3);
+        If=Is>0;
+        for e = 1:1000
+            Ib=If;
+            If=imerode(If,SE);
+            %image(If*200),pause(.01)
+
+            if max(If(:))==0
+                [y x]=find(Ib);
+                CentCB(i,:)=[mean(y) mean(x)];
+                break
+            end
+        end
+        image(double(Is)*.4+Ib*100),pause(.01)
+
+
+        %%  DRP
+        CB=round(CentCB(i,:));
+        [y x] = find(Is>0);
+        Dists=dist([y x], CB);
+        Dists=Dists*xyum;
+        CountCB=CountCB+1;
+        MaskHist(CountCB,:)=hist(Dists,LookDs);
+
+    end
+
+    %% Run Territories
+
+    TPNd=dir(TPNt);TPNd=TPNd(3:length(TPNd));
+    Names={};
+    for i = 1:length(TPNd)
+        nam=TPNd(i).name;
+        ln=length(nam);
+        if nam(ln-3:ln)=='.tif'
+            Names{length(Names)+1}=nam;
+        end
+    end
+
+
+    Cent=zeros(length(Names),2);
+    clear Ia CentTer
+    for i = 1: length(Names)
+        Is=imread([TPNt char(Names{i})]);
+        if ~exist('Ia'),Ia=Is*0; end
+        Ia(Is>0)=Ia(Is>0)+1;
+        [y x z] = size(Is);
+        siz= [y x];
+        [y x]=find(Is>0);
+        CentTer(i,:)=[mean(y) mean(x)];
+        image(Is),pause(.01)
+
+
+        %%  DRP
+        CB=round(CentCB(i,:));
+        [y x] = find(Is>0);
+        Dists=dist([y x], CB);
+        Dists=Dists*xyum;
+        CountTer=CountTer+1;
+        TerHist(CountTer,:)=hist(Dists,LookDs);
+        Area(CountTer,1)=length(y)*xyum^2;
+
+
+    end
+
+
+
+end
+
+ER=sqrt(Area/pi); % Find Effective Radius
+DenTer=mean(TerHist,1)./Pixs;
+DenMask=mean(MaskHist,1)./Pixs;
+
+
+bar(DenTer,'b'), hold on
+bar(DenMask,'r')
+hold off
+
+ArborProfile.ER=ER;
+ArborProfile.DenTer=DenTer;
+ArborProfile.DenMask=DenMask;
+
+save([TPN 'ArborProfile.mat'],'ArborProfile')
+load([TPN 'ArborProfile.mat'])
+
+
+
+
+
+
+
+
+
+
+

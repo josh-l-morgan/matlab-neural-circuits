@@ -1,0 +1,56 @@
+if ~exist('FibicsOn','var')
+    TPN = GetMyDir;
+    %% Activate ActiveX
+    sm = actxserver('VBComObjectWrapperForZeissAPI.KHZeissSEMWrapperComClass')
+    sm.InitialiseRemoting
+    sm.Set_PassedTypeSingle('AP_MAG',25);
+    sm.Fibics_Initialise();
+    sprintf(' Fibics Initializing, pausing 15 seconds...')
+    pause(15)
+    FibicsOn = 1;
+end
+%%
+startTime = clock;
+Xstart =      109.9999/1000;
+Xstop =    11.6591 / 1000; 
+
+
+FOV = 2000;
+W = 15000;
+H = 15000;
+WriteBase = [TPN 'test'];
+Ystop =      4.4261/1000;%sm.Get_ReturnTypeSingle('AP_STAGE_GOTO_Y')
+Ystart =      109.9999/1000;
+Xstep = FOV / -1000000;
+Xpos = Xstart: Xstep :Xstop;
+
+for x = 1:length(Xpos)
+
+WriteTo = [WriteBase num2str(x) '.tif'];
+
+sm.Set_PassedTypeSingle('AP_STAGE_GOTO_X',Xpos(x));
+smwait(sm,'DP_STAGE_IS');
+
+sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',Ystart);
+smwait(sm,'DP_STAGE_IS');
+'hi'
+sm.Fibics_WriteFOV(FOV)
+'start image'
+sm.Fibics_AcquireImage(W,H,.1,WriteTo);
+'image going'
+pause(.01)
+sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',Ystop);
+
+   while ~strcmp('Idle',sm.Get_ReturnTypeString('DP_STAGE_IS'));
+    sm.Get_ReturnTypeSingle('AP_STAGE_AT_X')*1000
+pause(.01)
+   end
+
+while(sm.Fibics_IsBusy),  pause(.2),  end
+%Yend= sm.Get_ReturnTypeSingle('AP_STAGE_AT_Y')*1000
+sprintf('imaged strip %d of %d',x,length(Xpos))
+end
+
+    sm.Get_ReturnTypeSingle('AP_STAGE_AT_Y')*1000
+
+stopTime= clock;

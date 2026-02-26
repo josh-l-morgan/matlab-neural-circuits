@@ -1,0 +1,21 @@
+%% Run auto seg on stack
+
+TPN = GetMyDir;
+inams = getPics(TPN);  %find all tifs
+
+if ~exist([TPN 'labeled'])
+    mkdir([TPN 'labeled']);
+end
+
+
+info = imfinfo([TPN inams{1}])
+for i = 1:length(info)
+
+   sprintf('running plane %d of %d',i,length(info))
+   I = imread([TPN inams{1}],i); 
+   %I = I(900:1200,900:1200);
+    
+   I = segEWAdist_TEM(I);
+    imwrite(uint16(I),[TPN 'labeled\lab' num2str(i) '.tif'],'Compression','none');
+
+end

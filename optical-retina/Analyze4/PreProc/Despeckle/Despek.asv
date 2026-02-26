@@ -1,0 +1,18 @@
+ 
+
+colormap gray(256)
+Imax=max(I,[],4);
+ChUse=sum(sum(Imax,1),1);
+
+% subplot(2,1,1)
+image((Imax))
+
+
+
+%% Median filter Laplas
+'median filtering',pause(.1)
+
+for i = 1: size(I,4)
+     
+    Ch(ch)=medfilt2(I(:,:,ch,i),[kernelSize(1) kernelSize(1)]);
+end

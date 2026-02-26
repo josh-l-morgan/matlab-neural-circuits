@@ -1,0 +1,37 @@
+%% LOADING FILE
+clear; clc;
+[fileName pathName] = uigetfile('*.txt','Select TXT_ file',...
+    '\\128.208.64.36\wonglab\Daniel\waves_Data\TXT');
+sp = nexread2006([pathName fileName]);
+data = sp.data(:,3:end);
+channels = sp.channels(3:end);
+nChannels = length(channels);
+%% DEFINE EPISODES
+prompt = {'episodes (s)'};
+title = 'mean rate';
+answer = inputdlg(prompt, title);
+episodeTimes = str2num(answer{1}); %#ok<ST2NM>
+if length(episodeTimes) == 4
+    drugRate = zeros(nChannels,1);
+    for i=1:nChannels
+        spikeTrain = data(:,i);
+        drugRate(i) = length(spikeTrain(spikeTrain > episodeTimes(3)...
+            & spikeTrain <= episodeTimes(4)))...
+            / (episodeTimes(4) - episodeTimes(3));
+    end
+else
+end
+controlRate = zeros(nChannels,1);
+for i=1:nChannels
+    spikeTrain = data(:,i);
+    controlRate(i) = length(spikeTrain(spikeTrain > episodeTimes(1)...
+        & spikeTrain <= episodeTimes(2)))...
+        / (episodeTimes(2) - episodeTimes(1));
+end
+%% EXPORTING RESULTS TO EXCEL
+if length(episodeTimes) == 4
+    export = [channels' num2cell(controlRate) num2cell(drugRate)];
+else
+    export = [channels' num2cell(controlRate)];
+end
+

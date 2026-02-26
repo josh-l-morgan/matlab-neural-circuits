@@ -1,0 +1,166 @@
+global glob tis
+app = glob.app;
+
+
+parsedTypes = parseDevSyn();
+% rgc, mito, darkMito, denseVec, axonType
+synGroup = 'rgc';
+synProp = getSynPropsForDisplay(parsedTypes, synGroup);
+synIs = cat(2,synProp.is);
+synCounts = sum(synIs,1);
+
+%% Pick cells
+if 1
+    refCids = [3097];
+elseif 1 %pre to postCid
+    postCid = 3097;
+    preList = setdiff(unique(tis.syn.pre(tis.syn.post == postCid)),0);
+    refCids = [preList];
+end
+
+if 1 % solid
+    rCol = ones(length(refCids),3) * .3;
+elseif 1 % rainbow
+    rCol = hsv(length(refCids));
+    rCol = rCol(randperm(length(refCids)),:);
+end
+rAlph = ones(length(refCids),1) * .1;
+
+idx = refCids * 0;
+for i = 1 : length(refCids)
+    targ = find(tis.cids==refCids(i),1);
+    if ~isempty(targ)
+        idx(i) = targ;
+    end
+end
+
+%% Set defined camera position
+glob.ax.CameraTargetMode = 'manual';
+glob.ax.CameraViewAngleMode = 'manual';
+glob.ax.CameraTargetMode = 'manual';
+view(glob.ax,115,-30)
+camproj(glob.ax,'orthographic')
+lightangle(glob.light,190,-40)
+glob.ax.CameraPosition = [0079.0    0184.7    1393.2];
+glob.ax.CameraTarget = [79.0276  184.7073   27.7311];
+glob.ax.CameraViewAngle = 6;
+
+%% Show cells
+%%Clear groups
+clearAllGroups(app)
+
+L = length(glob.g);
+useRef = find(idx>0);
+newG = [1:length(useRef)] + L;
+cellGids = zeros(length(useRef),2);
+for i = 1:length(useRef)
+
+    %%make new group
+    rID = useRef(i);
+    glob.g(newG(i)) = glob.defaultG;
+    glob.g(newG(i)).idx = idx(rID);
+    glob.g(newG(i)).cid = tis.cids(idx(rID));
+    glob.g(newG(i)).col = rCol(rID,:);
+    glob.g(newG(i)).alph = rAlph(rID);
+    glob.g(newG(i)).show = 1;
+    glob.g(newG(i)).name = sprintf('g%d - c%s',L, num2str(glob.g(newG(i)).cid));
+
+    cellGids(i,:) = [tis.cids(idx(rID)) newG(i)];
+
+end
+
+%%Show groups
+showCellGroup(app, newG)
+
+%% plot syns
+
+%%Delete syn plots if any
+for s = 1:length(glob.syn.g)
+    try
+        delete(glob.syn.g(s).p);
+    end
+end
+glob.syn.g = glob.syn.defaultG;
+
+%%If volume transform
+volName = glob.vol.activeName;
+if exist([glob.dir.Volumes volName '\volTransform.mat'],'file');
+    load([glob.dir.Volumes volName '\volTransform.mat']);
+else
+    volTransform = [];
+end
+
+%%cell filter for syn
+isCid = tis.syn.pre *0;
+for i = 1:length(refCids)
+    cid = refCids(i);
+    isCid = isCid | (tis.syn.post == cid) | (tis.syn.pre == cid);
+end
+
+for s = 1:length(synProp)
+
+    synfo = glob.syn.defaultG;
+    synfo.preCellIdx = 0;
+    synfo.preName = 'none';
+    synfo.postCellIdx = 0;
+    synfo.postName = 'none';
+    synfo.preName = 'none';
+    synfo.synType = 'all'
+    synfo.col = synProp(s).color;
+    synfo.markerSize = synProp(s).size;
+    synfo.markerType = synProp(s).mark;
+    synfo.preTypeID = 1;
+    synfo.preType = 'rgc';
+    synfo.alph = synProp(s).alpha;
+    synfo.edgeCol = synProp(s).edgeColor;
+    % glob.syn.g(1).show = 1;
+
+    %%Get positions
+    isSyn = isCid & synProp(s).is;
+    pos = tis.syn.synPosDS(isSyn,[2 1 3]) * glob.em.dsRes(1);
+    pos = pos + repmat(synProp(s).jit,[size(pos,1) 1]);
+    %%Translate positions
+    if isfield(glob.vol,'shiftZ')
+        dsPos = pos / tis.obI.em.dsRes;
+        zInd = ceil(dsPos(:,3));
+        zInd(zInd<1) = 1;
+        shiftZ = glob.vol.shiftZ.shifts;
+        shiftZ = shiftZ * tis.obI.em.dsRes;
+        maxPos = max(zInd);
+        if maxPos>length(shiftZ)
+            shiftZ(maxPos,:) = [0 0];
+        end
+        yshift = shiftZ(zInd,2);
+        xshift = shiftZ(zInd,1);
+        pos(:,1) = pos(:,1) + yshift;
+        pos(:,2) = pos(:,2) + xshift;
+    end
+    synfo.pos = pos;
+
+    %%Create markers
+    set(glob.ax, 'NextPlot', 'add')
+    synfo.p = scatter3(glob.ax,pos(:,1),pos(:,2),pos(:,3),synfo.markerSize,...
+        'markerfacecolor',synfo.col,'markerfacealpha',synfo.alph,...
+        'marker',synfo.markerType,'markeredgecolor',synfo.edgeCol);
+    synfo.p.LineWidth = 2;
+    synfo.p.MarkerEdgeAlpha = synfo.alph;
+
+    %%Cleanup figure
+    set(synfo.p,'clipping','off')
+    synfo.synIdx = 0;
+    synfo.name = synProp(s).name;
+    gStr = get(glob.handles.popupmenu_synGroup,'String');
+    gStr{L} = synfo.name;
+    set(glob.handles.popupmenu_synGroup,'String',gStr);
+    set(glob.handles.popupmenu_synGroup,'Value',L);
+
+    glob.syn.g(s) = synfo;
+end
+
+
+
+
+
+
+
+

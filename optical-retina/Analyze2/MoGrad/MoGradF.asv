@@ -1,0 +1,131 @@
+function[Rdend Rdot] = MoGradF(RadR,StanDevR)
+%%Caclulates the inner to outer ration of dendrites and dot probability
+%%Given RandR ( fraction of nearest neigbor distance subsumed by dendritic
+%%radius) and StanDevR (fractino of NN distance subsumed by 1 standard
+%%deviation of a gausian representing arbor density)
+
+
+colormap gray(100)
+NN=10; %% Nearest Neighbor distance;
+fsize=100; % field size
+Rad=RadR*NN; % Maximum radius of arbor
+StanDev=StanDevR*Rad; %1 Stadard deviation of dendritic gaussian
+
+
+%%-  Dist = sqrt(y^2 + (y/2)^2)
+%%-  Dist^2 = y^2+ (y/2)^2
+%%-  Dist^2 = y%2 + y^2/4
+%%-  Dist%2 = y^2(1+1/4)
+%%-  Dist^2/1.25 = y^2
+%%-  y= sqrt(Dist^2/1.25)
+
+Space=sqrt(NN^2/1.25);
+
+xs=1:Space:fsize;
+ys=1:Space:fsize;
+Cnum=size(xs,2)*size(ys,2);
+c=0; c2=0;
+CBPos=zeros(Cnum,2);
+for x = 1: Space: fsize
+    c=c+1; Add=(Space/2)* mod(c,2);
+    for y = 1:Space: fsize
+        c2=c2+1;
+        CBPos(c2,1)=y+Add;
+        CBPos(c2,2)=x;
+    end
+end
+
+%CBPos=round(CBPos);  %% Round to nearest pixel to allign results. 
+
+%% Draw
+field = zeros(fsize);
+for i = 1:Cnum;
+   field(round(CBPos(i,1)),round(CBPos(i,2)))=100; 
+end
+field=field(1:fsize,1:fsize);
+%%image(field),pause(1)
+
+
+%% get dists
+Dmap=zeros(fsize,fsize,size(CBPos,1));
+for i = 1:Cnum
+    for y = 1:fsize
+        for x= 1 : fsize
+            Dmap(y,x,i) = sqrt((y-CBPos(i,1))^2 + (x-CBPos(i,2))^2);      
+        end
+    end
+    %image(Dmap(:,:,i)),pause(.04) 
+end
+
+%% Calculate gaussians
+%%f(x) = ae^(-(x-b)^2/(2c^2))
+a = 1;
+b = 0;
+c = StanDev;
+e = 2.71828183;
+
+showg=a * e.^(-1*((0:Rad)-b).^2./(2*c^2));
+plot(showg),pause(.4)
+
+Gmap=a * e.^(-1*(Dmap-b).^2./(2*c^2));
+
+for i = 1:Cnum
+    %image(Gmap(:,:,i)*70),pause(.1)
+end
+
+
+
+%% Calculate dot map
+Tmap=Gmap;
+Tmap(Dmap>Rad)=0;
+Smap=sum(Tmap,3);
+%image(Smap*95/max(Smap(:))), pause(1)
+Rmap=Tmap*0;
+for i = 1:Cnum
+    gmap=Tmap(:,:,i);
+    tmap=Tmap(:,:,i)>0;
+    rmap=tmap*0;
+    rmap(tmap>0)=gmap(tmap)./Smap(tmap);
+    Rmap(:,:,i)=rmap;
+    %%image(Rmap(:,:,i)*100); pause(.1)
+end
+
+
+%% Use list
+Use=sum((CBPos>Rad*2 & CBPos < max(CBPos(:))-Rad*2),2)==2;
+
+
+%% Collect samples
+
+U=find(Use); Unum=size(U,1);
+clear rSamp gSamp InG OutG InR OutR
+for i = 1: Unum
+    c=U(i);
+    %rSamp(:,:,i)=Rmap(round(CBPos(c,1)-Rad):round(CBPos(c,1)+Rad),round(CBPos(c,2)-Rad):round(CBPos(c,2)+Rad),c);
+    %gSamp(:,:,i)=Gmap(round(CBPos(c,1)-Rad):round(CBPos(c,1)+Rad),round(CBPos(c,2)-Rad):round(CBPos(c,2)+Rad),c);
+    gmap=Gmap(:,:,c);
+    rmap=Rmap(:,:,c);
+    InD=Dmap(:,:,c)< Rad/2 & Dmap(:,:,c)>0;
+    OutD=Dmap(:,:,c)>Rad/2 & Dmap(:,:,c)<=Rad;
+    InG(i)=mean(gmap(InD));
+    OutG(i)=mean(gmap(OutD));
+    InR(i)=mean(rmap(InD));
+    OutR(i)=mean(rmap(OutD));
+end
+RatG=InG/OutG;
+RatR=InR/OutR;
+Rdend=mean(RatG)
+Rdot=mean(RatR)
+
+% mrSamp=mean(rSamp,3);
+% mgSamp=mean(gSamp,3);
+% image(mrSamp*100/max(mrSamp(:)))
+% Max=max(mrSamp(:));
+% %image(mgSamp*100/max(mgSamp(:)))    
+
+        
+for i = 1: Unum
+    %image(rSamp(:,:,i)*100/max(rSamp(:))),pause(.01)
+end
+
+

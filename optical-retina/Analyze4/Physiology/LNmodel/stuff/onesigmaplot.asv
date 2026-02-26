@@ -1,0 +1,38 @@
+clf
+% k=6;
+s = size(OFF);
+nCells = s(2);
+
+for i=1:nCells
+    [z beta0 xy] = gausspreparation (OFF(i).STA);
+    gaussOptions = statset ('MaxIter', 10000);
+    beta = nlinfit(xy, z, @gaussian2d, beta0, gaussOptions);
+    %     beta = [amplitude xOffset yOffset theta sigmaX sigmaY background];
+    %     zPlot = reshape(z, 60, 80);
+    %     surf(zPlot)
+    %     shading flat
+    %     colormap gray
+    %     subplot(1,2,1)
+    hold on
+    ellipsedraw(beta(5), beta(6),beta(2), beta(3) , beta(4),'b')
+
+    %     subplot(1,2,2)
+    %     hold on
+    %     ellipse(beta(5),beta(6),beta(4),beta(2),beta(3),'b')
+    %     axis([26 46 20 40])
+    %     axis off
+%         plot(39,29.5,'.','MarkerFaceColor','k','MarkerEdgeColor','k')
+%         plot([40 41.5152],[28 28],'k')
+end
+
+%
+% [z beta0 xy] = gausspreparation (STA);
+% gaussOptions = statset ('MaxIter', 10000);
+% beta = nlinfit(xy, z, @gaussian2d, beta0, gaussOptions);
+% % beta = [amplitude xOffset yOffset theta sigmaX sigmaY background];
+% ellipsedraw(beta(5),beta(6),beta(2),beta(3),beta(4),'b')
+% axis([26 46 20 40])
+% % axis off
+
+
+

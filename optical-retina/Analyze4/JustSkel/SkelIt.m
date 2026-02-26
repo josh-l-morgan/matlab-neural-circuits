@@ -1,0 +1,3 @@
+TPN = GetMyDir
+
+anaSkc(TPN)

@@ -1,0 +1,58 @@
+%% load up the regular suspects
+tisRaw=load([localDir 'Volumes\Final\Analysis\fvLibrary\tis.mat']);
+objRaw=load([localDir 'Volumes\Final\Merge\dsObj.mat']);
+obiRaw=load([localDir 'Volumes\Final\Analysis\fvLibrary\obI.mat']);
+dsObj=objRaw.dsObj;
+tis=tisRaw.tis;
+obI=obiRaw.obI;
+clear tisRaw objRaw obiRaw;
+
+fvDir='C:\work\localDat\Volumes\Final\Analysis\fvLibrary\';
+medFVdir='C:\work\localDat\Volumes\medRes\Analysis\fvLibrary\';
+addpath('C:\work\localDat\karlScripts\')
+curTis=tis;
+
+%% get the input ratios for VG3
+connDat=struct();
+connNames={'a2v','p2v','b2v','v2p','v2a','v2r'};
+classConnMat={'amc','unk','amc','vgc'; ...
+    'amc','xac','amc','vgc'; ...
+    'bpc','all','amc','vgc'; ...
+    'amc','vgc','amc','xac'; ...
+    'amc','vgc','amc','unk'; ...
+    'amc','vgc','rgc','all'; ...
+    };
+for i=1:length(connNames)
+    curCell=getClassConn(classConnMat(i,1),classConnMat(i,2),classConnMat(i,3),classConnMat(i,4),curTis);
+	curList=curCell;
+    connDat(i).name=connNames(i);
+    connDat(i).synList=curList;
+end
+
+%% picking up the stragglers
+allah2v=getClassConn([8,8,8,8],[0,2,4,6],[8,8,8,8],[1,1,1,1],curTis);
+allVG3cids=type2cid({'amc'},{'vgc'},curTis);
+allVG3cids=allVG3cids{1};
+alPre=cid2type(curTis.syn.edges(:,2),curTis);
+alPost=cid2type(curTis.syn.edges(:,1),curTis);
+amc02v=find(ismember(curTis.syn.edges(:,1),allVG3cids)&alPre{1}'==8&alPre{3}'==0);
+test=alPre{3}';
+test2=alPre{4}';
+connDat(1).synList=allah2v;
+%% make a test plot
+tf=figure(); hold on
+params=struct();
+params.color=[1 0 1];
+params.size=50;
+[~,paramA]=plotSyns(1,curTis,[]);
+synPlts=struct();
+cols=[[1 0 1];[0 1 1];[1 1 0];[.25 .25 1];[1 .25 .25];[.25 1 .25]];
+for i=1:length(connNames)
+    curp=plotSyns(connDat(i).synList,curTis,params);
+    curp.CData=cols(i,:);
+    curp.MarkerFaceColor=cols(i,:);
+    synPlts(i).sct=curp;
+end
+morphs=compareMorph([],allVG3cids,fvDir,'INL');
+legend(connNames);
+

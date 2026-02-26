@@ -1,0 +1,21 @@
+
+
+colormap  gray(256)
+TPN=GetMyDir
+
+load([TPN 'Dots.mat'])
+load([TPN 'find\SG.mat'])
+
+Pass=SG.passF;
+
+Size=Dots.ImSize;
+
+I=zeros(Size,'uint8');
+
+Vox=Dots.Vox(Pass);
+
+for i = 1:size(Vox,2)
+   I(Vox(i).Ind)=fix(rand*255)+1; 
+end
+
+imwriteNp(TPN,I,'PassedDots');

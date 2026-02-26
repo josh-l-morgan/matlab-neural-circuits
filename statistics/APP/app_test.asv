@@ -1,0 +1,28 @@
+
+
+
+
+
+
+s = 10; %Standard deviation
+m = 100; %Mean
+z = 1.96;
+f = .5; %Fraction of a standard deviation
+
+
+N = (z/f)^2;
+
+
+
+%%%
+reps = 10000;
+
+randn(N,1)*
+
+
+
+
+
+
+
+

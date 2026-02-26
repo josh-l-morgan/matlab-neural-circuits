@@ -1,0 +1,91 @@
+%%Read OIFs and assemble into single matrix that can be written as 2D
+%%color tifs
+
+CPN=GetMyDir;
+CPNd = dir(CPN);
+
+%%Identify Tiffs
+TimeNames={};
+for i = 1: size(CPNd,1)
+    nam = CPNd(i).name;
+    siz=length(nam);
+    if siz > 9 & isdir([CPN nam])
+        if nam(siz-8:siz)== 'oif.files'
+            TimeNames{length(TimeNames)+1,1}=nam;
+        end
+    end
+end
+
+for t = 1 : length(TimeNames)
+
+    Time = TimeNames{t}
+    Timed = dir([CPN Time]);
+
+    TiffNames={};
+    for ti = 1: size(Timed,1)
+        nam = Timed(ti).name;
+        siz=length(nam);
+        if siz > 3
+            if nam(siz-3:siz)== '.tif'
+                TiffNames{length(TiffNames)+1,1}=nam;
+            end
+        end
+    end
+
+
+    %%Identify image dims
+    LastName=cell2mat(TiffNames(length(TiffNames)));
+    siz=length(LastName);
+    Channels=str2num(LastName(siz-10:siz-8));
+    Planes=str2num(LastName(siz-6:siz-4));
+    It=imread([CPN TimeNames{t} '\' LastName]);
+    [ys xs]=size(It);
+
+
+    %%Read image
+    I =zeros(ys,xs,3,Planes);
+    for ii = 1:size(TiffNames,1)
+        Name=cell2mat(TiffNames(ii));
+        Channel=str2num(Name(siz-10:siz-8));
+        Plane=str2num(Name(siz-6:siz-4));
+        Isub=imread([CPN TimeNames{t} '\' Name]);
+        Isub = medfilt2(Isub,[3 3]);
+        I(:,:,Channel,Plane)=Isub;
+    end
+   
+
+    %%Scale to 8bit
+    for c = 1:3
+        minc=min(min(min(I(:,:,c,:))));
+        I(:,:,c,:) =I(:,:,c,:)-minc;
+        maxc=max(max(max(I(:,:,c,:))));
+        I(:,:,c,:)=double(I(:,:,c,:))*256/maxc;
+    end
+    
+    folNam = TimeNames{t};
+    folNam = folNam(1:end-10);
+    if ~exist([CPN folNam])
+        mkdir([CPN folNam])
+    end
+    
+    
+    I=uint8(I);
+    for p = 1 : size(I,4)
+        imwrite(I(:,:,:,p),[CPN folNam '\' num2str(p) '.tif'],'Compression','none');
+    end
+    
+    
+    Imax=max(I,[],4);
+    Imax(:,:,2) = Imax(:,:,1);
+    Imax(:,:,1) = Imax(:,:,3);
+    Imax(:,:,3) = 0;
+    image(Imax*2); pause(.01)
+    
+    if ~exist([CPN 'TimeMaxs'])
+        mkdir([CPN 'TimeMaxs'])
+    end
+    imwrite(Imax,[CPN 'TimeMaxs\' num2str(t) '.tif'],'Compression','none')
+    
+end
+
+

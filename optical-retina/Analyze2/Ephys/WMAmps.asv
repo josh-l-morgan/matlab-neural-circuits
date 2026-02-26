@@ -1,0 +1,78 @@
+
+load('C:\Notes\Publications\PSD95_paper1\Data\WmRawAmps\Control.mat')
+load('C:\Notes\Publications\PSD95_paper1\Data\WmRawAmps\Transfected.mat')
+
+Trans=wmTrans(wmTrans>0);
+Con=wmCon(wmCon>0);
+
+Bin=2;
+MaxAmp=max([Trans;Con])
+Bins=fix(MaxAmp/Bin)+1
+
+pA=Bin/2:Bin:MaxAmp;
+
+for i = 1:8
+    HTrans(i,:)=hist(wmTrans(wmTrans(:,i)>0,i),pA);
+    HCon(i,:)=hist(wmCon(wmCon(:,i)>0,i),pA);
+    Nt(i)=sum(HTrans(i,:))
+    Nc(i)=sum(HCon(i,:))
+    NTrans(i,:)=HTrans(i,:)./Nt(i);
+    NCon(i,:)=HCon(i,:)./Nc(i);
+    bar(HTrans(i,:),'r')
+    bar(HCon(i,:),'b')
+end
+
+MTrans=mean(NTrans,1)
+MCon=mean(NCon,1)
+
+bar(MTrans)
+ylim([0 .5])
+bar(MCon)    
+ylim([0 .5])
+
+
+bar([MCon MTrans])
+
+scatter(pA,MCon,'b')
+hold on
+scatter(pA,MTrans,'r')
+hold off
+
+
+subplot(2,1,1)
+for i = 1:8
+scatter(pA,NCon(i,:),'b')
+hold on
+plot(pA,NCon(i,:),'b')
+end
+hold off
+
+subplot(2,1,2)
+for i = 1:8
+
+scatter(pA,NTrans(i,:),'m')
+hold on
+plot(pA,NTrans(i,:),'m')
+end
+hold off
+
+
+
+subplot(2,1,1)
+scatter(pA,MCon,'b')
+hold on
+plot(pA,MCon,'b')
+hold off
+
+subplot(2,1,2)
+
+scatter(pA,MTrans,'m')
+hold on
+plot(pA,MTrans,'m')
+hold off
+
+
+bar(NCon')
+
+
+HTrans

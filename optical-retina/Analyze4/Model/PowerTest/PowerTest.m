@@ -1,0 +1,27 @@
+
+
+
+In{1}=[1 4 5 3];
+In{2} = [10 21 1 ];
+
+
+
+clear Var Mean
+for i = 1:length(In)
+    Var(i)=var(In{i});
+    Mean(i)=mean(In{i});
+end
+
+
+
+%{
+
+Can I make some sort of power test by modeling potential populations
+
+potential populations 
+
+
+what is the probability of getting this distribution from two seperate populations
+what is the prob from a single population.
+
+%}

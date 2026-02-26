@@ -1,0 +1,181 @@
+curTis=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Analysis\tis.mat');
+curDSObj=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Merge\dsObj.mat');
+fvDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Analysis\fvLibrary\';
+
+if exist([fvDir 'ref_gcl nucEdge.mat'],'file')
+    ipl_bord_GCL = load([fvDir 'ref_gcl nucEdge.mat']);
+    ipl_bord_INL = load([fvDir 'ref_inl nucEdge.mat']);
+    GCLbord=ipl_bord_GCL.fv.vertices(:,:);
+    INLbord=ipl_bord_INL.fv.vertices(:,:);
+else
+    GCLbord = [0 0 0; 100 0 0; 0 100 0; 100 100 0];
+    INLbord = [0 0 100; 100 0 100; 0 100 100; 100 100 100];
+end
+Locs={GCLbord;INLbord}; %These are in z,x,y I think.
+for i=1:2
+    P=Locs{i};
+    B(:,i) = [P(:,3), P(:,2), ones(size(P,1),1)] \ P(:,1);
+end
+GCLplane=struct();
+INLplane=struct();
+GCLplane.Parameters=[-1 B(2,1) B(1,1) B(3,1)];
+INLplane.Parameters=[-1 B(2,2) B(1,2) B(3,2)];
+
+sanityCheck=1;
+if sanityCheck==1
+    figure();
+    hold on
+    scatter3(INLbord(:,2),INLbord(:,3),INLbord(:,1),5,'k.');
+    xp=[50:10:200];
+    yp=[50:10:200];
+    [XP,YP]=meshgrid(xp,yp);
+    zp = (INLplane.Parameters(2)*XP + INLplane.Parameters(3)*YP + INLplane.Parameters(4));
+    surf(xp,yp,zp);
+    scatter3(double(curVGCvox(:,1)),double(curVGCvox(:,2)),double(curVGCvox(:,3)),2,'ro')
+end
+
+%% get the depth for all synapses
+allSynLocs=tis.syn.pos;
+allSynEdges=tis.syn.edges;
+[zg,zl,allSynDepths]=getIPLdepth(allSynLocs(:,3),allSynLocs(:,1),allSynLocs(:,2),GCLplane,INLplane);
+allPreTypeInfo=cid2type(allSynEdges(:,2),tis);
+allPostTypeInfo=cid2type(allSynEdges(:,1),tis);
+allPreTypes=allPreTypeInfo{1};
+allPostTypes=allPostTypeInfo{1};
+
+%% actual loop
+histBinEdges=[0:0.01:1];
+vgcCidList=[2 3 4 5 13];
+sumVGCvox=[];
+sumACin=[];
+sumBPCin=[];
+sumACout=[];
+sumRGCout=[];
+for curVGCit=1:length(vgcCidList)
+    curVGCid=vgcCidList(curVGCit);
+    %get every 10th voxel of the current vgc
+    curVGCvox=getCidVox(curVGCid,10,curDSObj.dsObj,curTis.tis);
+    curVGCvox=curVGCvox{1};
+    curVGCvox=double(curVGCvox)./10;
+    sumVGCvox=[sumVGCvox;curVGCvox];
+    %figure(); scatter3(curVGCvox(:,1),curVGCvox(:,2),curVGCvox(:,3),1)
+    %get the ipl depths of the VGC voxels
+    %[zg,zl,iplDepths]=getIPLdepth(curVGCvox(:,3),curVGCvox(:,1),curVGCvox(:,2),GCLplane,INLplane);
+    %get a histogram of the arbor depths
+    %depthHistDat=histogram(iplDepths,'BinEdges',histBinEdges);
+    %get a common space of 0-1 with 0.01 bins for plotting all data.
+    %arborDepthDat=zeros(length(depthHistDat.BinCounts),2);
+    %arborDepthDat(:,2)=depthHistDat.BinCounts;
+    %arborDepthDat(:,1)=histBinEdges(1:end-1)+0.005;
+    arborDD=getDepthDat(curVGCvox(:,3),curVGCvox(:,1),curVGCvox(:,2), ...
+        GCLplane,INLplane,histBinEdges);
+    
+    %get all the input synapses from AMCs
+    inputIDs=find(allSynEdges(:,1)==curVGCid);
+    AMCpreIDs=find(allPreTypes==0|allPreTypes==8);
+    AMCtoCurVGCIDs=intersect(inputIDs,AMCpreIDs);
+    sumACin=[sumACin;AMCtoCurVGCIDs];
+    AMCin=getDepthDat(allSynLocs(AMCtoCurVGCIDs,3), ...
+        allSynLocs(AMCtoCurVGCIDs,1),allSynLocs(AMCtoCurVGCIDs,2), ...
+        GCLplane,INLplane,histBinEdges);
+    
+    %get all inputs from BPCs
+    BPCpreIDs=find(allPreTypes==7);
+    BPCtoCurVGCIDs=intersect(inputIDs,BPCpreIDs);
+    sumBPCin=[sumBPCin;BPCtoCurVGCIDs];
+    BPCin=getDepthDat(allSynLocs(BPCtoCurVGCIDs,3), ...
+        allSynLocs(BPCtoCurVGCIDs,1),allSynLocs(BPCtoCurVGCIDs,2), ...
+        GCLplane,INLplane,histBinEdges);
+    
+    outputIDs=find(allSynEdges(:,2)==curVGCid);
+    AMCpostIDs=find(allPostTypes==0|allPostTypes==8);
+    curVGCtoAMCIDs=intersect(outputIDs,AMCpostIDs);
+    sumACout=[sumACout;curVGCtoAMCIDs];
+    AMCout=getDepthDat(allSynLocs(curVGCtoAMCIDs,3), ...
+        allSynLocs(curVGCtoAMCIDs,1),allSynLocs(curVGCtoAMCIDs,2), ...
+        GCLplane,INLplane,histBinEdges);
+    
+    RGCpostIDs=find(allPostTypes==1);
+    curVGCtoRGCIDs=intersect(outputIDs,RGCpostIDs);
+    sumRGCout=[sumRGCout;curVGCtoRGCIDs];
+    RGCout=getDepthDat(allSynLocs(curVGCtoRGCIDs,3), ...
+        allSynLocs(curVGCtoRGCIDs,1),allSynLocs(curVGCtoRGCIDs,2), ...
+        GCLplane,INLplane,histBinEdges);    
+    
+    %% make the figure
+    figure();
+    %t=tiledlayout(1,1);
+    hold on;
+    title(num2str(curVGCid));
+    plotDat={arborDD,AMCin,BPCin,AMCout,RGCout};
+     %normalize input synapse data.
+    plotLabels={'arbor Density','AMC inputs','BPC inputs','AMC outputs','RGC outputs'};
+    plotColors=[0.8 0.8 0.8; 1 0 0; 0 0 1; 1 1 0; 0 1 0];
+    set(gca, 'YDir','reverse');
+    for i=1:length(plotDat)
+        curPlotDat=plotDat{i};
+        curPlotDat(:,2)=smooth(curPlotDat(:,2));
+        if i==1
+            %ax1=axes(t);
+            %plot(curPlotDat(:,2),curPlotDat(:,1),'Color',plotColors(i,:), ...
+            %    'LineWidth',2);
+            area(curPlotDat(:,1),curPlotDat(:,2),'FaceColor',plotColors(i,:));
+        else
+            %ax2=axes(t);
+            plot(curPlotDat(:,1),curPlotDat(:,2)*100,'Color',plotColors(i,:), ...
+                'LineWidth',2);
+        end
+    end
+    %ax2.XAxisLocation = 'top';
+    %ax2.Color = 'none';
+    view(-90,-90);
+    legend(plotLabels);
+    
+end
+    
+%%    combined figure
+sumArborHist=getDepthDat(sumVGCvox(:,3),sumVGCvox(:,1),sumVGCvox(:,2), ...
+        GCLplane,INLplane,histBinEdges);
+totACin=getDepthDat(allSynLocs(sumACin,3), ...
+        allSynLocs(sumACin,1),allSynLocs(sumACin,2), ...
+        GCLplane,INLplane,histBinEdges);
+totBPCin=getDepthDat(allSynLocs(sumBPCin,3), ...
+        allSynLocs(sumBPCin,1),allSynLocs(sumBPCin,2), ...
+        GCLplane,INLplane,histBinEdges);
+totACout=getDepthDat(allSynLocs(sumACout,3), ...
+        allSynLocs(sumACout,1),allSynLocs(sumACout,2), ...
+        GCLplane,INLplane,histBinEdges);
+totRGCout=getDepthDat(allSynLocs(sumRGCout,3), ...
+        allSynLocs(sumRGCout,1),allSynLocs(sumRGCout,2), ...
+        GCLplane,INLplane,histBinEdges);
+
+figure();
+%t=tiledlayout(1,1);
+hold on;
+title('Synapse Distributions Relative to Arbor Distribution');
+plotDat={sumArborHist,totACin,totBPCin,totACout,totRGCout};
+ %normalize input synapse data.
+plotLabels={'arbor Density','AMC inputs','BPC inputs','AMC outputs','RGC outputs'};
+plotColors=[0.8 0.8 0.8; 1 0 0; 0 0 1; 1 1 0; 0 1 0];
+set(gca, 'YDir','reverse');
+for i=1:length(plotDat)
+    curPlotDat=plotDat{i};
+    curPlotDat(:,2)=smooth(curPlotDat(:,2));
+    if i==1
+        %ax1=axes(t);
+        %plot(curPlotDat(:,2),curPlotDat(:,1),'Color',plotColors(i,:), ...
+        %    'LineWidth',2);
+        area(curPlotDat(:,1),curPlotDat(:,2),'FaceColor',plotColors(i,:));
+    else
+        %ax2=axes(t);
+        plot(curPlotDat(:,1),curPlotDat(:,2)*100,'Color',plotColors(i,:), ...
+            'LineWidth',2);
+    end
+end
+%ax2.XAxisLocation = 'top';
+%ax2.Color = 'none';
+legend(plotLabels);
+view(-90,-90);
+
+
+    

@@ -1,0 +1,61 @@
+%% Repairs the damage done by inproperly recording ShitKicker 
+
+KPN=GetMyDir
+
+Kdir=dir(KPN);
+Kdir=Kdir(3:size(Kdir,1));
+if ~exist([KPN 'Combos']),mkdir([KPN 'Combos']),end
+
+for i = 1:size(Kdir,1)
+    TPN = [KPN '\' Kdir(i).name '\'];
+    DPN = [TPN 'I\']        
+    
+    
+    %%if files are available
+    I = exist(DPN); %necessary for Dot Finder
+    R = exist([TPN 'data\Threshold.mat']); %necessary for ratioing
+    M = exist([TPN 'data\D.mat']); %necessary for masking
+    B = ~exist([TPN 'SKBegin.mat']); % has SK begun
+    E = ~exist([TPN 'SKEnd.mat']); % Did SK finish
+    
+    if (I & R & M ) > 0 % if necessary files exist
+        
+        if exist([TPN 'SKStatus.mat'])
+            load([TPN 'SKStatus.mat'])
+        else
+            SKStatus.DF=0;
+        end
+        
+        if ~isfield(SKStatus,'Ra'),SKStatus.Ra=0;end
+        if ~isfield(SKStatus,'Ma'),SKStatus.Ma=0;end
+        if ~isfield(SKStatus,'Rd'),SKStatus.Rd=0;end
+        if ~isfield(SKStatus,'Crit'),SKStatus.Crit=0;end
+        
+        SKBegin=1; save([TPN 'SKBegin.mat'],'SKBegin')
+        
+        %% Run Dot Processing
+        
+        if exist([TPN 'Dots.mat'])
+            SKStatus.DF=1;
+            load([TPN 'Dots.mat'])
+            if isfield(Dots,'DF'),SKStatus.Ra=1; else SKStatus.Ra=0; end
+            if isfield(Dots,'DistToMask'),SKStatus.Ma=1; else SKStatus.Ma=0; end            
+            if isfield(Dots,'Round'),SKStatus.Rd=1; else SKStatus.Rd=0; end
+            if isfield(Dots,'OK'),SKStatus.Crit=1; else SKStatus.Crit=0; end    
+           
+        end
+        
+        save([TPN 'SKstatus.mat'],'SKStatus')
+
+
+        clear SKStatus Dots
+        
+    end %if necessary files are available
+    
+      
+        
+    
+    
+end %Run all folders
+
+

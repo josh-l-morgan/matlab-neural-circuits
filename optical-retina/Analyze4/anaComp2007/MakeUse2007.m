@@ -1,0 +1,65 @@
+function [Use] = MakeUse2007(TPN, yxum, zum)
+
+if exist([TPN 'find\SG.mat'])
+    load([TPN 'Dots.mat'])
+    load([TPN 'find\SG.mat'])
+    load([TPN 'data\AllSegCut.mat'])
+
+%     if exist([TPN 'Cell.mat'])
+%         load([TPN 'Cell.mat'])
+%         cName=['P' Cell.Age '_' Cell.Type '_' Kdir(k).name '_' num2str(k)]
+%         Use.cName=cName;
+%         clear Cell cName
+%     end
+
+
+    OK=SG.passF;
+    DPos=Dots.Pos(OK,:);
+    DPos(:,1:2)=DPos(:,1:2)*.103; DPos(:,3)=DPos(:,3)*.3;
+    Use.Vol = Dots.Vol(OK);
+    Cent=Dots.Im.CBpos;
+    Cent=Cent*.103;
+    Use.DPos=DPos;
+    Use.Cent=Cent;
+
+
+    %%Extract Dend positions
+    Mids=mean(AllSegCut,3);
+    Length=sqrt((AllSegCut(:,1,1)-AllSegCut(:,1,2)).^2 ...
+        + (AllSegCut(:,2,1)-AllSegCut(:,2,2)).^2 ...
+        + (AllSegCut(:,3,1)-AllSegCut(:,3,2)).^2);
+
+    Use.Mids=Mids;
+    Use.Length=Length;
+
+
+
+    for i = 1:size(DPos,1)
+        Ndist=dist(Mids,DPos(i,:)); %find dist from dot to all nodes
+        Near=min(Ndist); %find shortest distance
+        Nearest=find(Ndist==Near,1); %get node at that distance
+        NN(i,:)=Mids(Nearest,:); %assign that node to NearestNode list for dots
+        DotToNN(i,:)=Near; %record that distance for posterity
+    end
+
+    Use.NN=NN;
+    clear NN OK DPos Cent Dots SG
+    clear Mids Length AllSgeCut
+
+    %%Extract Depth restrictions
+    if exist([TPN 'data\Results.mat'])
+        load([TPN 'data\Results.mat'])
+        clear Top Bottom
+        for i = 1: size(Results.Arbor,2)
+            Top(i)=Results.Arbor(i).Top;
+            Bottom(i)=Results.Arbor(i).Bottom;
+        end
+        clear Results
+
+        Use.Top=Top;
+        Use.Bottom=Bottom;
+        clear Top Bottom
+    end
+    save([TPN 'Use.mat'],'Use')
+
+end

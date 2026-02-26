@@ -1,0 +1,77 @@
+%% Gaussian Equasion
+clear all
+N=1; % define the number of dimensions
+BipN=20;
+
+%% Create Bipolar RFs
+
+BipEsd=200;
+BipIsd=BipEsd*2;
+Inhibition=.5; %Reletive strength of inhibition at center
+Near=BipEsd;
+R=(BipN-1)*1.75*BipEsd;
+BipE=zeros(BipN,R); BipI=BipE; BipRF=BipE;
+Mos=1:R;
+
+subplot(4,1,1)
+for i = 1:BipN
+    o = (R/(BipN-1))*(i-1);
+    Cent(i)=o;
+    BipE(i,:)=Gaus(BipEsd,R,o);
+    BipI(i,:)=Gaus(BipIsd,R,o)*-Inhibition;
+    BipRF(i,:)=BipE(i,:)+BipI(i,:);
+    BipRF(i,:)=BipRF(i,:)/max(BipRF(i,:));
+    plot(BipRF(i,:))
+    hold on
+end
+
+plot(BipRF(fix(BipN/2)+1,:),'r')
+plot(BipRF(fix(BipN/4)+1,:),'r')
+hold off
+ylim([min(BipRF(:)) max(BipRF(:))])
+
+
+
+%% Bip Axon Mosaic
+for i = 1:R
+    Dist=abs(Cent-i);
+    BipA(i)=find(Dist==min(Dist),1);
+end
+subplot(4,1,2)
+BipAd=mod(BipA,2);
+plot(BipAd)
+hold on
+
+%% Create Connectivity
+subplot(4,1,2)
+Con=Gaus(R/8,R,R/2);
+%Con=Con/(max(Con(:)));
+plot(Con),pause(.1)
+ylim([min(Con) max(Con)])
+hold off
+
+%% Weight RFs
+subplot(4,1,3)
+In=BipRF*0;
+for i = 1:BipN
+    Weight=mean(Con(BipA==i));
+    In(i,:)=BipRF(i,:)*Weight;
+    plot(In(i,:))
+    hold on
+end
+plot(In(fix(BipN/2)+1,:),'r')
+plot(In(fix(BipN/4)+1,:),'r')
+
+hold off
+ylim([min(In(:)) max(In(:))])
+
+%% RGC RF
+rgcRF=sum(In,1);
+subplot(4,1,4)
+plot(Con),
+hold on
+plot(rgcRF,'r'),pause(.1)
+hold off
+%ylim([min(rgcRF) max(rgcRF)])
+
+

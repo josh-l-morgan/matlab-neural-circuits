@@ -1,0 +1,184 @@
+%%Code for generating a range of effect magnitudes that are likely to
+%%generate a given difference between two groups
+%%Note: currently depends on standard deviations and randn to model data. 
+
+
+
+%{
+datC1 = []
+datC2 = []
+datI1 = []
+datI2 = []
+%}
+
+%% what is the frequency of a given difference producing some result?
+%% what is the range that contains 95% of results at some observation?
+
+dat1 = datC1;
+dat2 = datC2;
+
+
+
+
+%% Define variables  
+
+confidenceFraction = 0.95;
+
+convertToPercent = 1;
+
+useMean = 0;
+testResolution = 40; % Number of tests values per standard error of the differences
+reps = 100000; % number of repetitions per search value
+hitNum = 100000; % number of hits included in final range
+
+showProcess = 1;
+
+%% Convert to percent
+
+norm1 = mean(dat1);
+dat1 = dat1/norm1 * 100;
+dat2 = dat2/norm1 * 100;
+
+
+%% Get basic data statistics
+n1 = length(dat1);
+n2 = length(dat2);
+
+if useMean
+    m1 = mean(dat1);
+    m2 = mean(dat2);
+else
+    m1 = median(dat1);
+    m2 = median(dat2);
+end
+
+std1 = std(dat1);
+std2 = std(dat2);
+se1 = std1/sqrt(n1);
+se2 = std2/sqrt(n2);
+
+
+%% Define test statistic
+md = m2-m1; 
+
+%% Define search range (update to intelligent search)
+
+%%Find standard difference
+
+d = dat2 - dat1';
+seDif = sqrt( mean((d(:)-mean(d(:))).^2));
+
+testRange = [md-seDif*3 md+seDif*3];
+testStep = seDif/testResolution;
+
+testDif = [testRange(1) : testStep : testRange(2)];
+
+
+%% Run tests
+testNum = length(testDif);
+
+rmd = zeros(testNum,reps); % matrix for holding all test results
+tic
+disp('running randomizations')
+r1 = zeros(n1,reps);
+r2 = zeros(n2,reps);
+for td = 1:testNum
+
+    t = toc;
+    if t>10
+        tic
+        disp(sprintf('testing %d of %d',td,testNum))
+    end
+
+    if useMean % Generate distribution using randn normal distribution
+        r1 = randn(n1,reps)*std1 + m1; % Make randomized group 1
+        r2 = randn(n2,reps)*std1 + m1 + testDif(td); % make randomized group 2
+    else % Generate distribution using random picks from group1
+        rPool = [dat1(:); dat2(:)-testDif(td)]; %pool groups on assumption that testDif is only difference
+        for r = 1:reps
+            r1(:,r) = rPool(randperm(n1,n1));
+            r2(:,r) = rPool(randperm(n1,n2)) + testDif(td);
+        end
+    end
+
+
+    if useMean
+        rm1 = mean(r1,1);
+        rm2 = mean(r2,1);
+    else
+        rm1 = median(r1,1);
+        rm2 = median(r2,1);
+    end
+
+    rmd(td,:) = rm2-rm1;
+
+end
+disp('finished randomizations')
+
+
+%% Find range by fraction
+
+
+allDifs = abs(rmd-md); % Find difference between random and real results
+sortDifs = sort(abs(allDifs(:)),'ascend');
+hitThresh = sortDifs(hitNum); % Find absolute difference threshold that includes n (hitNum) random results
+inRange = abs(allDifs)<=hitThresh; % Select random results within range
+
+testHits = sum(inRange,2)/hitNum; % Get distribution of hits for each test value
+
+%%Find 95% range for results
+cumHit = cumsum(testHits)/sum(testHits(:));
+lowTarg = max(find(cumHit< ((1-confidenceFraction)/2)));
+highTarg = min(find(cumHit> ((1+confidenceFraction)/2)));
+bestRange = [testDif(lowTarg) testDif(highTarg)];
+
+
+%% Show results
+disp(sprintf(['\nMean difference = %f \n' ... 
+'Standard error of differences = \n%f to %f \n'...
+'Magnitudes composing 95%% of observed results = \n'...
+'%f to %f'],md,md-seDif,md+seDif,bestRange(1), bestRange(2)));
+
+if showProcess
+    try
+        close(figDifRange);
+    end
+    figDifRange = figure;
+    clf
+    subplot(2,1,1)
+    plot(testDif,testHits)
+    subplot(2,1,2)
+    plot(testDif,cumHit)
+    drawnow
+end
+
+
+
+
+
+
+
+%% CUT
+%{
+
+%% Find best fit
+if 0
+    rmTd = mean(rmd,2);
+    difRvO = abs(rmTd-md);
+    minDifRvO = min(difRvO)
+    bestTarg = find(difRvO==minDifRvO);
+    bestFit = testDif(bestTarg)
+end
+
+%inRange =  abs(allDifs)<=(std1/sqrt(n2));
+
+
+
+
+
+
+%}
+
+
+
+

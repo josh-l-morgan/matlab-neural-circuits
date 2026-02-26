@@ -1,0 +1,168 @@
+%%Map disk usage within specific folders and keep track of tags
+
+
+%SPN = '\\storage1.ris.wustl.edu\jlmorgan\Active\morganLab\DATA\Albino_Islands\';
+SPN = 'V:\'
+TPN = 'G:\FolderMaps\'; %SPN;
+TFN = 'folderMap_selectiveScan01.mat';
+disp(sprintf('Mapping directory %s',SPN))
+
+saveEveryXMinutes = 30;
+reportEveryXMinutes = 5;
+lastReport = datenum(clock);
+lastSave = datenum(clock);
+
+%%Check target folder
+placeHolder = [];
+for i = 1:1000
+    TFN = sprintf('folderMap%04.0f.mat',i);
+    if ~exist([TPN TFN],'file')
+       % save([TPN TFN], 'placeHolder','-V7.3')
+        break
+    end
+end
+disp(sprintf('File name is %s',TFN))
+
+
+if 1 %initialize
+    paths = {SPN};
+    folders = {SPN};
+    totBytes = [];
+    nextPath = 1;
+    tier = 1;
+    parent = 0;
+    c = 0;
+elseif 1
+    disp('Loading previous map')
+    load([TPN TFN]);
+    nextPath = dat.nextPath;
+    paths = dat.paths(1:nextPath,1);
+    folders = dat.folders(1:nextPath,1);
+    totBytes = dat.totBytes(1:nextPath,1);
+    parent = dat.parent(1:nextPath,1);
+    tier = dat.tier;
+    c = dat.c;
+end
+
+arrayPad = 10000;
+while 1
+
+
+    c = c + 1;
+    if c>size(paths,1), break, end
+    if isempty(paths{c,1}),break,end
+    
+    %%Get directory information
+    d =  dir(paths{c,1});
+    newDirID = setdiff(find([d.isdir]),[1 2]); %%Get directories
+    newDirs = {d(newDirID).name};
+
+    %%Collect all bytes from non directory files and add them to directory
+    newFileID = find(~[d.isdir]);
+    totBytes(c,1) = sum([d(newFileID).bytes]);
+
+    %% For each new directory
+    for f = 1:length(newDirs);
+        dirName = newDirs{f};
+        if ~strcmp(dirName,'.') & ~strcmp(dirName,'..')
+            nextPath = nextPath+1;
+
+            %%Padd arrays if necessary
+            if (nextPath + arrayPad) > size(paths,1)
+                paths{nextPath + arrayPad,1} = '';
+                folders{nextPath + arrayPad,1} = '';
+                totBytes(nextPath + arrayPad,1) = 0;
+                tier(nextPath + arrayPad,1) = 0;
+                parent(nextPath + arrayPad,1) = 0;
+            end
+
+            %%Add new information
+            paths{nextPath,1} = [paths{c,1} newDirs{f} '\'];
+            tier(nextPath,1) = tier(c)+1;
+            parent(nextPath,1) = c;
+            folders{nextPath,1} = newDirs{f};
+            totBytes(nextPath,1) = 0;
+        end
+    end
+
+    if 0 % report each path
+        disp(sprintf('%s',paths{c,1}))
+        disp(sprintf('path %d has %d folders and %d bytes',c,length(newDirID),totBytes(c,1)))
+    end
+
+
+    if ((datenum(clock) - lastReport) * 24 * 60) > reportEveryXMinutes
+        disp(datetime(clock))
+        startSum = datenum(clock);
+        dat.nextPath = nextPath;
+        dat.paths = paths;
+        dat.folders = folders;
+        dat.totBytes = totBytes;
+        dat.parent = parent;
+        dat.c = c;
+        dat.tier = tier;
+        report = reportMap(dat);
+        listReport = report.listReport;
+        disp(sprintf('checking directory number %d, biggest paths:',c))
+        shortReport = listReport(1:min(nextPath,20),:);
+        disp(shortReport)
+        pause(.01)
+        stopSum = datenum(clock);
+        reportTimeMin = (stopSum-startSum) * 24 * 60;
+        disp(sprintf('Report took %0.2f minutes',reportTimeMin))
+        if reportTimeMin > (saveEveryXMinutes * .2)
+            saveEveryXMinutes = saveEveryXMinutes * 2;
+            disp(sprintf('Now reporting every %0.2f minutes',saveEveryXMinutes))
+        end
+
+        lastReport = datenum(clock);
+        disp('Checking folders...')
+    end
+
+    if ((datenum(clock) - lastSave) * 24 * 60) > saveEveryXMinutes
+        disp('saving...')
+        try
+            %save([TPN TFN], 'listReport', 'dat','-V7.3')
+        catch err
+            disp('failed to save')
+        end
+        lastSave = datenum(clock);
+    end
+
+
+    % if tier(nextPath)>3
+    %     break
+    % end
+end
+
+%%Cut padding
+paths = paths(1:nextPath,1);
+folders = folders(1:nextPath,1);
+tier = tier(1:nextPath,1);
+totBytes = totBytes(1:nextPath,1);
+parent = parent(1:nextPath,1);
+toc
+
+%%Final report and save
+tic
+dat.nextPath = nextPath;
+dat.paths = paths;
+dat.folders = folders;
+dat.totBytes = totBytes;
+dat.parent = parent;
+dat.c = c;
+dat.tier = tier;
+report = reportMap(dat);
+listReport = report.listReport;
+disp(sprintf('checking directory number %d, biggest paths:',c))
+shortReport = listReport(1:min(nextPath,30),:);
+disp(shortReport)
+pause(.01)
+toc
+tic
+disp('saving...')
+save([TPN TFN], 'listReport', 'dat','-V7.3')
+toc
+
+mediumReport = listReport(1:min(nextPath,100000),:);
+disp(sprintf('finished mapping %s',SPN))

@@ -1,0 +1,6 @@
+
+function yhat = inputoutputfit (beta, x)
+%beta = [sensitivity mainainedDrive maximum, minimum]
+
+p = normcdf ( (beta(1) * x + beta(2)), 0, 1);
+yhat =  p*beta(3) + beta(4);

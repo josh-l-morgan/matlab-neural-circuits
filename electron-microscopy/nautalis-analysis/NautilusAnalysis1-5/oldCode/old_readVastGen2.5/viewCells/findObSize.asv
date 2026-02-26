@@ -1,0 +1,13 @@
+function[fsize] = findObSize(subStruc)
+
+
+
+fsize = [0 0 0 ];
+
+for i = 1:length(subStruct)
+   subs = subStruct(i).subs;
+   maxSubs = max(subs,[],1);
+   fsize = max(fsize,maxSubs);
+    
+    
+end

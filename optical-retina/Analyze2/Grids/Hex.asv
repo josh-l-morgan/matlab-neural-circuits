@@ -1,0 +1,18 @@
+fsize=200;
+Diam=10;
+
+field=zeros(fsize);
+
+Grid=hexes([fsize fsize],Diam);
+
+Col=1:size(Grid,1);
+
+
+for y = 1:fsize
+    for x=1:fsize
+        Pos=[y x];
+        Dist=dist(Grid,Pos);
+        Pick=find(Dist==min(Dist),1);
+        field(y,x)=Col(Pick);
+    end
+end

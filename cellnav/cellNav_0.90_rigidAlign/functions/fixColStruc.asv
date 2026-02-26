@@ -1,0 +1,39 @@
+function[obI] = fixColStruc(obI);
+
+global glob
+
+
+%%Embarassing hak
+if strcmp(glob.NA.export.exportName,'Josh_B') & ...
+    strcmp(glob.vol.activeName,'v1') 
+    hackCellNavGlob
+end
+
+if isfield(glob.NA.export,'fix')
+
+    %%Shift z position of all subs
+    if isfield(glob.NA.export.fix,'changeZ')
+        obI.colStruc.anchors(:,3) = obI.colStruc.anchors(:,3) + glob.NA.export.fix.changeZ;
+        obI.colStruc.anchors = max(obI.colStruc.anchors,-1);
+    end
+
+end
+
+
+
+load("MPN.mat");
+if exist([MPN 'shiftZ.mat'],'var');
+    disp('shifting planes')
+    load([MPN 'shiftZ.mat']);
+    pts = obI.colStruc.anchors;
+    if ~isempty(pts)
+        zs = unique(pts(:,3));
+        for zn = 1:length(zs)
+            z = zs(zn);
+            tform = shiftZ.tforms(z).tform;
+            isZ = pts(:,3)==z;
+            pts(isZ,1:2) = rigidPts(pts(isZ,1:2),tform.A);
+        end
+        obI.colStruc.anchors = pts;
+    end
+end

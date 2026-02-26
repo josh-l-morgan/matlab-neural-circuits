@@ -1,0 +1,1 @@
+1 scan error  found in image Z:/Thousand+sectionRunCortexRoto/Thousand_high_res/Thousand_w05_high_res_st1-8/w05_st05_sec13+/Tile_r1-c1_w05_st05_sec13+.tif, at: 3037

@@ -1,0 +1,48 @@
+
+
+%%Get directory with image folders
+GPN=GetMyDir;
+GPNd=dir(GPN); GPNd=GPNd(3:length(GPNd));
+
+%%Find image folders
+ImageFolders={};
+for i = 1:length(GPNd)
+    Name=GPNd(i).name;
+    siz=length(Name);
+    if Name(siz-5:siz)=='.files'
+        ImageFolders(length(ImageFolders)+1,1)={Name};
+    end
+end
+
+%%write, max
+Imaxs=[];
+for i = 1:length(ImageFolders)
+   %% Write stack
+   Ifolder=cell2mat(ImageFolders(i));
+   I=oifread([GPN Ifolder '\']);
+   I=Dspk(I); 
+   Iname=Ifolder(1:find(Ifolder=='.',1)-1);
+   if exist([GPN Iname]),rmdir([GPN Iname],'s'),end
+   mkdir([GPN Iname]) 
+   I=juggleCh(I);
+   Iwrite([GPN Iname],I)
+   
+   
+   %% collect maxes
+   Imax=max(I,[],4);
+   [Mys Mxs Mcs]=size(Imaxs);
+   [ys xs cs]=size(Imax);
+   
+    
+
+   
+   
+end
+
+
+
+
+
+
+
+

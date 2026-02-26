@@ -1,0 +1,1 @@
+function[distOfSyn] = synDist(synMat)

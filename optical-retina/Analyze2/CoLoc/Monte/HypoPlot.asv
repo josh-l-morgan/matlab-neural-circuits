@@ -1,0 +1,11 @@
+
+
+
+%Cs = probability of colocalization given synapse
+Cr=.7 %Probability of colocalization givin random
+Co=.9 %Observed number of colocalizations
+Cs=[0:.01:1]
+
+S=(Co-Cr)./(Cs-Cr)
+plot(S)
+ylim([0 1])

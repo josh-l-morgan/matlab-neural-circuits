@@ -1,0 +1,158 @@
+function[] = anaDr()
+% Automatically draw max and orthoganal projections for any file selected
+%%2D images should combine both channels and both Identified Dot and Dend. 
+
+global DPN DFN TPN
+yxum=.103;  zum=0.3;
+
+
+if ~exist([TPN 'images']), mkdir([TPN 'images']); end
+
+%% READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'reading image'
+DPN
+d=dir(DPN); %get number of files in directory
+
+%%Figure out channels
+Ic(:,:,:)=imread([DPN d(3).name]); %read
+if size(Ic,3)==1, DotC=1; %if only one channel
+elseif size(Ic,3)==2, DendC=1;DotC=2; %if only two channels
+elseif sum(sum(Ic(:,:,3)))==0, DendC=1; DotC=2; %if third channel is blank
+else PreC=1;DotC=2;DendC=3; %if third channel is not blank
+end
+
+
+clear I IM 
+for i=3:size(d,1)
+    I(:,:,:)=imread([DPN d(i).name]); %read RGB
+    if sum(sum(Ic(:,:,3)))>0 %flip 1 and 3 channel if three channel 
+        temp=I;
+        I(:,:,1)=temp(:,:,3);
+        I(:,:,3)=temp(:,:,1);
+    end
+    for c=1:size(I,3)
+        I(:,:,c)=medfilt2(I(:,:,c),[3,3]);
+    end
+    if ~exist('RawMax','var'); RawMax=I; end  %make max image if not around yet
+    RawMax=max(RawMax,I);  %make maximum projection
+    RawOrtho1(i,:,:)=max(I);  %make orththogonal projection
+    RawOrtho2(:,i,:)=max(I,[],2);
+    PercentRead=i/size(d,1)*100
+end
+
+%%resize Orthos
+RawOrtho1=imresize(RawOrtho1,[size(RawOrtho1,1)*(zum/yxum),size(RawOrtho1,2)]);
+RawOrtho2=imresize(RawOrtho2,[size(RawOrtho2,1),(zum/yxum)*size(RawOrtho2,2)]);
+
+
+%% Get sizes
+[ys xs cs]=size(RawMax);
+zs=size(RawOrtho1,1);
+
+%% Display image Stack
+
+imwrite(RawMax,[TPN 'images\RawMax.tif'],'tif')
+imwrite(RawOrtho1,[TPN 'images\RawOrtho1.tif'],'tif')
+imwrite(RawOrtho2,[TPN 'images\RawOrtho2.tif'],'tif')
+
+%}
+%% Draw Dend
+
+clear DrawSeg
+if exist([TPN 'data\AllSeg.mat'])
+    load([TPN 'data\AllSeg.mat'])
+    DrawSeg(:,1:2,:)=AllSeg(:,1:2,:)/yxum;
+    DrawSeg(:,3,:)=AllSeg(:,3,:)/zum; 
+    DrawSeg=round(DrawSeg); %round to index
+    DrawSeg(DrawSeg==0)=1;  %get rid of non indexables
+      
+    clear AllSeg
+    
+    'Drawing Segments'
+    SegSum=zeros(ys,xs);
+    SegOrtho1=zeros(zs,xs);
+    SegOrtho2=zeros(ys,zs);
+    SkelRes=.5;
+    for i=1:size(DrawSeg,1)
+        Dist=sqrt((DrawSeg(i,1,1)-DrawSeg(i,1,2))^2 + (DrawSeg(i,2,1)-DrawSeg(i,2,2))^2 + (DrawSeg(i,3,1)-DrawSeg(i,3,2))^2); %find distance
+        Length(i)=Dist;
+          devs=max(1,round(Dist/SkelRes)); %Find number of subdivisions
+        for d=1:devs+1
+            sy=DrawSeg(i,1,1)+((DrawSeg(i,1,2)-DrawSeg(i,1,1))/devs)*(d-1);
+            sx=DrawSeg(i,2,1)+((DrawSeg(i,2,2)-DrawSeg(i,2,1))/devs)*(d-1);
+            sz=DrawSeg(i,3,1)+((DrawSeg(i,3,2)-DrawSeg(i,3,1))/devs)*(d-1);
+            %%Draw Max
+            SegSum(min(round(sy),ys),min(round(sx),xs))=SegSum(min(round(sy),ys),min(round(sx),xs))+1;
+            %%Draw Orthos
+            SegOrtho2(min(round(sy),ys),min(round(sz),zs))=SegOrtho2(min(round(sy),ys),min(round(sz),zs))+1;
+            SegOrtho1(min(round(sz),zs),min(round(sx),xs))=SegOrtho1(min(round(sz),zs),min(round(sx),xs))+1;
+        end
+    end
+    clear Dist
+    image(SegSum*100)
+    %%%%%%%%%%%%SegOrhos too big?
+end % if AllSeg exists
+
+
+
+%% Draw Dots
+if exist([TPN 'data\DotStats.mat'])
+    load([TPN 'data\DotStats.mat'])
+    DrawDots=round(DotStats(:,:,2));
+    DrawDots(DrawDots<1)=1;
+        
+    DotSum=zeros(ys, xs);
+    DotOrtho1=zeros(zs,xs);
+    DotOrtho2=zeros(ys,zs);
+    for i=1:size(DotStats)
+        DotSum(min(DrawDots(i,1),ys),min(DrawDots(i,2),xs))=DotSum(min(DrawDots(i,1),ys),min(DrawDots(i,2),xs))+1;
+        DotOrtho2(min(DrawDots(i,1),ys),min(DrawDots(i,3),zs))=DotOrtho2(min(DrawDots(i,1),ys),min(DrawDots(i,3),zs))+1;
+        DotOrtho1(min(DrawDots(i,3),zs),min(DrawDots(i,2),xs))=DotOrtho1(min(DrawDots(i,3),zs),min(DrawDots(i,2),xs))+1;
+    end
+    
+    %%Dialate images
+    Shape=ones(5);
+    DotSum2=conv2(DotSum,Shape,'same');
+    image((DotSum2)*100)
+      
+end
+
+
+%% Combine Images and Data
+
+DotDend(:,:,1)=SegSum;
+DotDend(:,:,2)=DotSum2;
+DotDend(:,:,3)=SegSum*0;
+DotDend=uint8(DotDend)*300;
+image(DotDend), pause(1)
+imwrite(DotDend,[TPN 'images\DotDend.tif'],'tif')
+        
+RawDotMax=RawMax;
+RawDotMax(:,:,3)=DotSum2*100;
+imwrite(RawDotMax,[TPN 'images\RawDotMax.tif'],'tif')
+image(RawDotMax),pause(1)
+
+RawDendMax=RawMax;
+RawDendMax(:,:,3)=SegSum*100;
+imwrite(RawDendMax,[TPN 'images\RawDendMax.tif'],'tif')
+image(RawDendMax), pause(1)
+
+Combo=RawDotMax*2;
+Combo(:,:,3)=Combo(:,:,3)+ uint8(SegSum*100);
+imwrite(Combo,[TPN 'images\Combo.tif'],'tif')
+image(Combo), pause(3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,65 @@
+%load skeletons if necessary
+skelDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Analysis\SMs\';
+vgcCidList=[2 3 4 5 13 14];
+loadSkel=0;
+if ~exist('allSkels')
+    allSkels=cell(1,6);
+    for i=1:length(vgcCidList)
+        curCid=vgcCidList(i);
+        skelFileName=['sm_cid' + string(curCid)+'.mat'];
+        curSkel=load([skelDir+skelFileName]);
+        allSkels{i}=curSkel;
+    end
+end
+
+if ~exist('curTis')
+    global glob tis
+    curTis=tis;
+end
+
+%% test new func
+for i=1:length(allSkels)
+    curSkel=allSkels{i};
+    curSWC=nep2swc(curSkel.sm.nep);
+    allSkels{i}.swc=curSWC;
+
+end
+
+for i=1:length(allSkels)
+    curSkel=allSkels{i};
+    
+
+end
+
+
+%%
+if 0
+allEdges=curSkel.sm.arbor.edges;
+uniqueNodes=unique(allEdges(:));
+nodeCounts=histcounts(allEdges,uniqueNodes);
+tipIDs=find(nodeCounts==1);
+forkIDs=find(nodeCounts>2);
+
+firstNodeID=find(curSkel.sm.arbor.nodes.pos(:,3)==min(curSkel.sm.arbor.nodes.pos(:,3)));
+rootNode=firstNodeID(1);
+
+brhStruct=struct();
+for k=1:length(tipIDs)
+    brhStruct(k).nodeList=[];
+    previousEdgeID=0;
+    curTip=tipIDs(k);
+    if curTip~=rootNode
+    curNode=curTip;
+    while ~ismember(curNode,forkIDs)
+        curEdgeID=find(any(allEdges == curNode, 2));
+        curEdgeID=curEdgeID(curEdgeID~=previousEdgeID);
+        curEdgeNodes=allEdges(curEdgeID,:);
+        nextNode=curEdgeNodes(curEdgeNodes~=curNode);
+        brhStruct(k).nodeList=[brhStruct(k).nodeList; curNode];
+        curNode=nextNode;
+        previousEdgeID=curEdgeID;
+    end
+    end
+end
+end
+

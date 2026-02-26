@@ -1,0 +1,1 @@
+1 scan error  found in image Z:/jeffs_montage2/montage1/Tile_r5-c8_Montage1.tif, at: 5067

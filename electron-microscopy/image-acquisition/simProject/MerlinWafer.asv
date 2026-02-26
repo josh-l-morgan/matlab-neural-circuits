@@ -1,0 +1,17 @@
+%Merlin wafer time estimate
+
+fsize = [500 500];
+
+stdNum = 150; % sections on 4 inch wafer.
+
+pixDwel = 25 * 10 ^ -9; % seconds
+
+res = 0.004 ; % res in microns
+
+pixNum = prod(fsize/res);
+
+scanTime = pixNum * pixDwel;
+
+realTime = scanTime * 2;
+
+hours = realTime/60/60 * stdNum

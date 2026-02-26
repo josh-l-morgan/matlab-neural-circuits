@@ -1,0 +1,74 @@
+%% Run all Programs up to 7/7/07
+
+%{
+Programs to run
+Skeletonize from Mask
+Dot Find
+
+%}
+
+
+TPN = GetMyDir;
+
+%%if files are available
+
+if exist([TPN 'SKStatus.mat'])
+    load([TPN 'SKStatus.mat'])
+else
+    SKStatus.DF=0;
+end
+
+if ~isfield(SKStatus,'Sk'),SKStatus.Read=0,end
+if ~isfield(SKStatus,'Sk'),SKStatus.Sk=0,end
+if ~isfield(SKStatus,'Ra'),SKStatus.Ra=0,end
+if ~isfield(SKStatus,'Ma'),SKStatus.Ma=0,end
+if ~isfield(SKStatus,'Rd'),SKStatus.Rd=0,end
+if ~isfield(SKStatus,'SG'),SKStatus.SG=0,end
+
+SKStatus
+
+%% Check out files
+if ~SKStatus.Read
+    anaRead(TPN)
+    SKStatus.Read=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+
+%% Run Dot Processing
+if ~SKStatus.Sk
+    'Finding Skel'
+    anaSkc(TPN)
+    SKStatus.Sk=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.DF
+    'Finding Dots'
+    anaDFc(TPN)
+    SKStatus.DF=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.Ra
+    'Ratioing'
+    anaRaMc(TPN)
+    SKStatus.Ra=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.Ma
+    'Masking'
+    anaMac(TPN)
+    anaCBc(TPN)
+%     anaFSc(TPN, DPN) %check for shifts
+    SKStatus.Ma=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+
+if 1%~SKStatus.SG
+    'Running SG once'
+    anaSGc(TPN)
+    anaGroup(TPN)
+    anaMakeUseOnec(TPN)
+    SKStatus.SG=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+
+

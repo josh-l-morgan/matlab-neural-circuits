@@ -1,0 +1,68 @@
+
+%clear all
+
+KPN=GetMyDir
+Kdir=dir(KPN);
+Kdir=Kdir(3:size(Kdir,1));
+yxum=0.103;
+zum=0.3;
+colormap(jet(256))
+cmap=colormap;
+cmap(1,:)=0;
+colormap(cmap)
+
+
+
+for k = 1:size(Kdir,1)
+    clear CA4   
+    TPN = [KPN '\' Kdir(k).name '\']; 
+     clear CA BiDotDist DotShow DotFilt DendFilt DotMap DendMap DPos 
+     clear Cell Red Green Blue TerFill TerFilt TerPerim TerRay Territory
+    if exist([TPN 'CA.mat'])
+      load([TPN 'CA.mat'])
+      
+      DotMap=CA.Arbor(1).DotMap;
+      DendMap=CA.Arbor(1).DendMap;
+      DotDist=CA.Arbor(1).DotDist;
+      DendDist=CA.Arbor(1).DendDist;
+      
+      [ys xs]=size(DotMap);
+      
+      DotDend=DendMap;
+      DotDend(DotDend>0)=245;
+      DotDend(DotMap>0)=100;
+      image(DotDend)
+            
+      CA4=zeros(ys,844);
+      CA4(1:ys,423:423+xs-1)=DotDist*1500;
+      CA4(1:ys,212:212+xs-1)=DendDist*300;
+      CA4(1:ys,1:xs)=DotDend;
+      CA4(1:ys,634:634+xs-1)=DotDist./DendDist*300;
+      image(CA4),pause(.3)
+      
+      if exist([TPN 'Cell.mat'])
+            load([TPN 'Cell.mat'])
+            cName=['P' Cell.Age '_' Cell.Type '_' Kdir(k).name '.tif']
+            Name=[KPN 'Images\C4B\' cName];
+        else
+            Name=[KPN 'Images\C4B\' Kdir(k).name '.tif'];
+        end
+        if isempty(find(Name=='?'));
+            imwrite(CA4,cmap,Name,'Compression','none')
+        end
+      
+       
+    end
+end
+
+%% Make Scale Bars
+
+for s= 1:10;
+    Scale(s,:)=[0:255];
+end
+imwrite(Scale,jet,[KPN 'Images\C4B\JetScale.tif'],'Compression','none')
+
+
+
+
+

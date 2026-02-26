@@ -1,0 +1,143 @@
+%% Automatically draw max and orthoganal projections for any file selected
+%%2D images should combine both channels and both Identified Dot and Dend. 
+
+
+
+colormap gray(255)
+yxum=.103;  zum=0.3;
+
+
+%Get directory name
+[DFN,DPN]=uigetfile('*.tif','DialogTitle','Pick First Image of Stack');
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+if ~exist([TPN 'images']), mkdir([TPN 'images']); end
+
+%% READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'reading image'
+d=dir(DPN); %get number of files in directory
+
+clear I IM 
+for i=3:size(d,1)
+    I(:,:,:)=imread([DPN d(i).name]); %read RGB
+    for c=1:size(I,3)
+        I(:,:,c)=medfilt2(I(:,:,c),[3,3]);
+    end
+    if ~exist('RawMax','var'); RawMax=I; end  %make max image if not around yet
+    RawMax=max(RawMax,I);  %make maximum projection
+    RawOrtho1(i,:,:)=max(I);  %make orththogonal projection
+    RawOrtho2(:,i,:)=max(I,[],2);
+    PercentRead=i/size(d,1)*100
+end
+
+%% Get sizes
+[ys xs cs]=size(RawMax);
+zs=size(RawOrtho1,1);
+
+%% Display image Stack
+subplot(4,8,[1:3 9:12 17:20]), image(RawMax*2)
+subplot(4,8,[25:28]), image(RawOrtho1*2)
+subplot(4,8,[5 14 22]), image(RawOrtho2*2)
+pause(.01)
+
+imwrite(RawMax,[TPN 'images\RawMax.tif'],'tif')
+imwrite(RawOrtho1,[TPN 'images\RawOrtho1.tif'],'tif')
+imwrite(RawOrtho2,[TPN 'images\RawOrtho2.tif'],'tif')
+
+%}
+%% Draw Dend
+
+clear DrawSeg
+if exist([TPN 'data\AllSeg.mat'])
+    load([TPN 'data\AllSeg.mat'])
+    DrawSeg(:,1:2,:)=AllSeg(:,1:2,:)/yxum;
+    DrawSeg(:,3,:)=AllSeg(:,3,:)/zum; 
+    DrawSeg=round(DrawSeg); %round to index
+    DrawSeg(DrawSeg==0)=1;  %get rid of non indexables
+      
+    clear AllSeg
+    
+    'Drawing Segments'
+    SegSum=zeros(ys,xs);
+    SegOrtho1=zeros(zs,xs);
+    SegOrtho2=zeros(xs,zs);
+    SkelRes=.5;
+    for i=1:size(DrawSeg,1)
+        Dist=sqrt((DrawSeg(i,1,1)-DrawSeg(i,1,2))^2 + (DrawSeg(i,2,1)-DrawSeg(i,2,2))^2 + (DrawSeg(i,3,1)-DrawSeg(i,3,2))^2); %find distance
+        Length(i)=Dist;
+          devs=max(1,round(Dist/SkelRes)); %Find number of subdivisions
+        for d=1:devs+1
+            sy=DrawSeg(i,1,1)+((DrawSeg(i,1,2)-DrawSeg(i,1,1))/devs)*(d-1);
+            sx=DrawSeg(i,2,1)+((DrawSeg(i,2,2)-DrawSeg(i,2,1))/devs)*(d-1);
+            sz=DrawSeg(i,3,1)+((DrawSeg(i,3,2)-DrawSeg(i,3,1))/devs)*(d-1);
+            %%Draw Max
+            SegSum(min(round(sy),ys),min(round(sx),xs))=SegSum(min(round(sy),ys),min(round(sx),xs))+1;
+            %%Draw Orthos
+            SegOrtho2(min(round(sy),ys),min(round(sz),zs))=SegOrtho2(min(round(sy),ys),min(round(sz),zs))+1;
+            SegOrtho1(min(round(sz),zs),min(round(sx),xs))=SegOrtho1(min(round(sz),zs),min(round(sx),xs))+1;
+        end
+    end
+    clear Dist
+    image(SegSum*100)
+    %%%%%%%%%%%%SegOrhos too big?
+end % if AllSeg exists
+
+
+
+%% Draw Dots
+if exist([TPN 'data\DotStats.mat'])
+    load([TPN 'data\DotStats.mat'])
+    DrawDots=round(DotStats(:,:,2));
+    DrawDots(DrawDots<1)=1;
+        
+    DotSum=zeros(ys, xs);
+    DotOrtho1=zeros(zs,xs);
+    DotOrtho2=zeros(xs,zs);
+    for i=1:size(DotStats)
+        DotSum(min(DrawDots(i,1),ys),min(DrawDots(i,2),xs))=DotSum(min(DrawDots(i,1),ys),min(DrawDots(i,2),xs))+1;
+        DotOrtho2(min(DrawDots(i,1),ys),min(DrawDots(i,3),zs))=DotOrtho2(min(DrawDots(i,1),ys),min(DrawDots(i,3),zs))+1;
+        DotOrtho1(min(DrawDots(i,3),zs),min(DrawDots(i,2),xs))=DotOrtho1(min(DrawDots(i,3),zs),min(DrawDots(i,2),xs))+1;
+    end
+    
+    %%Dialate images
+    Shape=ones(7);
+    DotSum2=conv2(DotSum,Shape,'same');
+    image((DotSum2)*100)
+      
+end
+
+
+%% Combine Images and Data
+
+DotDend(:,:,1)=SegSum;
+DotDend(:,:,2)=DotSum2;
+DotDend(:,:,3)=SegSum*0;
+imwrite(DotDend,[TPN 'images\DotDend.tif'],'tif')
+        
+RawDotMax=RawMax;
+RawDotMax(:,:,3)=DotSum2;
+imwrite(RawDotMax,[TPN 'images\RawDotMax.tif'],'tif')
+
+RawDendMax=RawMax;
+RawDendMax(:,:,3)=SegSum;
+imwrite(RawDendMax,[TPN 'images\RawDendMax.tif'],'tif')
+
+All=RawMax;
+All(:,:,3)=SegSum*150;
+All(:,:,3)=All(:,:,3)+uint8(DotSum2*150);
+imwrite(All,[TPN 'images\All.tif'],'tif')
+
+
+
+
+
+
+
+
+
+
+

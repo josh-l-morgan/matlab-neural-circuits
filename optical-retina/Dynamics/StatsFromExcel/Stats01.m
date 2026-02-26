@@ -1,0 +1,73 @@
+
+
+Data{1}=DTAg;
+Data{2}=TETg;
+Data{3}=DTAl;
+Data{4}=TETl;
+
+%% Get all event data
+for d = 1: length(Data)
+    Dat=Data{d};
+    Rates=[];
+    for i = 1:size(Dat,1)
+        Length=Dat(i,1);  % length of arbor
+        Time=Dat(i,3);    % Total Time
+        TL=Time/2;             % Time Points Concidered
+        Ob=Dat(i,4:4+TL-1); % Extract observations
+        Rate=Ob/(Length/1000);
+        Rates=[Rates Rate];
+    end
+    Rates;
+    AllDat{d}=Rates;
+end
+
+%% Plot event data
+for i = 1:2
+    scatter(ones(1,length(AllDat{i}))*i +(1:length(AllDat{i}))/100,AllDat{i})
+    hold on
+end
+hold off
+xlim([0 3])
+
+%% Get Cell Data
+
+for d = 1 :length(Data)
+    Dat=Data{d};
+    L{d}=Dat(:,1);
+    First{d}=sum(Dat(:,4:5),2);  %Collect first two time points 
+    
+    FirstRateL{d}=First{d}./L{d};  % Rate per Length
+    NumDots{d}=Dat(:,2); % Number of dots
+
+    PD{d}=NumDots{d}./L{d}; % Density
+    RatePerDot{d} = First{d}./NumDots{d}; 
+end
+
+%% Plot Relevant
+TetGain=FirstRate{2};
+TetLoss=RatePerDot{4};
+DtaGain=FirstRate{1};
+DtaLoss=RatePerDot{3};
+
+
+
+
+
+
+
+%% Plot Cell Data
+
+colors = ['b' 'r' 'b' 'r'];
+Shod=RatePerDot;
+ranksum(Shod{1},Shod{2})
+ranksum(Shod{3},Shod{4})
+for d = 1: length(Shod)
+    Ld=length(Shod{d});
+    scatter(ones(1,Ld)*d+(1:Ld)/100,Shod{d},colors(d))
+    hold on
+    
+end
+hold off
+xlim([0 length(Shod)+1])
+
+

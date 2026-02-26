@@ -1,0 +1,18 @@
+function[] = axIwrite(Path,I)
+
+Slash=find(Path=='\');
+name=Path(Slash(length(Slash))+1:length(Path));
+
+Dims=size(size(I),2);
+zs=size(I,Dims);
+NumDig=fix(log10(zs))+1; % get digits
+blank=zeros(NumDig,1);
+blank=num2str(blank)';
+
+for i=1:zs
+    Num=num2str(i);
+    Numi=blank;
+    Numi(size(Numi,2)-size(Num,2)+1:size(Numi,2))=Num;
+    name1=[Path '\' name '_' Numi  '.tif'];
+    imwrite(I(:,:,:,i),name1,'tif','Compression','none')
+end

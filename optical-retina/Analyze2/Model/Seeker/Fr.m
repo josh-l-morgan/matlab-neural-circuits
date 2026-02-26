@@ -1,0 +1,120 @@
+%% Set the weights to find the food breaking the fewest walls
+
+
+%%Choice determined by
+%%Val=Tn * TnVal - Mn*MnVal - Fn *FnVal-Wn*1000 + Sn * SnVal +Dn* DnVal;
+MnVal = 1; % Value of avoiding retracing steps
+FnVal = 5; % Value of avoiding breaking walls
+DnVal = 10; % Value of following sound (through walls)
+
+SnVal = 100; % Value of following nose (no wall breaking)
+TnVal = 1000  % Value of grabbing target
+
+%%shape field
+OpenSpace= .6; % 0-1
+
+while 1 == 1
+fsize=30
+'Building Field'
+Wall=zeros(fsize,fsize);
+Wall(1:fsize,[1 fsize])=1;
+Wall([1 fsize],1:fsize)=1;
+TargF=uint8(rand(fsize,fsize)>0.95);
+
+
+field=uint8(rand(fsize,fsize)>OpenSpace)*100;
+field=imfilter(uint8(field*100),fspecial('gaussian',3,1));
+field=field>median(field(:));
+image(field*200)
+
+TargF((Wall |field)>0)=0;
+
+[Smells Dists]=Smelling(TargF,field,Wall);
+Smell=sum(Smells,3);
+Dist=sum(Dists,3);
+
+image(Smell*300),pause(.1)
+image(Dist*10),pause(.1)
+[ty tx] = find(TargF);
+for t = 1:size(ty,1)
+    TargF(ty(t),tx(t))=t;
+end
+useT=ones(size(ty,1),1)>0;
+
+
+F.mem=field*0;  %initialize memory
+F.T=0;
+F.F=0;
+F.M=0;
+
+
+[F.y F.x]= find(~(Wall | field),1);
+Ff=field*0;
+Ff(F.y,F.x)=1;
+
+
+Show=uint8(TargF*200);
+Show(:,:,2)=Ff*200;
+
+Show(:,:,3)=Wall*10000 + field*150;
+
+%smell
+
+image(Show),pause(.1)
+
+reps = 10000;
+side=[0 1 ; 0 -1; -1 0; 1 0];
+'Play'
+for rep = 1:reps
+    %%look 
+   neary=side(:,1)+F.y;
+   nearx=side(:,2)+F.x;
+   inear=sub2ind([fsize fsize],neary,nearx);
+   Wn=Wall(inear);
+   Tn=TargF(inear)>0;
+   Fn=field(inear);
+   Mn=F.mem(inear);
+   Dn=Dist(inear);
+   Sn=Smell(inear);
+   Val=Tn * TnVal - Mn*MnVal - Fn *FnVal-Wn*1000 + Sn * SnVal +Dn* DnVal;
+   ToGo=find(Val==max(Val),1);
+   Goy=neary(ToGo); Gox=nearx(ToGo);
+   
+   
+   %%move
+   F.y=Goy; F.x=Gox;
+   F.T = F.T +Tn(ToGo);
+   F.F=F.F+Fn(ToGo);
+   F.M=F.M+Mn(ToGo);
+   
+   %% change spot
+   if TargF(Goy,Gox)
+    useT(TargF(Goy,Gox))=0;
+   end
+   Smell=sum(Smells(:,:,useT),3);
+   Dist=sum(Dists(:,:,useT),3);
+   %image(Dist*20),pause(.01);   
+   
+   TargF(Goy,Gox)=0;
+   field(Goy,Gox)=0;
+   F.mem(Goy,Gox)=F.mem(Goy,Gox)+1;
+   
+   %% Show
+    Show=uint8(TargF*200);
+    Ff=field*0;
+    Ff(F.y,F.x)=1;
+    Show(:,:,2)=Ff*200;
+    Show(:,:,1)=Show(:,:,1)+uint8(Ff)*200;
+    Show(:,:,2)=Show(:,:,2)+uint8(F.mem)*30;
+    Show(:,:,3)=Wall*10000 + field*150;
+    
+    image(Show), pause(.01)
+    if ~sum(useT), break,end
+    
+end
+
+F
+WallsBroken=F.F
+Time = rep
+
+end

@@ -1,0 +1,12 @@
+%%Draw Mask
+
+[DFN DPN] = uigetfile
+load([DPN DFN)
+
+f=find(DFN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+
+imwriteNp(TPN,IM,'MaskUsed')

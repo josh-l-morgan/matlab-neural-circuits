@@ -1,0 +1,68 @@
+
+
+%% Get image
+clear all
+
+colormap gray(256)
+[DFN DPN] = uigetfile('.tif');
+TargFile=[DPN DFN];
+
+iousSettings.mat','PreviousSettings')
+
+
+%% Read Image
+
+'reading tiffs'
+Iall = tiffread2(TargFile);
+for i = 1: size(Iall,2)
+I(:,:,i)=Iall(i).data;
+end
+clear Iall
+
+channel2 = I(:,:,size(I,3)/2+1:size(I,3));
+channel1 = I(:,:,1:size(I,3)/2);
+
+Ch1max=single(max(channel1,[],3));
+Ch2max=single(max(channel2,[],3));
+Imax=Ch1max*256/max(Ch1max(:)); 
+Imax(:,:,2)=Ch2max*256/max(Ch2max(:));
+Imax(:,:,3)=Ch2max*256/max(Ch2max(:))*0;
+% subplot(2,1,1)
+image(uint8(Imax))
+clear I 
+
+[ys xs zs]=size(channel2);
+
+%% Despk
+Ch1=zeros(ys+2,xs+2,zs+2);
+Ch2=Ch1;
+Ch1(2:ys+1,2:xs+1,2:zs+1)=channel1;
+Ch2(2:ys+1,2:xs+1,2:zs+1)=channel2;
+Ones=ones(27,1);
+sur=(1:9)~=5;
+Ch1D=Ch1*0;
+for y = 2: ys+1, for x = 2 : xs+1, for z = 2 : zs+1
+    Samp=Ch1(y-1:y+1,x-1:x+1,z);
+    Vox=Samp(5);
+    Sur=Samp(sur);
+    Val=min(max(Sur(:)),Vox);
+    Val=mean(Samp(:));
+    Ch1D(y,x,z)=Val;
+    
+end,end,y,end
+
+image(max(Ch1,[],3)*256/max(Ch1(:)))
+image(max(Ch1D,[],3)*256/max(Ch1D(:)))
+
+%% Median filter
+% 'median filtering',pause(.1)
+% if kernelSize(1)>1
+%     for i = 1: size(channel1,3)
+%        channel1(:,:,i)=medfilt2(channel1(:,:,i),[kernelSize(1) kernelSize(1)]);
+%     end
+% end
+% if kernelSize(2)>1
+%     for i = 1: size(channel2,3)
+%        channel2(:,:,i)=medfilt2(channel2(:,:,i),[kernelSize(2) kernelSize(2)]);
+%     end
+% end

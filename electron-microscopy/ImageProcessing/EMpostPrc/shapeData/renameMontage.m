@@ -1,0 +1,48 @@
+%%Turn J OLE montage into fiji readable
+
+TPN = GetMyDir;
+
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name;
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+            iNam{length(iNam)+1} = nam;
+        end
+    end
+end
+
+newTPN = [TPN(1:end-1) '_renamed\'];
+if ~exist(newTPN)
+    mkdir(newTPN)
+end
+
+for i = 1:length(iNam)
+    sprintf('copying %d of %d',i,length(iNam))
+   nam = iNam{i}
+   undS = find(nam == '_');
+   if length(undS)>3
+      tz = nam(undS(2)+1:undS(2)+3); 
+      ty = nam(undS(3)+1:undS(3)+3);
+      tx = nam(undS(3) + 5:undS(3) + 7);
+      
+      newNam = ['Tile_Z' tz '_Y' ty '_X' tx '.tif'];
+      copyfile([TPN nam],[newTPN newNam]);
+      
+      
+   end
+    
+    
+end
+
+
+
+
+
+
+
+
+

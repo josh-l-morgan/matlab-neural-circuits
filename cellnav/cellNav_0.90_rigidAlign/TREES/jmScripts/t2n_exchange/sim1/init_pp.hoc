@@ -1,0 +1,2664 @@
+
+
+// ***** Place synapses, electrodes or other point processes *****
+cellList.o(0).allregobj.o(127).sec{pp = new Exp2Syn(0.411390)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(345).sec{pp = new Exp2Syn(0.758070)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(372).sec{pp = new Exp2Syn(0.608050)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(360).sec{pp = new Exp2Syn(0.695670)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(778).sec{pp = new Exp2Syn(0.920990)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(351).sec{pp = new Exp2Syn(0.144610)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(354).sec{pp = new Exp2Syn(0.368780)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(104).sec{pp = new Exp2Syn(0.126130)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(578).sec{pp = new Exp2Syn(0.254790)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(578).sec{pp = new Exp2Syn(0.109790)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(650).sec{pp = new Exp2Syn(0.798480)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(249).sec{pp = new Exp2Syn(0.937060)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(495).sec{pp = new Exp2Syn(0.695170)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(471).sec{pp = new Exp2Syn(0.134670)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(11).sec{pp = new Exp2Syn(0.274400)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(11).sec{pp = new Exp2Syn(0.191210)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(450).sec{pp = new Exp2Syn(0.165360)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(488).sec{pp = new Exp2Syn(1.000000)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(568).sec{pp = new Exp2Syn(0.919720)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(571).sec{pp = new Exp2Syn(0.975930)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(588).sec{pp = new Exp2Syn(0.284880)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(296).sec{pp = new Exp2Syn(0.812560)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(702).sec{pp = new Exp2Syn(0.588050)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(740).sec{pp = new Exp2Syn(0.611870)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(512).sec{pp = new Exp2Syn(0.949460)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(109).sec{pp = new Exp2Syn(0.742590)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(109).sec{pp = new Exp2Syn(0.394100)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(104).sec{pp = new Exp2Syn(0.874440)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(78).sec{pp = new Exp2Syn(0.720760)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(88).sec{pp = new Exp2Syn(0.934370)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(152).sec{pp = new Exp2Syn(0.427430)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(221).sec{pp = new Exp2Syn(0.885920)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(217).sec{pp = new Exp2Syn(0.476250)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(234).sec{pp = new Exp2Syn(0.524770)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(233).sec{pp = new Exp2Syn(1.000000)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(229).sec{pp = new Exp2Syn(0.449770)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(37).sec{pp = new Exp2Syn(0.291310)
+pp.e = 0.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 1.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(662).sec{pp = new Exp2Syn(0.489230)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(209).sec{pp = new Exp2Syn(0.964560)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(406).sec{pp = new Exp2Syn(0.522220)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(320).sec{pp = new Exp2Syn(0.257010)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(145).sec{pp = new Exp2Syn(0.384210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(751).sec{pp = new Exp2Syn(0.765460)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(192).sec{pp = new Exp2Syn(0.131790)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(3).sec{pp = new Exp2Syn(0.767100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(7).sec{pp = new Exp2Syn(0.588910)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(5).sec{pp = new Exp2Syn(0.346760)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(274).sec{pp = new Exp2Syn(0.587240)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(269).sec{pp = new Exp2Syn(0.620530)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(346).sec{pp = new Exp2Syn(0.316130)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(350).sec{pp = new Exp2Syn(0.038980)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(366).sec{pp = new Exp2Syn(0.231950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(352).sec{pp = new Exp2Syn(0.123720)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(775).sec{pp = new Exp2Syn(0.308720)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(774).sec{pp = new Exp2Syn(0.666650)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(774).sec{pp = new Exp2Syn(0.166050)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(781).sec{pp = new Exp2Syn(0.707810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(628).sec{pp = new Exp2Syn(0.218710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(618).sec{pp = new Exp2Syn(0.423390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(622).sec{pp = new Exp2Syn(0.173940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(684).sec{pp = new Exp2Syn(0.635010)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(685).sec{pp = new Exp2Syn(0.800980)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(686).sec{pp = new Exp2Syn(0.097550)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(686).sec{pp = new Exp2Syn(0.579660)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(670).sec{pp = new Exp2Syn(0.241080)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(670).sec{pp = new Exp2Syn(0.659260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(670).sec{pp = new Exp2Syn(0.781440)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(673).sec{pp = new Exp2Syn(0.247980)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(673).sec{pp = new Exp2Syn(0.473650)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(674).sec{pp = new Exp2Syn(0.038590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(677).sec{pp = new Exp2Syn(0.384350)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(677).sec{pp = new Exp2Syn(0.457290)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(674).sec{pp = new Exp2Syn(0.013250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(3).sec{pp = new Exp2Syn(0.830340)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(4).sec{pp = new Exp2Syn(0.605270)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(5).sec{pp = new Exp2Syn(0.273690)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(3).sec{pp = new Exp2Syn(0.365950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(3).sec{pp = new Exp2Syn(0.203750)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.108320)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.119640)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.143790)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(2).sec{pp = new Exp2Syn(0.366000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(2).sec{pp = new Exp2Syn(0.414440)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(528).sec{pp = new Exp2Syn(0.545730)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(526).sec{pp = new Exp2Syn(0.448890)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(526).sec{pp = new Exp2Syn(0.568590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(527).sec{pp = new Exp2Syn(0.072350)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(682).sec{pp = new Exp2Syn(0.121860)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(527).sec{pp = new Exp2Syn(0.487950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(527).sec{pp = new Exp2Syn(0.784750)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(656).sec{pp = new Exp2Syn(0.688590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(634).sec{pp = new Exp2Syn(0.035770)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(655).sec{pp = new Exp2Syn(0.455740)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(655).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(635).sec{pp = new Exp2Syn(0.165600)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(654).sec{pp = new Exp2Syn(0.400690)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(635).sec{pp = new Exp2Syn(0.599260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(653).sec{pp = new Exp2Syn(0.575410)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(650).sec{pp = new Exp2Syn(0.207280)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(633).sec{pp = new Exp2Syn(0.139250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(530).sec{pp = new Exp2Syn(0.840810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(632).sec{pp = new Exp2Syn(0.799600)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(637).sec{pp = new Exp2Syn(0.131990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(637).sec{pp = new Exp2Syn(0.601530)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(638).sec{pp = new Exp2Syn(0.185380)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(638).sec{pp = new Exp2Syn(0.925800)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(674).sec{pp = new Exp2Syn(0.708500)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(674).sec{pp = new Exp2Syn(0.880970)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(682).sec{pp = new Exp2Syn(0.206100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(682).sec{pp = new Exp2Syn(0.439950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(747).sec{pp = new Exp2Syn(0.210490)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.341120)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.427260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.615300)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.724820)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.922750)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(482).sec{pp = new Exp2Syn(0.235160)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(335).sec{pp = new Exp2Syn(0.079850)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(422).sec{pp = new Exp2Syn(0.117780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(422).sec{pp = new Exp2Syn(0.161100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(416).sec{pp = new Exp2Syn(0.184100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(416).sec{pp = new Exp2Syn(0.540430)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(418).sec{pp = new Exp2Syn(0.947850)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(471).sec{pp = new Exp2Syn(0.054920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(482).sec{pp = new Exp2Syn(0.591920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(5).sec{pp = new Exp2Syn(0.197990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(285).sec{pp = new Exp2Syn(0.487450)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(8).sec{pp = new Exp2Syn(0.712240)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(7).sec{pp = new Exp2Syn(0.889330)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(7).sec{pp = new Exp2Syn(0.233710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(9).sec{pp = new Exp2Syn(0.670810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(174).sec{pp = new Exp2Syn(0.550510)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(128).sec{pp = new Exp2Syn(0.962160)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(10).sec{pp = new Exp2Syn(0.367720)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(11).sec{pp = new Exp2Syn(0.086420)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(114).sec{pp = new Exp2Syn(0.398870)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(647).sec{pp = new Exp2Syn(0.798950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(727).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(743).sec{pp = new Exp2Syn(0.231130)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(639).sec{pp = new Exp2Syn(0.781160)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(639).sec{pp = new Exp2Syn(0.669660)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(639).sec{pp = new Exp2Syn(0.385740)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(65).sec{pp = new Exp2Syn(0.414520)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(518).sec{pp = new Exp2Syn(0.918470)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.807870)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(484).sec{pp = new Exp2Syn(0.251840)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(484).sec{pp = new Exp2Syn(0.890940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(335).sec{pp = new Exp2Syn(0.440920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(334).sec{pp = new Exp2Syn(0.319420)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(335).sec{pp = new Exp2Syn(0.260920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(335).sec{pp = new Exp2Syn(0.485210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(413).sec{pp = new Exp2Syn(0.737930)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(411).sec{pp = new Exp2Syn(0.507180)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(408).sec{pp = new Exp2Syn(0.382800)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(663).sec{pp = new Exp2Syn(0.320140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(660).sec{pp = new Exp2Syn(0.709810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(660).sec{pp = new Exp2Syn(0.596460)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(660).sec{pp = new Exp2Syn(0.105240)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(675).sec{pp = new Exp2Syn(0.665300)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(616).sec{pp = new Exp2Syn(0.292800)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(533).sec{pp = new Exp2Syn(0.421060)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(533).sec{pp = new Exp2Syn(0.836390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(534).sec{pp = new Exp2Syn(0.134560)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(580).sec{pp = new Exp2Syn(0.101710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(534).sec{pp = new Exp2Syn(0.671250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(534).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(536).sec{pp = new Exp2Syn(0.250000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(537).sec{pp = new Exp2Syn(0.354140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(574).sec{pp = new Exp2Syn(0.638090)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(568).sec{pp = new Exp2Syn(0.124390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(570).sec{pp = new Exp2Syn(0.449890)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(569).sec{pp = new Exp2Syn(0.805350)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(747).sec{pp = new Exp2Syn(0.967530)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(561).sec{pp = new Exp2Syn(0.076100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(541).sec{pp = new Exp2Syn(0.499310)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(561).sec{pp = new Exp2Syn(0.688130)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(395).sec{pp = new Exp2Syn(0.693920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(395).sec{pp = new Exp2Syn(0.638110)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(682).sec{pp = new Exp2Syn(0.194230)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(395).sec{pp = new Exp2Syn(0.497290)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(392).sec{pp = new Exp2Syn(0.431880)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(340).sec{pp = new Exp2Syn(0.392100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(342).sec{pp = new Exp2Syn(0.322030)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(748).sec{pp = new Exp2Syn(0.200780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(748).sec{pp = new Exp2Syn(0.233850)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(748).sec{pp = new Exp2Syn(0.276630)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(749).sec{pp = new Exp2Syn(0.565510)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(539).sec{pp = new Exp2Syn(0.867690)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(749).sec{pp = new Exp2Syn(0.228690)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(762).sec{pp = new Exp2Syn(0.615950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(751).sec{pp = new Exp2Syn(0.699550)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(754).sec{pp = new Exp2Syn(0.733870)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(754).sec{pp = new Exp2Syn(0.187630)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(669).sec{pp = new Exp2Syn(0.668250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(533).sec{pp = new Exp2Syn(0.360910)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(607).sec{pp = new Exp2Syn(0.787560)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(707).sec{pp = new Exp2Syn(0.369800)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(662).sec{pp = new Exp2Syn(0.833390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(686).sec{pp = new Exp2Syn(0.863710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(721).sec{pp = new Exp2Syn(0.492480)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(706).sec{pp = new Exp2Syn(0.065040)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(708).sec{pp = new Exp2Syn(0.164010)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(706).sec{pp = new Exp2Syn(0.438810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(579).sec{pp = new Exp2Syn(0.699290)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(637).sec{pp = new Exp2Syn(0.805060)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(603).sec{pp = new Exp2Syn(0.364750)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(586).sec{pp = new Exp2Syn(0.823580)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(585).sec{pp = new Exp2Syn(0.916460)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(597).sec{pp = new Exp2Syn(0.194150)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(597).sec{pp = new Exp2Syn(0.125220)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(590).sec{pp = new Exp2Syn(0.676970)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(397).sec{pp = new Exp2Syn(0.502560)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(286).sec{pp = new Exp2Syn(0.419860)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(286).sec{pp = new Exp2Syn(0.845260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(287).sec{pp = new Exp2Syn(0.774780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(288).sec{pp = new Exp2Syn(0.667710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(296).sec{pp = new Exp2Syn(0.083050)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(296).sec{pp = new Exp2Syn(0.543210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(294).sec{pp = new Exp2Syn(0.685020)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(292).sec{pp = new Exp2Syn(0.325180)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(287).sec{pp = new Exp2Syn(0.273650)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(289).sec{pp = new Exp2Syn(0.528680)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(307).sec{pp = new Exp2Syn(0.192700)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(555).sec{pp = new Exp2Syn(0.180400)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(544).sec{pp = new Exp2Syn(0.601380)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(555).sec{pp = new Exp2Syn(0.430410)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(545).sec{pp = new Exp2Syn(0.830590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(546).sec{pp = new Exp2Syn(0.399440)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(552).sec{pp = new Exp2Syn(0.228430)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(546).sec{pp = new Exp2Syn(0.925860)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(547).sec{pp = new Exp2Syn(0.605580)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(548).sec{pp = new Exp2Syn(0.505440)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(549).sec{pp = new Exp2Syn(0.629350)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(692).sec{pp = new Exp2Syn(0.233740)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(692).sec{pp = new Exp2Syn(0.682160)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(692).sec{pp = new Exp2Syn(0.836440)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(693).sec{pp = new Exp2Syn(0.296820)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(696).sec{pp = new Exp2Syn(0.059640)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(699).sec{pp = new Exp2Syn(0.497890)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(701).sec{pp = new Exp2Syn(0.102140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(685).sec{pp = new Exp2Syn(0.538420)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(742).sec{pp = new Exp2Syn(0.406580)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(732).sec{pp = new Exp2Syn(0.054400)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(517).sec{pp = new Exp2Syn(0.556080)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(494).sec{pp = new Exp2Syn(0.445520)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(516).sec{pp = new Exp2Syn(0.709580)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(523).sec{pp = new Exp2Syn(0.930910)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(505).sec{pp = new Exp2Syn(0.106200)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(502).sec{pp = new Exp2Syn(0.914570)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(504).sec{pp = new Exp2Syn(0.207640)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(513).sec{pp = new Exp2Syn(0.652500)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(496).sec{pp = new Exp2Syn(0.142430)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(10).sec{pp = new Exp2Syn(0.132920)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(96).sec{pp = new Exp2Syn(0.358970)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(69).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(93).sec{pp = new Exp2Syn(0.414480)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(99).sec{pp = new Exp2Syn(0.474490)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(99).sec{pp = new Exp2Syn(0.716610)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(100).sec{pp = new Exp2Syn(0.253210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(100).sec{pp = new Exp2Syn(0.706790)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(104).sec{pp = new Exp2Syn(0.257700)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(101).sec{pp = new Exp2Syn(0.333500)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(75).sec{pp = new Exp2Syn(0.929860)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(79).sec{pp = new Exp2Syn(0.350250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(79).sec{pp = new Exp2Syn(0.105140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(76).sec{pp = new Exp2Syn(0.481660)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(76).sec{pp = new Exp2Syn(0.106680)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(53).sec{pp = new Exp2Syn(0.851420)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(56).sec{pp = new Exp2Syn(0.577710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(50).sec{pp = new Exp2Syn(0.823910)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(49).sec{pp = new Exp2Syn(0.443230)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(63).sec{pp = new Exp2Syn(0.436940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(115).sec{pp = new Exp2Syn(0.571740)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(417).sec{pp = new Exp2Syn(0.151430)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(417).sec{pp = new Exp2Syn(0.934970)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(475).sec{pp = new Exp2Syn(0.293100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(423).sec{pp = new Exp2Syn(0.924100)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(423).sec{pp = new Exp2Syn(0.886140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(131).sec{pp = new Exp2Syn(0.881580)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(155).sec{pp = new Exp2Syn(0.366270)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(135).sec{pp = new Exp2Syn(0.201410)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(134).sec{pp = new Exp2Syn(0.380360)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(168).sec{pp = new Exp2Syn(0.197990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(164).sec{pp = new Exp2Syn(0.239900)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(137).sec{pp = new Exp2Syn(0.224950)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(155).sec{pp = new Exp2Syn(0.243780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(117).sec{pp = new Exp2Syn(0.264360)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(123).sec{pp = new Exp2Syn(0.718590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(118).sec{pp = new Exp2Syn(0.095300)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(122).sec{pp = new Exp2Syn(0.194650)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(119).sec{pp = new Exp2Syn(0.156730)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(119).sec{pp = new Exp2Syn(0.335940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(119).sec{pp = new Exp2Syn(0.984410)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(122).sec{pp = new Exp2Syn(0.675280)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.104030)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.262070)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.356780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.469320)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.751380)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.867990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.854740)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.880330)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(180).sec{pp = new Exp2Syn(0.904990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(182).sec{pp = new Exp2Syn(0.286540)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(182).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(183).sec{pp = new Exp2Syn(0.512210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(184).sec{pp = new Exp2Syn(0.571590)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(158).sec{pp = new Exp2Syn(0.662270)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(158).sec{pp = new Exp2Syn(0.929710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(140).sec{pp = new Exp2Syn(0.117700)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(152).sec{pp = new Exp2Syn(0.559080)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(141).sec{pp = new Exp2Syn(0.476930)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(151).sec{pp = new Exp2Syn(0.117940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(151).sec{pp = new Exp2Syn(0.393780)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(145).sec{pp = new Exp2Syn(0.894120)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(145).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(153).sec{pp = new Exp2Syn(0.551890)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(266).sec{pp = new Exp2Syn(0.215510)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(273).sec{pp = new Exp2Syn(0.983880)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(198).sec{pp = new Exp2Syn(0.383360)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(198).sec{pp = new Exp2Syn(0.475790)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(250).sec{pp = new Exp2Syn(0.176860)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(199).sec{pp = new Exp2Syn(0.416310)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(200).sec{pp = new Exp2Syn(0.535300)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(201).sec{pp = new Exp2Syn(0.143810)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(204).sec{pp = new Exp2Syn(0.559540)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(206).sec{pp = new Exp2Syn(0.196710)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(209).sec{pp = new Exp2Syn(0.242460)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(221).sec{pp = new Exp2Syn(0.047320)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(491).sec{pp = new Exp2Syn(0.501450)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(491).sec{pp = new Exp2Syn(0.857240)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(525).sec{pp = new Exp2Syn(0.417390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(221).sec{pp = new Exp2Syn(0.279150)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(219).sec{pp = new Exp2Syn(0.454030)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(211).sec{pp = new Exp2Syn(0.472520)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(211).sec{pp = new Exp2Syn(0.367560)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(212).sec{pp = new Exp2Syn(0.723000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(229).sec{pp = new Exp2Syn(0.070610)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(137).sec{pp = new Exp2Syn(0.668340)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(32).sec{pp = new Exp2Syn(0.260680)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(32).sec{pp = new Exp2Syn(0.864880)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(35).sec{pp = new Exp2Syn(0.267030)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(32).sec{pp = new Exp2Syn(0.952220)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(258).sec{pp = new Exp2Syn(0.125000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(265).sec{pp = new Exp2Syn(0.722040)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(451).sec{pp = new Exp2Syn(0.666670)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(448).sec{pp = new Exp2Syn(0.734090)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(454).sec{pp = new Exp2Syn(0.599120)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(455).sec{pp = new Exp2Syn(0.614390)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(444).sec{pp = new Exp2Syn(0.533850)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(430).sec{pp = new Exp2Syn(0.275110)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(431).sec{pp = new Exp2Syn(0.854470)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(432).sec{pp = new Exp2Syn(0.238050)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(387).sec{pp = new Exp2Syn(0.286990)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(332).sec{pp = new Exp2Syn(0.563980)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(484).sec{pp = new Exp2Syn(0.433480)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(487).sec{pp = new Exp2Syn(0.627540)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(486).sec{pp = new Exp2Syn(0.950940)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(788).sec{pp = new Exp2Syn(0.594600)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(786).sec{pp = new Exp2Syn(0.520550)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(787).sec{pp = new Exp2Syn(0.611140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(19).sec{pp = new Exp2Syn(0.789680)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(20).sec{pp = new Exp2Syn(0.642140)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(21).sec{pp = new Exp2Syn(0.733180)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(23).sec{pp = new Exp2Syn(0.829290)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(555).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(550).sec{pp = new Exp2Syn(0.466380)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(117).sec{pp = new Exp2Syn(0.389500)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(568).sec{pp = new Exp2Syn(0.149210)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(455).sec{pp = new Exp2Syn(0.871970)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(343).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(472).sec{pp = new Exp2Syn(0.043960)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(152).sec{pp = new Exp2Syn(0.493260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(167).sec{pp = new Exp2Syn(0.087410)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(190).sec{pp = new Exp2Syn(0.214540)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(190).sec{pp = new Exp2Syn(0.792620)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(753).sec{pp = new Exp2Syn(1.000000)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(754).sec{pp = new Exp2Syn(0.130250)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(420).sec{pp = new Exp2Syn(0.691090)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+cellList.o(0).allregobj.o(449).sec{pp = new Exp2Syn(0.173260)
+pp.e = -60.000000 
+pp.i = 0.000000 
+pp.tau1 = 1.000000 
+pp.tau2 = 3.000000 
+}
+io = ppList.append(pp)
+objref pp

@@ -1,0 +1,58 @@
+clear p* x* high* low*
+clf
+d=5;
+g=[0.5 0.5 0.5];
+x = linspace(-500,0,500);
+subplot(1,2,1)
+hold on
+timeFit = spikes.lowContrastTimeFit(i,:);
+ylow = timeFit(1) * (x./timeFit(2)).^timeFit(3) .* ...
+    exp(-timeFit(3)*(x./(timeFit(2)-1))) -...
+    timeFit(4) * (x./timeFit(5)).^timeFit(3) .*...
+    exp(-timeFit(3)*(x./(timeFit(5)-1)));
+plot(x,ylow,'Color',g)
+
+timeFit = spikes.highContrastTimeFit(i,:);
+yhigh = timeFit(1) * (x./timeFit(2)).^timeFit(3) .* ...
+    exp(-timeFit(3)*(x./(timeFit(2)-1))) -...
+    timeFit(4) * (x./timeFit(5)).^timeFit(3) .*...
+    exp(-timeFit(3)*(x./(timeFit(5)-1)));
+plot(x,yhigh,'k')
+xlabel('delay (ms)')
+ylabel('relative STA intensity')
+axis tight
+% xTime = linspace(-500,0,50);
+% subplot(1,2,1)
+% hold on
+% plot(xTime,spikes.lowContrastSTAnormalized(i,:),'b')
+% plot(xTime,spikes.highContrastSTAnormalized(i,:),'k')
+% xlabel('delay (ms)')
+% ylabel('relative STA intensity')
+% axis tight
+
+subplot(1,2,2)
+hold on
+plot(spikes.lowContrastInput(i,:),...
+    spikes.lowContrastOutput(i,:)*100,'o','MarkerSize', d, ...
+    'MarkerEdgeColor',g)
+plot(spikes.highContrastInput(i,:),...
+    spikes.highContrastOutput(i,:)*100,'ko','MarkerSize', d)
+
+%lowContrast
+xlowContrast = linspace(spikes.lowContrastInput(i,1),...
+    spikes.lowContrastInput(i,end),1000);
+beta = spikes.lowContrastFit(i,:);
+p = normcdf ( (beta(1) * (xlowContrast + beta(2))), 0, 1);
+ylowContrast =  p*beta(3) + beta(4);
+plot(xlowContrast,ylowContrast*100,'Color',g)
+
+%highContrast
+xhighContrast = linspace(spikes.highContrastInput(i,1),...
+    spikes.highContrastInput(i,end),1000);
+beta = spikes.highContrastFit(i,:);
+p = normcdf ( (beta(1) * (xhighContrast + beta(2))), 0, 1);
+yhighContrast =  p*beta(3) + beta(4);
+plot(xhighContrast,yhighContrast*100,'k')
+xlabel('Input')
+ylabel('Output (Hz)')
+axis tight

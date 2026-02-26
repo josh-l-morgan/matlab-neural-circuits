@@ -1,0 +1,42 @@
+%% eyewirePlay1.m
+
+%run eyewireParse first 
+
+%check the distributions of the different kinds of bipolar cells to make
+%sure they are comparable.
+
+for i=1:length(bipolDatStruct)
+    figure();
+    hold on
+    title(bipolDatStruct(i).name);
+    for j=1:length(bipolDatStruct(i).dat)
+       curCellHistDat=bipolDatStruct(i).dat(j).histDat;
+       curHistSum=sum(curCellHistDat(:,2));
+       if j<=(length(bipolDatStruct(i).dat)-length(bipolDatStruct(i).ewMeans))
+           subplot(1,2,1);
+           hold on
+           plot(curCellHistDat(:,1),curCellHistDat(:,2),'r-','LineWidth',2);
+           smoothDat=smoothdata(curCellHistDat(:,2));
+           subplot(1,2,2);
+           hold on
+           plot(curCellHistDat(:,1),smoothDat,'m-','LineWidth',0.5);
+       else
+           subplot(1,2,1);
+           plot(curCellHistDat(:,1),curCellHistDat(:,2),'b-','LineWidth',0.5);
+           smoothDat=smoothdata(curCellHistDat(:,2));
+           subplot(1,2,2);
+           plot(curCellHistDat(:,1),smoothDat,'c-','LineWidth',0.5);
+       end
+    end
+    if i<4
+        subplot(1,2,1);
+        xlim([0.1,0.6]);
+        subplot(1,2,2);
+        xlim([0.1,0.6]);
+    else
+        subplot(1,2,1);
+        xlim([0.3,0.8]);
+        subplot(1,2,2);
+        xlim([0.3,0.8]);
+    end
+end

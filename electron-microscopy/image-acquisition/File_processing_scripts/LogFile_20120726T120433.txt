@@ -1,0 +1,571 @@
+Created: 26-Jul-2012 12:04:33
+26-Jul-2012 12:07:42: ******Beginning section 1
+26-Jul-2012 12:07:44: Moving stage to x=0.10522, y=0.08138,scanrot=    0
+26-Jul-2012 12:10:13: Moving stage to(0.10522, 0.08138)
+26-Jul-2012 12:10:15: Moving stage to(0.10525, 0.081357)
+26-Jul-2012 12:10:41: Moving stage to(0.1052, 0.081357)
+26-Jul-2012 12:11:05:     monQual= 159.43
+26-Jul-2012 12:11:05:     row = 1 and col = 2
+26-Jul-2012 12:11:05: ************************************
+26-Jul-2012 12:11:07: Moving stage to(0.10525, 0.081403)
+26-Jul-2012 12:11:31:     monQual= 145.89
+26-Jul-2012 12:11:31:     row = 2 and col = 1
+26-Jul-2012 12:11:31: ************************************
+26-Jul-2012 12:11:33: Moving stage to(0.1052, 0.081403)
+26-Jul-2012 12:11:56:     monQual= 148.65
+26-Jul-2012 12:11:56:     row = 2 and col = 2
+26-Jul-2012 12:11:56: ************************************
+26-Jul-2012 12:11:58:     monQual2= 160.78
+26-Jul-2012 12:12:01: Moving stage to original position (0.10522, 0.08138)
+26-Jul-2012 12:12:46: ******Beginning section 2
+26-Jul-2012 12:12:48: Moving stage to x=0.10502, y=0.078016,scanrot=    0
+26-Jul-2012 12:15:18: Moving stage to(0.10502, 0.078016)
+26-Jul-2012 12:15:20: Moving stage to(0.10504, 0.077993)
+26-Jul-2012 12:15:45: Moving stage to(0.105, 0.077993)
+26-Jul-2012 12:16:09:     monQual= 149.73
+26-Jul-2012 12:16:09:     row = 1 and col = 2
+26-Jul-2012 12:16:09: ************************************
+26-Jul-2012 12:16:11: Moving stage to(0.10504, 0.078039)
+26-Jul-2012 12:16:35:     monQual= 137.53
+26-Jul-2012 12:16:35:     row = 2 and col = 1
+26-Jul-2012 12:16:35: ************************************
+26-Jul-2012 12:16:38: Moving stage to(0.105, 0.078039)
+26-Jul-2012 12:17:01:     monQual= 153.23
+26-Jul-2012 12:17:01:     row = 2 and col = 2
+26-Jul-2012 12:17:01: ************************************
+26-Jul-2012 12:17:03:     monQual2= 157.46
+26-Jul-2012 12:17:05: Moving stage to original position (0.10502, 0.078016)
+26-Jul-2012 12:17:49: ******Beginning section 3
+26-Jul-2012 12:17:51: Moving stage to x=0.10506, y=0.074704,scanrot=    0
+26-Jul-2012 12:21:05: Moving stage to(0.10506, 0.074704)
+26-Jul-2012 12:21:07: Moving stage to(0.10508, 0.074681)
+26-Jul-2012 12:21:47: ******Beginning section 4
+26-Jul-2012 12:21:50: Moving stage to x=0.10504, y=0.071214,scanrot=    0
+26-Jul-2012 12:24:10: Moving stage to(0.10504, 0.071214)
+26-Jul-2012 12:24:12: Moving stage to(0.10506, 0.071191)
+26-Jul-2012 12:24:37: Moving stage to(0.10502, 0.071191)
+26-Jul-2012 12:25:01:     monQual= 136.78
+26-Jul-2012 12:25:01:     row = 1 and col = 2
+26-Jul-2012 12:25:01: ************************************
+26-Jul-2012 12:25:03: Moving stage to(0.10506, 0.071237)
+26-Jul-2012 12:25:28:     monQual= 156.32
+26-Jul-2012 12:25:28:     row = 2 and col = 1
+26-Jul-2012 12:25:28: ************************************
+26-Jul-2012 12:25:30: Moving stage to(0.10502, 0.071237)
+26-Jul-2012 12:25:55:     monQual= 152.72
+26-Jul-2012 12:25:55:     row = 2 and col = 2
+26-Jul-2012 12:25:55: ************************************
+26-Jul-2012 12:25:57:     monQual2= 143.74
+26-Jul-2012 12:25:59: Moving stage to original position (0.10504, 0.071214)
+26-Jul-2012 12:26:42: ******Beginning section 5
+26-Jul-2012 12:26:44: Moving stage to x=0.10501, y=0.067952,scanrot=    0
+26-Jul-2012 12:29:04: Moving stage to(0.10501, 0.067952)
+26-Jul-2012 12:29:07: Moving stage to(0.10503, 0.067929)
+26-Jul-2012 12:29:32: Moving stage to(0.10498, 0.067929)
+26-Jul-2012 12:29:56:     monQual= 167.71
+26-Jul-2012 12:29:56:     row = 1 and col = 2
+26-Jul-2012 12:29:56: ************************************
+26-Jul-2012 12:29:58: Moving stage to(0.10503, 0.067975)
+26-Jul-2012 12:30:23:     monQual= 144.25
+26-Jul-2012 12:30:23:     row = 2 and col = 1
+26-Jul-2012 12:30:23: ************************************
+26-Jul-2012 12:30:26: Moving stage to(0.10498, 0.067975)
+26-Jul-2012 12:30:49:     monQual= 139.27
+26-Jul-2012 12:30:49:     row = 2 and col = 2
+26-Jul-2012 12:30:49: ************************************
+26-Jul-2012 12:30:51:     monQual2= 148.3
+26-Jul-2012 12:30:53: Moving stage to original position (0.10501, 0.067952)
+26-Jul-2012 12:31:36: ******Beginning section 6
+26-Jul-2012 12:31:39: Moving stage to x=0.10485, y=0.064527,scanrot=    0
+26-Jul-2012 12:34:06: Moving stage to(0.10485, 0.064527)
+26-Jul-2012 12:34:08: Moving stage to(0.10487, 0.064504)
+26-Jul-2012 12:34:33: Moving stage to(0.10482, 0.064504)
+26-Jul-2012 12:34:57:     monQual= 149.9
+26-Jul-2012 12:34:57:     row = 1 and col = 2
+26-Jul-2012 12:34:57: ************************************
+26-Jul-2012 12:35:00: Moving stage to(0.10487, 0.06455)
+26-Jul-2012 12:35:24:     monQual= 139.56
+26-Jul-2012 12:35:24:     row = 2 and col = 1
+26-Jul-2012 12:35:24: ************************************
+26-Jul-2012 12:35:27: Moving stage to(0.10482, 0.06455)
+26-Jul-2012 12:35:51:     monQual= 152.47
+26-Jul-2012 12:35:51:     row = 2 and col = 2
+26-Jul-2012 12:35:51: ************************************
+26-Jul-2012 12:35:52:     monQual2= 146.56
+26-Jul-2012 12:35:55: Moving stage to original position (0.10485, 0.064527)
+26-Jul-2012 12:36:38: ******Beginning section 7
+26-Jul-2012 12:36:41: Moving stage to x=0.10489, y=0.061155,scanrot=    0
+26-Jul-2012 12:39:02: Moving stage to(0.10489, 0.061155)
+26-Jul-2012 12:39:05: Moving stage to(0.10492, 0.061132)
+26-Jul-2012 12:39:30: Moving stage to(0.10487, 0.061132)
+26-Jul-2012 12:39:54:     monQual= 146.93
+26-Jul-2012 12:39:54:     row = 1 and col = 2
+26-Jul-2012 12:39:54: ************************************
+26-Jul-2012 12:39:56: Moving stage to(0.10492, 0.061178)
+26-Jul-2012 12:40:20:     monQual= 141.6
+26-Jul-2012 12:40:20:     row = 2 and col = 1
+26-Jul-2012 12:40:20: ************************************
+26-Jul-2012 12:40:22: Moving stage to(0.10487, 0.061178)
+26-Jul-2012 12:40:46:     monQual= 141.85
+26-Jul-2012 12:40:46:     row = 2 and col = 2
+26-Jul-2012 12:40:46: ************************************
+26-Jul-2012 12:40:47:     monQual2= 129.95
+26-Jul-2012 12:40:50: Moving stage to original position (0.10489, 0.061155)
+26-Jul-2012 12:41:34: ******Beginning section 8
+26-Jul-2012 12:41:36: Moving stage to x=0.10481, y=0.057718,scanrot=    0
+26-Jul-2012 12:44:01: Moving stage to(0.10481, 0.057718)
+26-Jul-2012 12:44:04: Moving stage to(0.10484, 0.057695)
+26-Jul-2012 12:44:30: Moving stage to(0.10479, 0.057695)
+26-Jul-2012 12:44:54:     monQual= 145.49
+26-Jul-2012 12:44:54:     row = 1 and col = 2
+26-Jul-2012 12:44:54: ************************************
+26-Jul-2012 12:44:56: Moving stage to(0.10484, 0.057741)
+26-Jul-2012 12:45:20:     monQual= 164.7
+26-Jul-2012 12:45:20:     row = 2 and col = 1
+26-Jul-2012 12:45:20: ************************************
+26-Jul-2012 12:45:23: Moving stage to(0.10479, 0.057741)
+26-Jul-2012 12:45:47:     monQual= 173.29
+26-Jul-2012 12:45:47:     row = 2 and col = 2
+26-Jul-2012 12:45:47: ************************************
+26-Jul-2012 12:45:48:     monQual2= 156.04
+26-Jul-2012 12:45:51: Moving stage to original position (0.10481, 0.057718)
+26-Jul-2012 12:46:35: ******Beginning section 9
+26-Jul-2012 12:46:37: Moving stage to x=0.10478, y=0.054213,scanrot=    0
+26-Jul-2012 12:49:04: Moving stage to(0.10478, 0.054213)
+26-Jul-2012 12:49:07: Moving stage to(0.1048, 0.05419)
+26-Jul-2012 12:49:32: Moving stage to(0.10476, 0.05419)
+26-Jul-2012 12:49:56:     monQual= 146.32
+26-Jul-2012 12:49:56:     row = 1 and col = 2
+26-Jul-2012 12:49:56: ************************************
+26-Jul-2012 12:49:58: Moving stage to(0.1048, 0.054236)
+26-Jul-2012 12:50:22:     monQual= 146.4
+26-Jul-2012 12:50:22:     row = 2 and col = 1
+26-Jul-2012 12:50:22: ************************************
+26-Jul-2012 12:50:24: Moving stage to(0.10476, 0.054236)
+26-Jul-2012 12:50:48:     monQual= 148.83
+26-Jul-2012 12:50:48:     row = 2 and col = 2
+26-Jul-2012 12:50:48: ************************************
+26-Jul-2012 12:50:49:     monQual2= 139.36
+26-Jul-2012 12:50:52: Moving stage to original position (0.10478, 0.054213)
+26-Jul-2012 12:51:35: ******Beginning section 10
+26-Jul-2012 12:51:38: Moving stage to x=0.10467, y=0.050464,scanrot=    0
+26-Jul-2012 12:54:01: Moving stage to(0.10467, 0.050464)
+26-Jul-2012 12:54:04: Moving stage to(0.1047, 0.050441)
+26-Jul-2012 12:54:29: Moving stage to(0.10465, 0.050441)
+26-Jul-2012 12:54:53:     monQual= 141.69
+26-Jul-2012 12:54:53:     row = 1 and col = 2
+26-Jul-2012 12:54:53: ************************************
+26-Jul-2012 12:54:55: Moving stage to(0.1047, 0.050487)
+26-Jul-2012 12:55:19:     monQual= 147.24
+26-Jul-2012 12:55:19:     row = 2 and col = 1
+26-Jul-2012 12:55:19: ************************************
+26-Jul-2012 12:55:21: Moving stage to(0.10465, 0.050487)
+26-Jul-2012 12:55:45:     monQual= 146.37
+26-Jul-2012 12:55:45:     row = 2 and col = 2
+26-Jul-2012 12:55:45: ************************************
+26-Jul-2012 12:55:46:     monQual2= 149.9
+26-Jul-2012 12:55:49: Moving stage to original position (0.10467, 0.050464)
+26-Jul-2012 12:56:34: ******Beginning section 11
+26-Jul-2012 12:56:36: Moving stage to x=0.10456, y=0.047548,scanrot=    0
+26-Jul-2012 12:58:55: Moving stage to(0.10456, 0.047548)
+26-Jul-2012 12:58:58: Moving stage to(0.10458, 0.047525)
+26-Jul-2012 12:59:23: Moving stage to(0.10454, 0.047525)
+26-Jul-2012 12:59:47:     monQual= 124.84
+26-Jul-2012 12:59:47:     row = 1 and col = 2
+26-Jul-2012 12:59:47: ************************************
+26-Jul-2012 12:59:49: Moving stage to(0.10458, 0.047571)
+26-Jul-2012 13:00:13:     monQual= 101.91
+26-Jul-2012 13:00:13:     row = 2 and col = 1
+26-Jul-2012 13:00:13: ************************************
+26-Jul-2012 13:00:15: Moving stage to(0.10454, 0.047571)
+26-Jul-2012 13:00:39:     monQual= 135.24
+26-Jul-2012 13:00:39:     row = 2 and col = 2
+26-Jul-2012 13:00:39: ************************************
+26-Jul-2012 13:00:40:     monQual2= 122.05
+26-Jul-2012 13:00:40:  Retake F:\DavidMankus\retina-testing-run\wafer1\MontageImage-Inlens\wafer1_Sec11_Montage\Tile_r1-c2_wafer1_sec11.tif
+26-Jul-2012 13:00:42: Moving stage to(0.10454, 0.047525)
+26-Jul-2012 13:00:45:    Starting first autofocus
+26-Jul-2012 13:00:51:    Beginning WD =                3.07725 mm
+26-Jul-2012 13:00:51:    First autofocus produced WD = 3.08131 mm
+26-Jul-2012 13:00:51:    WD difference =               4.061 um
+26-Jul-2012 13:00:51:    First autofocus time = 5.9063 sec
+26-Jul-2012 13:00:51:       Starting Stig X =     0 and Y = 0
+26-Jul-2012 13:01:22:       AutoStig produced X = 0.18703  and Y = 0.76762
+26-Jul-2012 13:01:22:       Diff Stig X =         0.18703   and Y = 0.76762
+26-Jul-2012 13:01:22:       Stigmation Time = 30.839 sec
+26-Jul-2012 13:01:22:         Starting second autofocus
+26-Jul-2012 13:01:27:         Second autofocus produced WD = 3.0854 mm
+26-Jul-2012 13:01:27:         Final WD difference =          3.0782 um
+26-Jul-2012 13:01:27:         Second autofocus Time = 4.5149 sec
+26-Jul-2012 13:01:27:            Brightness = 46.838, Contrast = 23.321
+26-Jul-2012 13:01:55: Moving stage to original position (0.10456, 0.047548)
+26-Jul-2012 13:02:49: ******Beginning section 12
+26-Jul-2012 13:02:51: Moving stage to x=0.095816, y=0.096564,scanrot=    0
+26-Jul-2012 13:05:44: Moving stage to(0.095816, 0.096564)
+26-Jul-2012 13:05:46: Moving stage to(0.095839, 0.096541)
+26-Jul-2012 13:06:11: Moving stage to(0.095793, 0.096541)
+26-Jul-2012 13:06:35:     monQual= 97.976
+26-Jul-2012 13:06:35:     row = 1 and col = 2
+26-Jul-2012 13:06:35: ************************************
+26-Jul-2012 13:06:38: Moving stage to(0.095839, 0.096587)
+26-Jul-2012 13:07:01:     monQual= 87.053
+26-Jul-2012 13:07:01:     row = 2 and col = 1
+26-Jul-2012 13:07:01: ************************************
+26-Jul-2012 13:07:04: Moving stage to(0.095793, 0.096587)
+26-Jul-2012 13:07:27:     monQual= 98.577
+26-Jul-2012 13:07:27:     row = 2 and col = 2
+26-Jul-2012 13:07:27: ************************************
+26-Jul-2012 13:07:29:     monQual2= 87.384
+26-Jul-2012 13:07:29:  Retake F:\DavidMankus\retina-testing-run\wafer1\MontageImage-Inlens\wafer1_Sec12_Montage\Tile_r1-c1_wafer1_sec12.tif
+26-Jul-2012 13:07:31: Moving stage to(0.095839, 0.096541)
+26-Jul-2012 13:07:34:    Starting first autofocus
+26-Jul-2012 13:07:38:    Beginning WD =                2.81979 mm
+26-Jul-2012 13:07:38:    First autofocus produced WD = 2.69182 mm
+26-Jul-2012 13:07:38:    WD difference =               127.97 um
+26-Jul-2012 13:07:38:    First autofocus time = 4.6406 sec
+26-Jul-2012 13:07:38:       Starting Stig X =     0 and Y = 0
+26-Jul-2012 13:08:10:       AutoStig produced X = 1.333  and Y = -33.564
+26-Jul-2012 13:08:10:       Diff Stig X =         1.333   and Y = 33.564
+26-Jul-2012 13:08:10:       Stigmation Time = 31.84 sec
+26-Jul-2012 13:08:10:         Starting second autofocus
+26-Jul-2012 13:08:15:         Second autofocus produced WD = 2.6898 mm
+26-Jul-2012 13:08:15:         Final WD difference =          2.6891 um
+26-Jul-2012 13:08:15:         Second autofocus Time = 4.5495 sec
+26-Jul-2012 13:08:15:            Brightness = 46.838, Contrast = 23.321
+26-Jul-2012 13:08:39:  Retake F:\DavidMankus\retina-testing-run\wafer1\MontageImage-Inlens\wafer1_Sec12_Montage\Tile_r1-c2_wafer1_sec12.tif
+26-Jul-2012 13:08:41: Moving stage to(0.095793, 0.096541)
+26-Jul-2012 13:08:44:    Starting first autofocus
+26-Jul-2012 13:08:49:    Beginning WD =                2.81979 mm
+26-Jul-2012 13:08:49:    First autofocus produced WD = 2.84467 mm
+26-Jul-2012 13:08:49:    WD difference =               24.882 um
+26-Jul-2012 13:08:49:    First autofocus time = 4.4999 sec
+26-Jul-2012 13:08:49:       Starting Stig X =     0 and Y = 0
+26-Jul-2012 13:09:19:       AutoStig produced X = -60.156  and Y = -19.688
+26-Jul-2012 13:09:19:       Diff Stig X =         60.156   and Y = 19.688
+26-Jul-2012 13:09:19:       Stigmation Time = 30.778 sec
+26-Jul-2012 13:09:19:         Starting second autofocus
+26-Jul-2012 13:09:24:         Second autofocus produced WD = 2.8401 mm
+26-Jul-2012 13:09:24:         Final WD difference =          2.8418 um
+26-Jul-2012 13:09:24:         Second autofocus Time = 4.662 sec
+26-Jul-2012 13:09:24:            Brightness = 46.838, Contrast = 23.321
+26-Jul-2012 13:09:49:  Retake F:\DavidMankus\retina-testing-run\wafer1\MontageImage-Inlens\wafer1_Sec12_Montage\Tile_r2-c1_wafer1_sec12.tif
+26-Jul-2012 13:09:52: Moving stage to(0.095839, 0.096587)
+26-Jul-2012 13:09:55:    Starting first autofocus
+26-Jul-2012 13:10:00:    Beginning WD =                2.81979 mm
+26-Jul-2012 13:10:00:    First autofocus produced WD = 2.72025 mm
+26-Jul-2012 13:10:00:    WD difference =               99.532 um
+26-Jul-2012 13:10:00:    First autofocus time = 5.5624 sec
+26-Jul-2012 13:10:00:       Starting Stig X =     0 and Y = 0
+26-Jul-2012 13:10:33:       AutoStig produced X = -0.79868  and Y = -5.036
+26-Jul-2012 13:10:33:       Diff Stig X =         0.79868   and Y = 5.036
+26-Jul-2012 13:10:33:       Stigmation Time = 32.637 sec
+26-Jul-2012 13:10:33:         Starting second autofocus
+26-Jul-2012 13:10:42:         Second autofocus produced WD = 2.5958 mm
+26-Jul-2012 13:10:42:         Final WD difference =          2.7177 um
+26-Jul-2012 13:10:42:         Second autofocus Time = 9.543 sec
+26-Jul-2012 13:10:42:            Brightness = 46.838, Contrast = 23.321
+26-Jul-2012 13:11:07:  Retake F:\DavidMankus\retina-testing-run\wafer1\MontageImage-Inlens\wafer1_Sec12_Montage\Tile_r2-c2_wafer1_sec12.tif
+26-Jul-2012 13:11:09: Moving stage to(0.095793, 0.096587)
+26-Jul-2012 13:11:12:    Starting first autofocus
+26-Jul-2012 13:11:19:    Beginning WD =                2.81979 mm
+26-Jul-2012 13:11:19:    First autofocus produced WD = 2.65119 mm
+26-Jul-2012 13:11:19:    WD difference =               168.59 um
+26-Jul-2012 13:11:19:    First autofocus time = 6.5312 sec
+26-Jul-2012 13:11:19:       Starting Stig X =     0 and Y = 0
+26-Jul-2012 13:11:50:       AutoStig produced X = 14.834  and Y = -69.8
+26-Jul-2012 13:11:50:       Diff Stig X =         14.834   and Y = 69.8
+26-Jul-2012 13:11:50:       Stigmation Time = 31.638 sec
+26-Jul-2012 13:11:50:         Starting second autofocus
+26-Jul-2012 13:11:57:         Second autofocus produced WD = 2.6786 mm
+26-Jul-2012 13:11:57:         Final WD difference =          2.6485 um
+26-Jul-2012 13:11:57:         Second autofocus Time = 6.9193 sec
+26-Jul-2012 13:11:57:            Brightness = 46.838, Contrast = 23.321
+26-Jul-2012 13:12:24: Moving stage to original position (0.095816, 0.096564)
+26-Jul-2012 13:15:17: ******Beginning section 13
+26-Jul-2012 13:15:20: Moving stage to x=0.09568, y=0.093317,scanrot=    0
+26-Jul-2012 13:17:49: Moving stage to(0.09568, 0.093317)
+26-Jul-2012 13:17:52: Moving stage to(0.095703, 0.093294)
+26-Jul-2012 13:18:17: Moving stage to(0.095657, 0.093294)
+26-Jul-2012 13:18:41:     monQual= 162.1
+26-Jul-2012 13:18:41:     row = 1 and col = 2
+26-Jul-2012 13:18:41: ************************************
+26-Jul-2012 13:18:43: Moving stage to(0.095703, 0.09334)
+26-Jul-2012 13:19:08:     monQual= 166.56
+26-Jul-2012 13:19:08:     row = 2 and col = 1
+26-Jul-2012 13:19:08: ************************************
+26-Jul-2012 13:19:10: Moving stage to(0.095657, 0.09334)
+26-Jul-2012 13:19:34:     monQual= 171.47
+26-Jul-2012 13:19:34:     row = 2 and col = 2
+26-Jul-2012 13:19:34: ************************************
+26-Jul-2012 13:19:35:     monQual2= 136.9
+26-Jul-2012 13:19:38: Moving stage to original position (0.09568, 0.093317)
+26-Jul-2012 13:20:21: ******Beginning section 14
+26-Jul-2012 13:20:24: Moving stage to x=0.095331, y=0.089922,scanrot=    0
+26-Jul-2012 13:22:54: Moving stage to(0.095331, 0.089922)
+26-Jul-2012 13:22:57: Moving stage to(0.095354, 0.089899)
+26-Jul-2012 13:23:38: ******Beginning section 15
+26-Jul-2012 13:23:41: Moving stage to x=0.095384, y=0.086406,scanrot=    0
+26-Jul-2012 13:26:58: Moving stage to(0.095384, 0.086406)
+26-Jul-2012 13:27:00: Moving stage to(0.095407, 0.086383)
+26-Jul-2012 13:27:40: ******Beginning section 16
+26-Jul-2012 13:27:43: Moving stage to x=0.095199, y=0.083067,scanrot=    0
+26-Jul-2012 13:30:19: Moving stage to(0.095199, 0.083067)
+26-Jul-2012 13:30:21: Moving stage to(0.095222, 0.083044)
+26-Jul-2012 13:30:47: Moving stage to(0.095176, 0.083044)
+26-Jul-2012 13:31:10:     monQual= 130.09
+26-Jul-2012 13:31:10:     row = 1 and col = 2
+26-Jul-2012 13:31:10: ************************************
+26-Jul-2012 13:31:13: Moving stage to(0.095222, 0.08309)
+26-Jul-2012 13:31:37:     monQual= 144.65
+26-Jul-2012 13:31:37:     row = 2 and col = 1
+26-Jul-2012 13:31:37: ************************************
+26-Jul-2012 13:31:39: Moving stage to(0.095176, 0.08309)
+26-Jul-2012 13:32:03:     monQual= 142.2
+26-Jul-2012 13:32:03:     row = 2 and col = 2
+26-Jul-2012 13:32:03: ************************************
+26-Jul-2012 13:32:04:     monQual2= 155.43
+26-Jul-2012 13:32:06: Moving stage to original position (0.095199, 0.083067)
+26-Jul-2012 13:32:47: ******Beginning section 17
+26-Jul-2012 13:32:49: Moving stage to x=0.09502, y=0.079678,scanrot=    0
+26-Jul-2012 13:35:30: Moving stage to(0.09502, 0.079678)
+26-Jul-2012 13:35:32: Moving stage to(0.095043, 0.079655)
+26-Jul-2012 13:36:13: ******Beginning section 18
+26-Jul-2012 13:36:15: Moving stage to x=0.094899, y=0.076347,scanrot=    0
+26-Jul-2012 13:38:40: Moving stage to(0.094899, 0.076347)
+26-Jul-2012 13:38:42: Moving stage to(0.094922, 0.076324)
+26-Jul-2012 13:39:07: Moving stage to(0.094876, 0.076324)
+26-Jul-2012 13:39:31:     monQual= 148.28
+26-Jul-2012 13:39:31:     row = 1 and col = 2
+26-Jul-2012 13:39:31: ************************************
+26-Jul-2012 13:39:33: Moving stage to(0.094922, 0.07637)
+26-Jul-2012 13:39:57:     monQual= 142.64
+26-Jul-2012 13:39:57:     row = 2 and col = 1
+26-Jul-2012 13:39:57: ************************************
+26-Jul-2012 13:40:00: Moving stage to(0.094876, 0.07637)
+26-Jul-2012 13:40:23:     monQual= 143.76
+26-Jul-2012 13:40:23:     row = 2 and col = 2
+26-Jul-2012 13:40:23: ************************************
+26-Jul-2012 13:40:24:     monQual2= 155.21
+26-Jul-2012 13:40:27: Moving stage to original position (0.094899, 0.076347)
+26-Jul-2012 13:41:10: ******Beginning section 19
+26-Jul-2012 13:41:13: Moving stage to x=0.094648, y=0.073051,scanrot=    0
+26-Jul-2012 13:44:10: Moving stage to(0.094648, 0.073051)
+26-Jul-2012 13:44:12: Moving stage to(0.094671, 0.073028)
+26-Jul-2012 13:44:53: ******Beginning section 20
+26-Jul-2012 13:44:55: Moving stage to x=0.094586, y=0.0695,scanrot=    0
+26-Jul-2012 13:47:17: Moving stage to(0.094586, 0.0695)
+26-Jul-2012 13:47:19: Moving stage to(0.094609, 0.069477)
+26-Jul-2012 13:47:44: Moving stage to(0.094563, 0.069477)
+26-Jul-2012 13:48:08:     monQual= 140.61
+26-Jul-2012 13:48:08:     row = 1 and col = 2
+26-Jul-2012 13:48:08: ************************************
+26-Jul-2012 13:48:10: Moving stage to(0.094609, 0.069523)
+26-Jul-2012 13:48:34:     monQual= 135.12
+26-Jul-2012 13:48:34:     row = 2 and col = 1
+26-Jul-2012 13:48:34: ************************************
+26-Jul-2012 13:48:36: Moving stage to(0.094563, 0.069523)
+26-Jul-2012 13:48:59:     monQual= 130.08
+26-Jul-2012 13:48:59:     row = 2 and col = 2
+26-Jul-2012 13:48:59: ************************************
+26-Jul-2012 13:49:01:     monQual2= 127.47
+26-Jul-2012 13:49:03: Moving stage to original position (0.094586, 0.0695)
+26-Jul-2012 13:49:44: ******Beginning section 21
+26-Jul-2012 13:49:46: Moving stage to x=0.094767, y=0.065813,scanrot=    0
+26-Jul-2012 13:52:11: Moving stage to(0.094767, 0.065813)
+26-Jul-2012 13:52:14: Moving stage to(0.09479, 0.06579)
+26-Jul-2012 13:52:39: Moving stage to(0.094744, 0.06579)
+26-Jul-2012 13:53:03:     monQual= 159.56
+26-Jul-2012 13:53:03:     row = 1 and col = 2
+26-Jul-2012 13:53:03: ************************************
+26-Jul-2012 13:53:05: Moving stage to(0.09479, 0.065836)
+26-Jul-2012 13:53:29:     monQual= 142.73
+26-Jul-2012 13:53:29:     row = 2 and col = 1
+26-Jul-2012 13:53:29: ************************************
+26-Jul-2012 13:53:32: Moving stage to(0.094744, 0.065836)
+26-Jul-2012 13:53:56:     monQual= 156.33
+26-Jul-2012 13:53:56:     row = 2 and col = 2
+26-Jul-2012 13:53:56: ************************************
+26-Jul-2012 13:53:57:     monQual2= 149.19
+26-Jul-2012 13:54:00: Moving stage to original position (0.094767, 0.065813)
+26-Jul-2012 13:54:43: ******Beginning section 22
+26-Jul-2012 13:54:46: Moving stage to x=0.09423, y=0.062782,scanrot=    0
+26-Jul-2012 13:57:14: Moving stage to(0.09423, 0.062782)
+26-Jul-2012 13:57:17: Moving stage to(0.094253, 0.062759)
+26-Jul-2012 13:57:42: Moving stage to(0.094207, 0.062759)
+26-Jul-2012 13:58:06:     monQual= 151.75
+26-Jul-2012 13:58:06:     row = 1 and col = 2
+26-Jul-2012 13:58:06: ************************************
+26-Jul-2012 13:58:09: Moving stage to(0.094253, 0.062805)
+26-Jul-2012 13:58:32:     monQual= 150.54
+26-Jul-2012 13:58:32:     row = 2 and col = 1
+26-Jul-2012 13:58:32: ************************************
+26-Jul-2012 13:58:34: Moving stage to(0.094207, 0.062805)
+26-Jul-2012 13:58:58:     monQual= 146.77
+26-Jul-2012 13:58:58:     row = 2 and col = 2
+26-Jul-2012 13:58:58: ************************************
+26-Jul-2012 13:59:00:     monQual2= 137.7
+26-Jul-2012 13:59:02: Moving stage to original position (0.09423, 0.062782)
+26-Jul-2012 13:59:47: ******Beginning section 23
+26-Jul-2012 13:59:49: Moving stage to x=0.094414, y=0.059393,scanrot=    0
+26-Jul-2012 14:02:08: Moving stage to(0.094414, 0.059393)
+26-Jul-2012 14:02:11: Moving stage to(0.094437, 0.05937)
+26-Jul-2012 14:02:36: Moving stage to(0.094391, 0.05937)
+26-Jul-2012 14:02:59:     monQual= 150.23
+26-Jul-2012 14:02:59:     row = 1 and col = 2
+26-Jul-2012 14:02:59: ************************************
+26-Jul-2012 14:03:02: Moving stage to(0.094437, 0.059416)
+26-Jul-2012 14:03:25:     monQual= 159.64
+26-Jul-2012 14:03:25:     row = 2 and col = 1
+26-Jul-2012 14:03:25: ************************************
+26-Jul-2012 14:03:28: Moving stage to(0.094391, 0.059416)
+26-Jul-2012 14:03:51:     monQual= 158.19
+26-Jul-2012 14:03:52:     row = 2 and col = 2
+26-Jul-2012 14:03:52: ************************************
+26-Jul-2012 14:03:53:     monQual2= 144.39
+26-Jul-2012 14:03:56: Moving stage to original position (0.094414, 0.059393)
+26-Jul-2012 14:04:36: ******Beginning section 24
+26-Jul-2012 14:04:39: Moving stage to x=0.09416, y=0.055943,scanrot=    0
+26-Jul-2012 14:07:10: Moving stage to(0.09416, 0.055943)
+26-Jul-2012 14:07:13: Moving stage to(0.094184, 0.05592)
+26-Jul-2012 14:07:38: Moving stage to(0.094137, 0.05592)
+26-Jul-2012 14:08:02:     monQual= 147.38
+26-Jul-2012 14:08:02:     row = 1 and col = 2
+26-Jul-2012 14:08:02: ************************************
+26-Jul-2012 14:08:04: Moving stage to(0.094184, 0.055966)
+26-Jul-2012 14:08:28:     monQual= 149.32
+26-Jul-2012 14:08:28:     row = 2 and col = 1
+26-Jul-2012 14:08:28: ************************************
+26-Jul-2012 14:08:30: Moving stage to(0.094137, 0.055966)
+26-Jul-2012 14:08:53:     monQual= 159.58
+26-Jul-2012 14:08:53:     row = 2 and col = 2
+26-Jul-2012 14:08:53: ************************************
+26-Jul-2012 14:08:55:     monQual2= 152.49
+26-Jul-2012 14:08:57: Moving stage to original position (0.09416, 0.055943)
+26-Jul-2012 14:09:40: ******Beginning section 25
+26-Jul-2012 14:09:43: Moving stage to x=0.093671, y=0.052353,scanrot=    0
+26-Jul-2012 14:12:05: Moving stage to(0.093671, 0.052353)
+26-Jul-2012 14:12:07: Moving stage to(0.093694, 0.05233)
+26-Jul-2012 14:12:32: Moving stage to(0.093648, 0.05233)
+26-Jul-2012 14:12:56:     monQual= 156.19
+26-Jul-2012 14:12:56:     row = 1 and col = 2
+26-Jul-2012 14:12:56: ************************************
+26-Jul-2012 14:12:58: Moving stage to(0.093694, 0.052376)
+26-Jul-2012 14:13:22:     monQual= 140
+26-Jul-2012 14:13:22:     row = 2 and col = 1
+26-Jul-2012 14:13:22: ************************************
+26-Jul-2012 14:13:24: Moving stage to(0.093648, 0.052376)
+26-Jul-2012 14:13:48:     monQual= 151.25
+26-Jul-2012 14:13:48:     row = 2 and col = 2
+26-Jul-2012 14:13:48: ************************************
+26-Jul-2012 14:13:50:     monQual2= 161.64
+26-Jul-2012 14:13:52: Moving stage to original position (0.093671, 0.052353)
+26-Jul-2012 14:14:34: ******Beginning section 26
+26-Jul-2012 14:14:37: Moving stage to x=0.093513, y=0.049237,scanrot=    0
+26-Jul-2012 14:16:59: Moving stage to(0.093513, 0.049237)
+26-Jul-2012 14:17:02: Moving stage to(0.093536, 0.049214)
+26-Jul-2012 14:17:27: Moving stage to(0.09349, 0.049214)
+26-Jul-2012 14:17:51:     monQual= 149
+26-Jul-2012 14:17:51:     row = 1 and col = 2
+26-Jul-2012 14:17:51: ************************************
+26-Jul-2012 14:17:53: Moving stage to(0.093536, 0.04926)
+26-Jul-2012 14:18:17:     monQual= 127.64
+26-Jul-2012 14:18:17:     row = 2 and col = 1
+26-Jul-2012 14:18:17: ************************************
+26-Jul-2012 14:18:19: Moving stage to(0.09349, 0.04926)
+26-Jul-2012 14:18:43:     monQual= 148.78
+26-Jul-2012 14:18:43:     row = 2 and col = 2
+26-Jul-2012 14:18:43: ************************************
+26-Jul-2012 14:18:44:     monQual2= 133.21
+26-Jul-2012 14:18:47: Moving stage to original position (0.093513, 0.049237)
+26-Jul-2012 14:21:42: ******Beginning section 27
+26-Jul-2012 14:21:44: Moving stage to x=0.093455, y=0.045828,scanrot=    0
+26-Jul-2012 14:24:09: Moving stage to(0.093455, 0.045828)
+26-Jul-2012 14:24:12: Moving stage to(0.093478, 0.045805)
+26-Jul-2012 14:24:37: Moving stage to(0.093432, 0.045805)
+26-Jul-2012 14:25:01:     monQual= 130.21
+26-Jul-2012 14:25:01:     row = 1 and col = 2
+26-Jul-2012 14:25:01: ************************************
+26-Jul-2012 14:25:03: Moving stage to(0.093478, 0.045851)
+26-Jul-2012 14:25:28:     monQual= 130.37
+26-Jul-2012 14:25:28:     row = 2 and col = 1
+26-Jul-2012 14:25:28: ************************************
+26-Jul-2012 14:25:30: Moving stage to(0.093432, 0.045851)
+26-Jul-2012 14:25:54:     monQual= 150.77
+26-Jul-2012 14:25:54:     row = 2 and col = 2
+26-Jul-2012 14:25:54: ************************************
+26-Jul-2012 14:25:55:     monQual2= 139.01
+26-Jul-2012 14:25:58: Moving stage to original position (0.093455, 0.045828)
+26-Jul-2012 14:26:41: ******Beginning section 28
+26-Jul-2012 14:26:44: Moving stage to x=0.093396, y=0.042532,scanrot=    0
+26-Jul-2012 14:29:02: Moving stage to(0.093396, 0.042532)
+26-Jul-2012 14:29:05: Moving stage to(0.093419, 0.042509)
+26-Jul-2012 14:29:30: Moving stage to(0.093373, 0.042509)
+26-Jul-2012 14:29:54:     monQual= 128.06
+26-Jul-2012 14:29:54:     row = 1 and col = 2
+26-Jul-2012 14:29:54: ************************************
+26-Jul-2012 14:29:56: Moving stage to(0.093419, 0.042555)
+26-Jul-2012 14:30:20:     monQual= 132.17
+26-Jul-2012 14:30:20:     row = 2 and col = 1
+26-Jul-2012 14:30:20: ************************************
+26-Jul-2012 14:30:22: Moving stage to(0.093373, 0.042555)
+26-Jul-2012 14:30:45:     monQual= 141.54
+26-Jul-2012 14:30:45:     row = 2 and col = 2
+26-Jul-2012 14:30:45: ************************************
+26-Jul-2012 14:30:47:     monQual2= 125.17
+26-Jul-2012 14:30:49: Moving stage to original position (0.093396, 0.042532)
+26-Jul-2012 14:31:28: ******Beginning section 29
+26-Jul-2012 14:31:30: Moving stage to x=0.093078, y=0.038847,scanrot=    0
+26-Jul-2012 14:33:47: Moving stage to(0.093078, 0.038847)
+26-Jul-2012 14:33:50: Moving stage to(0.093101, 0.038824)
+26-Jul-2012 14:34:15: Moving stage to(0.093055, 0.038824)
+26-Jul-2012 14:34:39:     monQual= 134.37
+26-Jul-2012 14:34:39:     row = 1 and col = 2
+26-Jul-2012 14:34:39: ************************************
+26-Jul-2012 14:34:41: Moving stage to(0.093101, 0.03887)
+26-Jul-2012 14:35:05:     monQual= 127.84
+26-Jul-2012 14:35:05:     row = 2 and col = 1
+26-Jul-2012 14:35:05: ************************************
+26-Jul-2012 14:35:08: Moving stage to(0.093055, 0.03887)
+26-Jul-2012 14:35:31:     monQual= 136.84
+26-Jul-2012 14:35:31:     row = 2 and col = 2
+26-Jul-2012 14:35:31: ************************************
+26-Jul-2012 14:35:33:     monQual2= 129.51
+26-Jul-2012 14:35:35: Moving stage to original position (0.093078, 0.038847)
+26-Jul-2012 14:36:18: ******Beginning section 30
+26-Jul-2012 14:36:21: Moving stage to x=0.093031, y=0.035793,scanrot=    0
+26-Jul-2012 14:38:38: Moving stage to(0.093031, 0.035793)
+26-Jul-2012 14:38:40: Moving stage to(0.093054, 0.03577)
+26-Jul-2012 14:39:05: Moving stage to(0.093008, 0.03577)
+26-Jul-2012 14:39:29:     monQual= 131.73
+26-Jul-2012 14:39:29:     row = 1 and col = 2
+26-Jul-2012 14:39:29: ************************************
+26-Jul-2012 14:39:31: Moving stage to(0.093054, 0.035816)
+26-Jul-2012 14:39:55:     monQual= 139.33
+26-Jul-2012 14:39:55:     row = 2 and col = 1
+26-Jul-2012 14:39:55: ************************************
+26-Jul-2012 14:39:57: Moving stage to(0.093008, 0.035816)
+26-Jul-2012 14:40:21:     monQual= 154.77
+26-Jul-2012 14:40:21:     row = 2 and col = 2
+26-Jul-2012 14:40:21: ************************************
+26-Jul-2012 14:40:22:     monQual2= 148.42
+26-Jul-2012 14:40:25: Moving stage to original position (0.093031, 0.035793)
+26-Jul-2012 14:41:08: ******Beginning section 31
+26-Jul-2012 14:41:11: Moving stage to x=0.092937, y=0.03236,scanrot=    0
+26-Jul-2012 14:43:37: Moving stage to(0.092937, 0.03236)
+26-Jul-2012 14:43:39: Moving stage to(0.09296, 0.032337)
+26-Jul-2012 14:44:05: Moving stage to(0.092914, 0.032337)
+26-Jul-2012 14:44:29:     monQual= 143.8
+26-Jul-2012 14:44:29:     row = 1 and col = 2
+26-Jul-2012 14:44:29: ************************************
+26-Jul-2012 14:44:31: Moving stage to(0.09296, 0.032383)
+26-Jul-2012 14:44:55:     monQual= 131.6
+26-Jul-2012 14:44:55:     row = 2 and col = 1
+26-Jul-2012 14:44:55: ************************************
+26-Jul-2012 14:44:58: Moving stage to(0.092914, 0.032383)
+26-Jul-2012 14:45:22:     monQual= 135.75
+26-Jul-2012 14:45:22:     row = 2 and col = 2
+26-Jul-2012 14:45:22: ************************************
+26-Jul-2012 14:45:24:     monQual2= 134.89
+26-Jul-2012 14:45:26: Moving stage to original position (0.092937, 0.03236)
+26-Jul-2012 14:46:23: ******Beginning section 32
+26-Jul-2012 14:46:25: Moving stage to x=0.087284, y=0.10507,scanrot=    0

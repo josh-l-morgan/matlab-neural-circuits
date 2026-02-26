@@ -1,0 +1,74 @@
+
+clear all
+
+%%Get directory with image folders
+subFolders = recurFolder;
+
+%% Get root
+rootD = subFolders{1};
+mkdir([rootD '\imageIndex'])
+
+medSize = 3;  %  Define size of median filter kernal ( 1 for none)
+
+  
+%%Find image folders
+ImageFolders={};
+for i = 1:length(subFolders)
+    Name=subFolders{i};
+    siz=length(Name);
+    if length(Name)>5;
+        if Name(siz-5:siz)=='.files'
+            ImageFolders(length(ImageFolders)+1,1)={Name};
+        end
+    end
+end
+
+%%write, max
+clear Imaxs
+TotalImages=length(ImageFolders)
+for i = 1:length(ImageFolders)
+    Report=['Running ' ImageFolders{i} '. Image ' num2str(i) ' of ' num2str(TotalImages)]
+%         if ~exist([GPN Iname])
+
+    'reading',pause(.01)
+    Ifolder=cell2mat(ImageFolders(i));
+    I=oifread([Ifolder '\']);
+
+    if size(size(I),2)>3
+
+        if medSize > 1
+            'filtering',pause(.01)
+            I=MyMedian(I,medSize);
+        end
+        Iname=Ifolder(1:find(Ifolder=='.',1)-1);
+
+        'writing',pause(.01)
+        I=juggleCh(I);
+        Iwrite(Iname,I)
+%         end
+
+
+
+    end
+
+    %%      collect maxes
+        Imax=max(I,[],4);
+        ID = Iname(length(rootD) + 2:length(Iname));
+        slashes= find(ID == '\');
+        if ~isempty(slashes)
+            ID(slashes) = 'X';
+        end
+        imwrite(Imax*2, [rootD '\imageIndex\' ID '.tif'],'Compression','none');
+    
+    
+    
+%%Write Max
+
+end
+finished_files = ImageFolders
+
+
+
+
+
+

@@ -1,0 +1,138 @@
+function verifyimages(sourcedir,sourcefiletemplate)
+%verifyimages.m
+%A script for quick EM image checking
+%By Daniel Berger for MIT-BCS Seung / Harvard Lichtman, March 2010
+
+%close all;
+%clear all;
+
+%sourcedir='z:/Thousand+sectionRunCortexRoto/Thousand_high_res/Thousand_w15_high_res_retakes/';
+%sourcefiletemplate='*.tif';
+
+targetdir_downscaled='./downscaled/';
+downscaledtargetsize=2048;
+downscaledfileextension='_downscaled.png';
+downscaledfiletype='png';
+targetdir_cropped='./center/';
+croppedfileextension='_center.png';
+croppedfiletype='png';
+croppedtargetsize=2048;
+croppedxoffset=2048;
+croppedyoffset=2048;
+
+%Get list of filenames
+txt=sprintf('Scanning for files matching "%s" in directory %s ...',sourcefiletemplate,sourcedir); disp(txt);
+filelist=getfilelist(sourcedir,sourcefiletemplate);
+nroffiles=size(filelist,2);
+if (nroffiles>0)
+  txt=sprintf('%d files matching "%s" found in directory %s',nroffiles,sourcefiletemplate,sourcedir);
+  disp(txt);
+end;
+
+outlierspos=[]; %for scanfaults
+
+for f=1:1:nroffiles
+  filenamewithpath=filelist{f};
+  filename=filenameonly(filenamewithpath);
+  
+  if exist(filenamewithpath,'file')==0
+    txt=sprintf('Warning: File %s not found.',filenamewithpath); disp(txt);
+  else
+    txt=sprintf('Loading image %s ...',filenamewithpath); disp(txt);
+    image=imread(filenamewithpath);  
+  
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % check for scanfaults
+  
+    scanerrorthreshold=10;
+
+    %%%% Compute differences of lines in the image
+    %disp('Computing ...');
+    diffimg=single(image(2:size(image,1),:))-single(image(1:size(image,1)-1,:));
+    vdiffmean=mean(abs(diffimg),2);
+    vdiffstd=std(diffimg,0,2);
+    
+    %%%% Outlier detection of STD measures
+    st=std(vdiffstd);
+    stdoutliers=sum(vdiffstd-mean(vdiffstd)>st*scanerrorthreshold);
+    if stdoutliers>0
+      outlierspos{f}=find(vdiffstd-mean(vdiffstd)>st*scanerrorthreshold);
+      txt=sprintf('  %s:  %d scan errors found; at:',filename,stdoutliers);
+      disp(txt);
+      disp([outlierspos{f}]);
+    else
+      outlierspos{f}=[];
+      txt=sprintf('  %s:  No scan errors found.',filename); disp(txt);
+    end;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % downsample and save
+    %txt=sprintf('  Downscaling original to %d x %d ...',downscaledtargetsize, downscaledtargetsize); disp(txt);
+    dimage=imresize(image,[downscaledtargetsize downscaledtargetsize]);
+    targetname=[targetdir_downscaled filename(1:end-4) downscaledfileextension];
+    txt=sprintf('  Writing downscaled image to %s',targetname); disp(txt);
+    imwrite(dimage,targetname,downscaledfiletype);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % crop center and save
+    %txt=sprintf('  Cropping original to %d x %d ...',croppedtargetsize, croppedtargetsize); disp(txt);
+    midx=size(image,2)/2;
+    midy=size(image,1)/2; 
+    xstart=floor(midx-(croppedtargetsize/2)); 
+    xstart=xstart+croppedxoffset;
+    xend=xstart+croppedtargetsize-1;
+    if (xstart<1)
+      xstart=1;
+    end;
+    if (xend>size(image,2))
+      xend=size(image,2);
+    end;
+    ystart=floor(midy-(croppedtargetsize/2));
+    ystart=ystart+croppedyoffset;
+    yend=ystart+croppedtargetsize-1;
+    if (ystart<1)
+      ystart=1;
+    end;
+    if (yend>size(image,1))
+      yend=size(image,1);
+    end;
+    dimage=image(ystart:yend,xstart:xend);
+    targetname=[targetdir_cropped filename(1:end-4) croppedfileextension];
+    txt=sprintf('  Writing cropped image to %s',targetname); disp(txt);
+    imwrite(dimage,targetname,croppedfiletype);    
+  end;
+end;
+
+
+disp('---------------------------------------------------------------------');
+disp('Writing out a text file that reports scan faults...');
+disp('---------------------------------------------------------------------');
+scanfaultfilename='scanfaults.txt';
+isfound=0;
+
+fid = fopen(scanfaultfilename, 'w+');
+if max(size(outlierspos)>0)
+  for f=1:1:nroffiles
+    nrofscanfaults=max(size(outlierspos{f}));
+    if nrofscanfaults>0
+      name=filelist{f}; %sprintf(param.baserawname,slice+param.firstslice-1);
+      if (nrofscanfaults==1)
+        fprintf(fid, '%d scan error  found in image %s, at:',nrofscanfaults,name);
+      else
+        fprintf(fid, '%d scan errors found in image %s, at:',nrofscanfaults,name);
+      end;
+      scanfaultline=outlierspos{f};
+      for i=1:1:nrofscanfaults
+        fprintf(fid,' %d',scanfaultline(i));
+      end;
+      fprintf(fid,'\r\n');
+      isfound=1;
+    end;
+  end;
+  if isfound==0
+    fprintf(fid, 'No scan errors have been found in directory %s and subdirectories.',sourcedir);
+  end;
+else
+  fprintf(fid, 'No scan errors have been found in directory %s and subdirectories.',sourcedir);
+end;
+fclose(fid);

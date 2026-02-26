@@ -1,0 +1,228 @@
+clear all
+
+
+%% Get points
+% if exist('.\LastRegion.mat')
+[DFN DPN]=uigetfile('.rgn');
+% save('Last
+% else 
+%     load('.\LastRegion.mat')
+TX = load([DPN '\' DFN]);
+Point=[mean([TX(:,17),TX(:,23)],2) mean([TX(:,18),TX(:,24)],2)];
+
+TPN = GetMyDir
+TPNd=dir(TPN); TPNd=TPNd(3:length(TPNd));
+Name={};
+for i = 1: length(TPNd)
+    nam=TPNd(i).name;
+    LN = length(nam);
+    if nam(LN-3:LN) == '.tif'
+        Name{length(Name)+1}=nam;
+    end
+end
+for i = 1:length(Name)
+    I(:,:,i,:)=imread([TPN '\' char(Name{i})]);
+end
+[ys xs zs cs] = size(I);
+Imax=squeeze(max(I,[],3));
+image(Imax),pause(.01)
+
+%% Find puncta ish
+PunctK=double(I(:,:,:,1));
+for m = 1:3
+for i = 1: zs
+    PunctK(:,:,i)=medfilt2(PunctK(:,:,i),[5 5]);
+end
+end
+
+
+% 'convolving',pause(.01)
+% Kern=ones(11,11,7);
+% [y x z] = find3(Kern);
+% yxum= 0.062; zum = 0.3;
+% Dist=dist([y *yxum x * yxum z*zum],[6*yxum 6*yxum 4*zum]);
+% Ind=sub2ind(size(Kern),y,x,z);
+% Kern(Ind)=1-Dist;
+% PunctK=convn(PunctK,Kern,'same');
+
+maxP=max(PunctK,[],3);
+image(maxP*3),pause(.01)
+colormap gray(256)
+
+%% find nearby
+Lab=maxP*0;
+Pun=Lab;
+Lo=10;
+for i = 1:size(Point,1)
+   y = round(Point(i,2));
+   x = round(Point(i,1));
+   Lab(round(y),round(x))=1000; 
+   
+
+   yb=max(1,y-Lo); ye = min(ys,y+Lo);
+   xb=max(1,x-Lo); xe = min(xs,x+Lo);
+   samp = PunctK(yb:ye,xb:xe,:);
+   Maxi=find(samp==max(samp(:)),1);
+   [yi xi zi]=ind2sub(size(samp),Maxi);
+   py=yb+yi-1; px=xb+xi-1; pz = zi;
+    
+   Pos(i,:) = [py px pz]; 
+   Pun(py, px)=1000;
+end
+
+Col=maxP*4;
+Col(:,:,2)=Lab;
+Col(:,:,3)=Pun;
+image(uint8(Col))
+clear PunctK
+
+%% collect images
+
+
+Lo=10;
+Loz=2;
+Buff = zeros(ys+Lo*2,xs+Lo*2,zs+Loz*2,3,'uint8');
+Count = Buff;
+Buff(Lo+1:ys+Lo,Lo+1:xs+Lo,Loz+1:Loz+zs,:)=I;
+Count(Lo+1:ys+Lo,Lo+1:xs+Lo,Loz+1:Loz+zs,:)=1;
+
+clear samp
+OK =0;
+Mem= zeros(Lo*2+1,Lo*2+1,Loz*2+1,3);
+Con = Mem;
+for i = 1:size(Pos,1)
+   y = round(Pos(i,1))+Lo;
+   x = round(Pos(i,2))+Lo;
+   z = round(Pos(i,3))+Loz;
+   
+   samp = Buff(y-Lo:y+Lo,x-Lo:x+Lo,z-Loz:z+Loz,:);
+   Mem=Mem + double(samp);
+   Con = Con + double(Count(y-Lo:y+Lo,x-Lo:x+Lo,z-Loz:z+Loz,:));
+
+
+end
+Sur=Mem./Con;
+image(uint8(squeeze(max(Sur(:,:,:,:),[],3)*255/max(Sur(:)))))
+
+AllIn=find(Sur(:,:,:,1)+1);
+siz = size(Sur);
+[yi xi zi ci]=ind2sub(siz(1:3),AllIn);
+clear AllIn
+DistYX=dist([yi xi],[(Lo + 1) (Lo + 1)]);
+DistZ=abs(zi - Loz - 1);
+ct=0;
+RadSur=Sur*0;
+for dyx = 0 : Lo
+    for dz = 0 : Loz
+        dInds=((DistYX >= dyx) & (DistYX <= dyx + 1 ) &...
+            (DistZ >= dz) & (DistZ < dz + 1 ));
+        ct = ct+1;
+        Lookup(ct,1:2)=[dyx dz];
+        for c = 1:3
+            GetInd=sub2ind(siz,yi(dInds),xi(dInds),zi(dInds),ones(sum(dInds),1)*c);
+            Lookup(ct,c+2)=mean(Sur(GetInd));
+            Paint(dz+1,dyx+1,c)=mean(Sur(GetInd));
+            RadSur(GetInd)=mean(Sur(GetInd));
+        end
+    end
+end
+
+for c = 1:3
+   RadSur(:,:,:,c)=RadSur(:,:,:,c)-RadSur(1,Lo+1,Loz+1,c); 
+end
+RadSur(RadSur<0)=0;
+clear Count
+
+
+image(uint8(Paint(:,:,:))*3),pause(.01)
+image(uint8(squeeze(max(RadSur(:,:,:,2),[],3)))*15),pause(.01)
+
+%% Get puncta values
+numC=sum(sum(sum(RadSur(:,:,:,1)>0)));
+NumP=size(Pos,1);
+for i = 1: size(Pos,1)
+   
+   y = round(Pos(i,1))+Lo;
+   x = round(Pos(i,2))+Lo;
+   z = round(Pos(i,3))+Loz;
+   
+    
+   samp = Buff(y-Lo:y+Lo,x-Lo:x+Lo,z-Loz:z+Loz,:); 
+   ConV=double(samp).*RadSur;
+   
+   
+   Sums=sqrt(squeeze(sum(sum(sum(ConV,1),2),3))./numC);  %might unsquare   
+   RGBp(i,:)=Sums;     
+end
+
+
+
+%% Search with new kernel
+
+
+
+%%Get red threshold
+D=RadSur(Lo+1,Lo+1,Loz+1,3);
+[yt xt zt]=find3(Buff(:,:,:,3)>=D); 
+
+Found = Buff*0;
+
+tic
+for i = 1:length(yt);
+    
+   samp = Buff(yt(i)-Lo:yt(i)+Lo,xt(i)-Lo:xt(i)+Lo,zt(i)-Loz:zt(i)+Loz,:); 
+   ConV=double(samp).*RadSur;
+   Sums=sqrt(squeeze(sum(sum(sum(ConV,1),2),3))./numC);  %might unsquare
+   %RGBp(i,:)=Sums;     
+   Found(yt(i),xt(i),zt(i),:)=Sums;
+    
+   if mod(i,1000)==0, i/length(yt),  end
+end
+toc
+
+Found=Found(Lo+1:ys+Lo,Lo+1:xs+Lo,Loz+1:Loz+zs,:); %Unbuffer
+image(uint8(squeeze(max(Found,[],3)*10))),pause(.01)
+
+%% Compare found to puncta data
+ThreshProb=[.5,.5,.5];
+for c = 1:3
+    dis=RGBp(:,c);
+    dis=sort(dis,'descend');
+    Thresh(c)=dis(round(ThreshProb(c)*NumP));
+    
+end
+
+
+Map = Found * 0;
+for c = 1:3
+    Map(:,:,:,c)=Found(:,:,:,c)>=Thresh(c);
+end
+image(uint8(squeeze(max(Map,[],3)*1000)))
+ 
+% % conv3Dfreq(M,ker)
+% 
+% tic
+% Found = I*0;
+% for c = 1:3
+%     ['running ' num2str(c)]
+%     Found(:,:,:,c)=convn(I(:,:,:,c),RadSur(:,:,:,c),'same')
+% end
+% toc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

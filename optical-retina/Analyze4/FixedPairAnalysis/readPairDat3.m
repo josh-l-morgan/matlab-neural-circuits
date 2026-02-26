@@ -1,0 +1,683 @@
+%% {'File','Age','Retina','RGC','Bipolar','distance','bip class','rgc class','syn ',[],'notes'%%
+clear all
+
+[num txt dat] = xlsread('C:\Users\joshm\Documents\MyWork\myData\FixedConRevised.xls','TomA');
+figure('Position',[1,1,800,300])
+
+
+%% find columns
+
+colStrings = dat(1,:);
+colFile = find(strcmp('File',colStrings));
+colRet = find(strcmp('Retina',colStrings));
+colAge = find(strcmp('Age',colStrings));
+colRGC = find(strcmp('RGC',colStrings));
+colBip = find(strcmp('Bipolar',colStrings));
+colDistance = find(strcmp('distance',colStrings));
+colBipClass = find(strcmp('bip class',colStrings));
+colRgcClass = find(strcmp('rgc class',colStrings));
+colSyn = find(strcmp('syn ',colStrings));
+colNotes = find(strcmp('notes',colStrings));
+colCenterRad = find(strcmp('center rad',colStrings));
+colToCenter = find(strcmp('to center',colStrings));
+colNumVox = find(strcmp('numVox',colStrings));
+colNumTer = find(strcmp('numTer',colStrings));
+colPolyArea = find(strcmp('polyArea',colStrings));
+colVoxAppo = find(strcmp('voxAppo',colStrings));
+colNumAppo = find(strcmp('numAppo',colStrings));
+
+%% Read Dat+
+curFile = 'none';    curAge = 21;    curRet = 'none';    curRGC = 'none';
+curRgcClass = 'none';
+type6 = []; type7 = []; type8 = []; typeRb = []; typeU = []; typeShaft = [];
+knownSyn = []; GU = [];
+for i = 1:22 G{i} = []; end
+for i = 1: size(dat,1)
+
+    if ~isnan(dat{i,colFile})
+        curFile = dat{i,colFile};
+    end
+    if ~isnan(dat{i,colAge}) & isnumeric(dat{i,colAge})
+        curAge = dat{i,colAge};
+    end
+    if ~isnan(dat{i,colRet})
+        curRet = dat{i,colRet};
+    end
+    if ~isnan(dat{i,colRGC})
+        curRGC = dat{i,colRGC};
+    end
+    if ~isnan(dat{i,colRgcClass})
+        curRgcClass = dat{i,colRgcClass};
+    end
+
+    if isempty(dat{i,colBipClass})
+        typeU = [typeU; i];
+    else
+        switch dat{i,colBipClass};
+            case 6
+                type6 = [type6 ; i];
+            case 7
+                type7 = [type7 ; i];
+            case 8
+                type8 = [type8 ; i];
+            case 'rb'
+                typeRb = [typeRb ; i];
+            case 'shaft'
+                typeShaft = [typeShaft ; i];
+            otherwise
+                typeU = [typeU ; i];
+        end
+    end
+
+    if strcmp(curRgcClass(1), 'G');
+        rc = str2num(curRgcClass(2:length(curRgcClass)));
+        G{rc} = [G{rc} i];
+    else
+        GU = [GU i];
+    end
+
+
+    if ~strcmp(class(dat{i,colSyn}),'char')   & ~isnan(dat{i,colSyn})
+        knownSyn = [knownSyn; i];
+    end
+
+    Files{i} = curFile;
+    Ages(i) = curAge;
+    Rets{i} = curRet;
+    RGCs{i} = curRGC;
+    masked(i) = strcmp(class(dat{i,colPolyArea}),'double');
+    appoed(i) = isnumeric(dat{i,colVoxAppo}) & sum(dat{i,colVoxAppo}>0) % strcmp(class(dat{i,colVoxAppo}),'double')
+end
+
+myG = G{10};%[G{1} G{2} G{6} G{10}];
+idTypes = {'type6', 'type7', 'type8','typeRb','typeShaft'};
+col = {'r','g,','b','c','m'};
+allAges = unique(Ages(~isnan(Ages)));
+myMarkers = { 'o','x', '+', 's', 'd', 'p', 'h','v', '>','<'}
+
+
+for a = 1:length(allAges)
+    for i = 1:length(idTypes)
+        assignin('base',idTypes{i}, intersect(eval(idTypes{i}),knownSyn)); %restric type list to known syn number examples
+        synNum = cell2mat(dat(intersect(eval(idTypes{i}),find(Ages==allAges(a))),colSyn));
+        %
+        % subplot(2,1,1)
+        % scatter(ones(length(synNum),1)*i,synNum)
+        % xlim([-.5 length(idTypes)+ .5])
+
+        subplot(length(allAges),length(idTypes),i+ (a-1) * length(idTypes))
+
+        bins = (0:20);
+        hist(synNum,bins)
+        title(idTypes{i})
+        xlim([-0.5 20.5])
+        ylim([0 6])
+        synNums{i} = synNum;
+        meanNum(i) = mean(synNum);
+        varNum(i) = var(synNum);
+        scaledVar(i) = var(synNum)/mean(synNum);
+
+    end
+end
+
+
+useS = knownSyn;
+syns = [dat(useS,colSyn)];
+hasSyn = useS(cell2mat(syns(:))>0);
+%useS = hasSyn;  %only look at pairs with synapses
+
+%% Run Statistics
+% for i = 1: length(idTypes)
+%     idTypes{i}
+%     young = cell2mat(dat(intersect(eval(idTypes{i}),find(Ages<=12)),colSyn));
+%     old = cell2mat(dat(intersect(eval(idTypes{i}),find(Ages>12)),colSyn));
+%     ranksum(young,old)
+% 
+% end
+
+
+%% Process ecentricities
+%figure
+toCent = cell2mat(dat(2:size(dat,1),colToCenter));
+toCent = [0 ; toCent];
+centRad = cell2mat(dat(2:size(dat,1),colCenterRad));
+centRad = [0 ; centRad];
+knownDist = find(~isnan(toCent));
+toEdge = abs(centRad - toCent);
+eccRat = min([toCent centRad],[],2)./max([toCent centRad],[],2);
+
+useNow = intersect(useS,knownDist);
+useNow = intersect(intersect(find(Ages == 9),useS),[type6; type7]);
+%scatter(toCent(useNow),[dat{useNow,colSyn}],'r')
+plotBin(toCent(useNow),[dat{useNow,colSyn}],20,'r')
+hold on
+
+useNow = intersect(intersect(find(Ages == 21),useS),[type6; type7]);;
+plotBin(toCent(useNow),[dat{useNow,colSyn}],20,'b')
+
+%
+% %% fit to polynomial
+% p = polyfit(toCent(useNow),[dat{useNow,colSyn}]',1);
+% x = 0 : 1 : max(toCent);
+% f = polyval(p,x);
+% plot(x,f,'b')
+% ylim([0,max([dat{useNow,colSyn}])]);
+% hold off
+
+%%  Compare poly area to pixel area
+for t = 1:4
+    subplot(2,2,t)
+    cType = idTypes{t};
+    useNow = intersect(useS,find(Ages == 9));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{useNow,colPolyArea}] * 0.0603^2 ;
+    Y = [dat{useNow,colNumTer}];
+    plotBin(X,Y,50,'r');
+    title(cType)
+    hold on
+
+    useNow = intersect(useS,find(Ages == 21));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{useNow,colPolyArea}] * 0.0603^2 ;
+    Y = [dat{useNow,colNumTer}];
+    plotBin(X,Y,50,'b');
+
+    hold off
+end
+
+
+
+%%  Compare poly area to synapse number
+useC = [1 2 4];
+for t = 1:length(useC)
+    subplot(length(useC),1,t)
+    cType = idTypes{useC(t)};
+    useNow = intersect(useS,find(Ages == 9));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{useNow,colNumTer}] * 0.0603^2 ;
+    Y = [dat{useNow,colSyn}];
+    plotBin(X,Y,50,'r');
+    title(cType)
+    hold on
+
+    useNow = intersect(useS,find(Ages == 21));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{useNow,colNumTer}] * 0.0603^2 ;
+    Y = [dat{useNow,colSyn}];
+    plotBin(X,Y,50,'b');
+    xlim([0 150])
+    ylim([0 15])
+    hold off
+end
+
+
+
+
+
+%% Chart Bip vs RGC
+useAges = [9 21];
+
+for a = 1:2
+    showSyn = {};
+for b = 1: length(idTypes)
+    bType = idTypes{b};    
+    showSyn{b+1,1} = bType;    
+    for g = 1:length(G)
+    showSyn{1,g+1} = sprintf('G%.0f',g);
+    useNow = intersect(useS,find(Ages == useAges(a)));
+    useNow = intersect(useNow,eval(bType));
+    useNow = intersect(useNow,G{g});
+    useNow = intersect(useNow,find(appoed));
+    
+    if isempty(useNow)
+        showSyn{b +1,g+1} = ' - ';
+    else
+       synS = [dat{useNow,colSyn}];
+       meanS = mean(synS);
+       Ns = length(synS);
+       se = std(synS)/sqrt(Ns);
+       res = sprintf(' %.1f +-%.1f (%.0f)',meanS,se,Ns)
+       showSyn{b + 1,g+1} = res;
+        
+    end
+      
+    end
+end
+
+xlswrite('showSyn2',showSyn',sprintf('P%.0f',useAges(a)))
+end
+
+
+
+%%  Eccentricity to Synapse number
+useC = [1 2 4];
+for t = 1:length(useC)
+    subplot(length(useC),1,t)
+    cType = idTypes{useC(t)};
+    useNow = intersect(useS,find(Ages == 9));
+    useNow = intersect(useNow,knownDist);
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = eccRat(useNow) ;
+    Y = ([dat{useNow,colSyn}]);
+    plotBin(X,Y,.25,'r');
+    title(cType)
+    hold on
+
+    useNow = intersect(useS,find(Ages == 21));
+    useNow = intersect(useNow,knownDist);
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = eccRat(useNow) ;
+    Y = ([dat{useNow,colSyn}]);
+    plotBin(X,Y,.25,'b');
+    ylim([0 15])
+    xlim([0 1])
+    hold off
+end
+hold off
+
+%%  Eccentricity to Synapse number new bar
+hold off
+useC = [1 2 4];
+useA = [9 21];
+useCol = {'r','b'};
+for t = 1:length(useC)
+    for a = 1:2
+    subplot(length(useC),length(useA),(t-1)*length(useA)+a)
+    cType = idTypes{useC(t)};
+    useNow = intersect(useS,find(Ages == useA(a)));
+    useNow = intersect(useNow,find(appoed));
+    useNow = intersect(useNow,knownDist);
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,find(masked));
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = eccRat(useNow) ;
+    Y1 = [dat{useNow,colNumAppo}] ;
+    Y2 = [dat{useNow,colSyn}];
+
+    hold off
+    plotBin2(X,Y2,.5,'k');
+    title(cType)
+    hold on
+
+    ylim([0 15])
+    xlim([0 1])
+    end
+end
+hold off
+
+
+
+%% Compare appostions to synapses
+
+useC = [1 2 4];
+hold off
+subplot(1,1,1)
+for t = 1:length(useC)
+    subplot(length(useC),1,t)
+    cType = idTypes{useC(t)};
+    useNow = intersect(useS,find(Ages == 9));
+    useNow = intersect(useNow,find(appoed));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{(useNow),colNumAppo}] ;
+    Y = [dat{useNow,colSyn}];    
+    
+    [p Std] = plotPoly(X,Y,'r');
+    title(cType)
+    
+    text(1,18,sprintf('yint = %.2f, slope = %.2f, Std = %.2f',p(1), p(2), Std))
+    hold on
+
+    cType
+    [R P ] = corrcoef(X,Y)
+    coVar(1,t) = R(1,2); coVar(2,t) = P(1,2);
+    
+    useNow = intersect(useS,find(Ages == 21));
+    useNow = intersect(useNow,find(appoed));
+    useNow = intersect(useNow,[eval(cType)]);
+    useNow = intersect(useNow,myG);
+    %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+    X = [dat{(useNow),colNumAppo}];
+    Y = [dat{useNow,colSyn}];
+    [p Std] = plotPoly(X,Y,'b');
+    %ylim([0 max(Y)])
+    
+    xlim([0 20]); 
+    ylim([0 20]);
+    
+       
+    text(1,15,sprintf('yint = %.2f, slope = %.2f, Std = %.2f',p(1), p(2), Std))
+    hold on
+    plot([0 20],[0 20],'k');
+    [R P] = corrcoef(X,Y)
+    coVar(3,t) = R(1,2); coVar(4,t) = P(1,2);
+end
+hold off
+
+%% Scatter types by apposition and synapse
+%%Find RGC types
+subplot(1,1,1)
+for i = 1:length(G)
+   gotGs(i) = ~isempty(G{i}); 
+end
+
+Glist = find(gotGs);
+useC = [1 2 3 4 5];
+useAge = [9,21];
+colorRange = {'r','m','b','c'};
+
+hold off
+for t = 1:length(useC)
+    subplot(1,length(useC),t)
+    cType = idTypes{useC(t)};
+    for a = 1:2
+           legendText = {};
+        for g = 1: length(Glist)
+            legendText{length(legendText)+1} = sprintf('G%.0f',Glist(g)) ;
+            
+            useMark = myMarkers{mod(g-1,length(myMarkers))+1};
+            listMark{g} = useMark;
+            useColor = colorRange{fix(g/length(myMarkers))+1 + (a-1)*2};
+           
+            
+            useNow = intersect(useS,find(appoed));
+            useNow = intersect(useNow,[eval(cType)]);
+            useNow = intersect(useNow,G{Glist(g)});
+            
+            if ~isempty(useNow)
+                
+                useNow = intersect(useNow,find(Ages == useAge(a)));
+               
+                
+                if ~isempty(useNow)
+                %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+                X = [dat{(useNow),colNumAppo}] ;
+                Y = [dat{useNow,colSyn}];
+
+                
+               
+                h(g) = scatter(X,Y,useColor,useMark);
+                gotMarker{g} = get(h(g),'Marker');
+                hold on
+                title(cType)
+                xlim([0 20]);
+                ylim([0 40]);
+                   
+                else
+                     scatter(0,0,useColor,useMark)
+                     hold on
+                end
+            else
+                     scatter(0,0,useColor,useMark)
+                     hold on
+            end
+                    
+        end
+        if (a == 1) & (t == length(useC)),legend(legendText),end
+        % if a == 1,legend(gotMarker),end
+         plot([1:20],'k')
+    end
+    
+end
+hold off
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+%%%%%%%%%%%%%%%%%%%%%%%%%%%>>>>
+
+
+%% num territory
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        Y{a}= [dat{useNow,colPolyArea}] * 0.0603^2 ;
+    end
+    
+    
+    h = barScat5(Y{1},Y{2}); 
+    title(cType)
+    P =   ranksum(Y{1},Y{2})
+    title(sprintf('%s' ,cType));
+    ylim([0 300])
+%     xlim([0 3])
+    hold on
+       
+end
+
+hold off
+    
+%% num appositions
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        Y{a}= [dat{useNow,colNumAppo}] ;
+    end
+    
+    
+    h = barScat5(Y{1},Y{2}); 
+    title(cType)
+    P =   ranksum(Y{1},Y{2})
+    title(sprintf('%s' ,cType));
+    ylim([0 20])
+%     xlim([0 3])
+    hold on
+       
+end
+
+hold off
+
+%% num asynapses
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        Y{a}= [dat{useNow,colSyn}] ;
+    end
+    
+    
+    h = barScat5(Y{1},Y{2}); 
+    title(cType)
+    P =   ranksum(Y{1},Y{2})
+    title(sprintf('%s' ,cType));
+    ylim([0 20])
+%     xlim([0 3])
+    hold on
+       
+end
+
+hold off
+%% Compare appostions to synapses
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        X{a} = [dat{(useNow),colNumAppo}] ;
+        Y{a} = [dat{useNow,colSyn}];
+    end
+    
+    
+    h = barScat5(Y{1}./X{1},Y{2}./X{2}); 
+    title(cType)
+    P =   ranksum(Y{1}./X{1},Y{2}./X{2})
+    title(sprintf('%s',cType));
+    ylim([0 4])
+%     xlim([0 3])
+    hold on
+       
+end
+
+hold off
+
+%% Collect file names
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+allDat = {'Filename' 'Retina' 'RGC' 'Bipolar' 'age' 'BipType' 'Appos' 'Synapse'}
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0))
+        X = {dat{(useNow),colNumAppo}} ;
+        Y = {dat{useNow,colSyn}};
+        someAge = num2cell(Ages(useNow),[1,length(useNow)])
+        useDat = [{Files{useNow}}' {Rets{useNow}}' {RGCs{useNow}}' ...
+            {dat{useNow,colBip}}' someAge' {dat{useNow,colBipClass}}' ...
+            X' Y'];
+        allDat = [allDat ;useDat];
+        
+    end
+    
+    
+end
+
+hold off
+
+
+%% Plot Stratification
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+for t = 1:length(useC)
+    clear X Y
+    for a = 1:2
+        t + (t * (a-1))
+        subplot(2,length(useC),t+ (length(useC) * (a-1)))
+        cType = idTypes{useC(t)};
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        ProcessStrats(useNow)
+        xlim([100 300])
+    end
+           
+end
+
+hold off
+
+
+%%  perform anova
+
+
+useC = [1 2 4];
+useAge = [9,21];
+subplot(1,1,1)
+
+
+    for a = 1:2
+        subplot(1,length(useC),t)
+        cType = idTypes{useC(t)};
+        collectTypes = [eval(idTypes{1}); eval(idTypes{2}); eval(idTypes{4})];
+        useNow = intersect(useS,find(Ages == useAge(a)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,collectTypes) ;
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+        X = [dat{(useNow),colNumAppo}] ;
+        Y = [dat{useNow,colSyn}];
+        Rat = Y./X;
+        typelist= {(dat{useNow,colBipClass})};
+        for tl = 1: length(typelist)
+            typelist{tl} = num2str(typelist{tl});
+        end
+        [p, table, stats] = anova1(Rat,typelist,'off');
+        p
+    end
+    
+%% Scratch    
+        useNow = intersect(useS,find(Ages == useAge(1)));
+        useNow = intersect(useNow,find(appoed));
+        useNow = intersect(useNow,[eval(cType)]);
+        useNow = intersect(useNow,myG);
+        %useNow = intersect(useNow,useS([dat{useS,colSyn}]>0));
+%         X{a} = [dat{(useNow),colNumAppo}] ;
+%         Y{a} = [dat{useNow,colSyn}];
+        [dat{useNow,colFile}] 
+
+        useNow([dat{useNow,colSyn}] == 2)
+
+
+
+
+
+
+
+
+
+
+

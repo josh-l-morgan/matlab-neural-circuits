@@ -1,0 +1,157 @@
+analDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Analysis\';
+mergeDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\Merge\';
+load([analDir 'tis.mat']);
+load([mergeDir 'dsObj.mat']);
+curTis=tis;
+bpcTypeDat=cid2type(test(:,2),curTis);
+rgcTypeDat=cid2type(test(:,1),curTis);
+pairings=horzcat(rgcTypeDat{3}(test(:,6)==1)',bpcTypeDat{3}(test(:,6)==1)');
+noRibbon=horzcat(rgcTypeDat{3}(test(:,6)==0)',bpcTypeDat{3}(test(:,6)==0)');
+if figs
+    figure()
+    plot([1,2],[0,0]);
+    hold on
+    for i=1:size(pairings,1)
+        if pairings(i,1)>0 & pairings(i,2)>0
+            plot([1,2],[pairings(i,1),pairings(i,2)*4],'g--','LineWidth',2);
+        end
+    end
+    for i=1:size(noRibbon,1)
+        if noRibbon(i,1)>0 & noRibbon(i,2)>0
+            plot([1,2],[noRibbon(i,1)+.25,noRibbon(i,2)*4+.25],'r:','LineWidth',2);
+        end
+    end
+    yticks([1:59])
+    yticklabels(tis.cells.type.subTypeNames{1})
+end
+
+
+
+%%
+rgcListTypes=cid2type(test(:,1),curTis);
+bpcListTypes=cid2type(test(:,2),curTis);
+testTypes=horzcat(rgcListTypes{3}',bpcListTypes{3}');
+
+%%
+a=unique(test(:,[1 2]),'rows');
+result=zeros(size(a,1),1);
+%out = [a,histc(test(:,[1 2]),a)];
+for i=1:size(a,1)
+curPair=a(i,:);
+result(i)=length(find(ismember(test(:,[1 2]),curPair,'rows')));
+end
+r=horzcat(a,result);
+
+%%
+a=unique(testTypes(:,[1 2]),'rows');
+result=zeros(size(a,1),1);
+%out = [a,histc(test(:,[1 2]),a)];
+for i=1:size(a,1)
+curPair=a(i,:);
+result(i,1)=length(find(ismember(testTypes(:,[1 2]),curPair,'rows') & test(:,3)==1));
+result(i,2)=length(find(ismember(testTypes(:,[1 2]),curPair,'rows') & test(:,3)==0));
+end
+typeResults=horzcat(a,result);
+
+%%
+resultMat=zeros(length(unique(typeResults(:,1))),length(unique(typeResults(:,2))));
+alphaMat=resultMat;
+for i=1:size(typeResults,1)
+    curX=find(unique(typeResults(:,1))==typeResults(i,1));
+    curY=find(unique(typeResults(:,2))==typeResults(i,2));
+    alphaMat(curX,curY)=sum(typeResults(i,3:4));
+    curCol=(typeResults(i,3)*100+1)/((typeResults(i,4)*100+1)+(typeResults(i,3)*100+1));
+    resultMat(curX,curY)=curCol;
+end
+figure();
+title('BPC to RGC Ribbon Frequency by Subtype');
+hold on
+imobj=imagesc(resultMat);
+colormap(turbo)
+colorbar
+imobj.AlphaData=alphaMat;
+for i=1:size(typeResults,1)
+    curX=find(unique(typeResults(:,1))==typeResults(i,1));
+    curY=find(unique(typeResults(:,2))==typeResults(i,2));
+    alphaMat(curX,curY)=sum(typeResults(i,3:4));
+    if resultMat(curX,curY)<.9 &&  resultMat(curX,curY)>.1
+    text(curY,curX,num2str(sum(typeResults(i,3:4))),'HorizontalAlignment','center');
+    end
+end
+%imobj.Tag=num2str(alphaMat);
+%%
+
+rgcList=unique(test(:,1));
+bpcList=unique(test(:,2));
+rgcFreq=[];
+bpcFreq=[];
+for i=1:size(rgcList)
+    curRgc=rgcList(i);  
+    rgcFreq(i,1)=sum(test(:,1)==curRgc & test(:,3)==1);
+    rgcFreq(i,2)=sum(test(:,1)==curRgc & test(:,3)==0);
+end
+for i=1:size(bpcList)
+    curBpc=bpcList(i);
+    bpcFreq(i,1)=sum(test(:,2)==curBpc & test(:,3)==1);
+    bpcFreq(i,2)=sum(test(:,2)==curBpc & test(:,3)==0);
+end
+
+rgcSynRatio=horzcat(rgcList,rgcFreq);
+bpcSynRatio=horzcat(bpcList,bpcFreq);
+
+
+rgcSubList=unique(rgcListTypes{3}');
+bpcSubList=unique(bpcListTypes{3}');
+
+rgcTypeFreq=[];
+bpcTypeFreq=[];
+for i=1:size(rgcSubList,1)
+    curRgc=rgcSubList(i);  
+    rgcTypeFreq(i,1)=sum(testTypes(:,1)==curRgc & test(:,3)==1);
+    rgcTypeFreq(i,2)=sum(testTypes(:,1)==curRgc & test(:,3)==0);
+end
+for i=1:size(bpcSubList,1)
+    curBpc=bpcSubList(i);
+    bpcTypeFreq(i,1)=sum(testTypes(:,2)==curBpc & test(:,3)==1);
+    bpcTypeFreq(i,2)=sum(testTypes(:,2)==curBpc & test(:,3)==0);
+end
+
+rgcTypeSynRatio=horzcat(rgcSubList,rgcTypeFreq);
+bpcTypeSynRatio=horzcat(bpcSubList,bpcTypeFreq);
+
+rgcTypeSynRatioNames=curTis.cells.type.subTypeNames{1}(rgcTypeSynRatio(2:end,1));
+rgcTypeSynRatioNames(2:14)=rgcTypeSynRatioNames(1:13);
+rgcTypeSynRatioNames{1}='none';
+bpcTypeSynRatioNames=curTis.cells.type.subTypeNames{7}(bpcTypeSynRatio(2:end,1));
+bpcTypeSynRatioNames(2:10)=bpcTypeSynRatioNames(1:9);
+bpcTypeSynRatioNames{1}='none';
+
+figure();
+bar([1:size(rgcTypeSynRatio,1)],[rgcTypeSynRatio(:,2),rgcTypeSynRatio(:,3)]);
+hold on
+xticklabels(rgcTypeSynRatioNames);
+title('BPC to RGC appositions by RGC type and ribbon presence');
+legend({'Ribbon','No Ribbon'});
+
+figure();
+bar([1:size(bpcTypeSynRatio,1)],[bpcTypeSynRatio(:,2),bpcTypeSynRatio(:,3)]);
+hold on
+xticklabels(bpcTypeSynRatioNames);
+title('BPC to RGC appositions by BPC type and ribbon presence');
+legend({'Ribbon','No Ribbon'});
+
+
+%%
+
+
+figure();
+pairPos=test(test(:,6)==1,3:5);
+pairPos=pairPos./[25 25 2.5];
+noRibPos=test(test(:,6)==0,3:5);
+noRibPos=noRibPos./[25 25 2.5];
+scatter3(pairPos(:,2),pairPos(:,1),pairPos(:,3),'go');
+hold on
+scatter3(noRibPos(:,2),noRibPos(:,1),noRibPos(:,3),'ro');
+bcvox=getCidVox(6149,10,dsObj,curTis);
+bcvox=bcvox{1};
+scatter3(bcvox(:,1),bcvox(:,2),bcvox(:,3),'.b');

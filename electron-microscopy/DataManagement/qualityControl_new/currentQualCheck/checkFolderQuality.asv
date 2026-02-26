@@ -1,0 +1,53 @@
+
+%% get folder
+TPN = GetMyDir;
+nams = getPics(TPN);
+
+
+%% Run quality check
+for t = 1:length(nams)
+    
+    sprintf('Running image %d of %d.',t,length(nams))
+    checkFile = [TPN nams{t}];
+    tile(t) = checkFileQual(checkFile);
+    
+end
+
+
+%% Organize data
+
+mos = parseTileNames(nams);
+
+allQual = [tile.quality];
+[sortQual ranks] = sort(allQual);%sort(tile.use.quality,'ascend')
+
+qualMos = zeros(mos.Dims);
+for i = 1:length(mos.Files)
+    qualMos(mos.Pos(i,1),mos.Pos(i,2)) = tile(mos.Files(i)).quality;
+    
+    
+    
+end
+
+subplot(1,1,1)
+image(fitH(qualMos))
+
+qual.mos.qualMos = qualMos;
+qual.mos.globMos = globMos;
+qual.mos.satMos = satMos;
+
+end
+
+qual.tile = tile;
+qual.info = info;
+qual.nams = nams;
+
+
+save([TPN 'qual.mat'],'qual')
+
+
+
+
+
+
+

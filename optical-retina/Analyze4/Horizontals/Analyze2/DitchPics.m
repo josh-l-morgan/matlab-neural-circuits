@@ -1,0 +1,49 @@
+%% Run all data in a folder
+
+DPN=uigetdir; %get directory containing all data folders
+DPN=[DPN '\'];
+Dat=dir(DPN); %make directory listing
+Dat=Dat(3:size(Dat,1));
+c=0;
+
+
+for i=1:size(Dat,1), 
+    if Dat(i).isdir
+       c=c+1;
+     if exist([DPN Dat(i).name '\pics'])
+        Pics=dir([DPN Dat(i).name '\pics']);
+        Pics=Pics(3:size(Pics,1));
+        for p=1:size(Pics)
+            PicFold=[DPN Dat(i).name '\pics\' Pics(p).name];
+            if isdir(PicFold) %if its a directory
+                %% Read directory
+                d=dir(PicFold); %read selected directory
+                d=d(3:size(d,1)); %eliminate . and ..
+                GetSize=imread([PicFold '\' d(1).name]);
+                I=zeros(size(GetSize,1),size(GetSize,2),size(d,1),'uint8');
+                for im = 1 : size(d,1)
+                   I(:,:,im)=imread([PicFold '\' d(im).name]); 
+                end
+
+                %% Rename I to folder name
+                Back=find(PicFold=='\');
+                Back=Back(size(Back,2))+1;
+                Name=PicFold(Back:size(PicFold,2));
+                evalin('caller',[Name '=' 'I' '; clear ' 'I']) %Switches file names
+
+                %% Save 
+                save([PicFold '.mat'],Name)
+                clear(Name)
+                if exist([PicFold '.mat'])
+                   rmdir(PicFold,'s')
+                end
+            end
+            
+        end
+     end %is there a data file?
+        
+    end %is it a directory
+    progress=i/size(Dat,1)*100
+end %run all files in DPN
+
+

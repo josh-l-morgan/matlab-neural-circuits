@@ -1,0 +1,14 @@
+% Check quality in directory
+
+TPN = GetMyDir;
+nams = GetPics(TPN);
+for i = 1:length(nams)
+   nam = nams{i};
+   I = imread([TPN nam]);
+   tile(i) = checkIqual(I);
+   
+   showResult{i,1} = nam;
+   showResult{i,2} = tile(i).quality;
+end
+
+showResult

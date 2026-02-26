@@ -1,0 +1,49 @@
+
+clear all
+
+KPN=GetMyDir
+Kdir=dir(KPN);
+Kdir=Kdir(3:size(Kdir,1));
+yxum=0.103;
+zum=0.3;
+load('.\cmap.mat')
+
+for k = 1:size(Kdir,1)
+    TPN = [KPN '\' Kdir(k).name '\']; 
+     clear CA BiDotDist DotShow DotFilt DendFilt DotMap DendMap DPos 
+     clear Cell Red Green Blue TerFill TerFilt TerPerim TerRay Territory
+    if exist([TPN 'CA.mat'])
+      load([TPN 'CA.mat'])
+      
+      DotMap=CA.Arbor(1).DotMap;
+      DendMap=CA.Arbor(1).DendMap;
+      DotDist=CA.Arbor(1).DotDist;
+      DendDist=CA.Arbor(1).DendDist;
+      
+      [ys xs]=size(DotMap);
+            
+      CA4=zeros(ys,8);
+      CA4(1:ys,1:xs)=DotDist*1000;
+      CA4(1:ys,xs+1:xs*2)=DendDist*200;
+      CA4(ys+1:ys*2,1:xs)=((DotMap>0)+(DendMap>0))*100;
+      CA4(ys+1:ys*2,xs+1:xs*2)=DotDist./DendDist*200;
+      image(CA4),pause(.3)
+      
+      if exist([TPN 'Cell.mat'])
+            load([TPN 'Cell.mat'])
+            cName=['P' Cell.Age '_' Cell.Type '_' Kdir(k).name '.tif']
+            Name=[KPN 'Images\C4B\' cName];
+        else
+            Name=[KPN 'Images\C4B\' Kdir(k).name '.tif'];
+        end
+        if isempty(find(Name=='?'));
+            imwrite(CA4,cmap,Name,'Compression','none')
+        end
+      
+      
+      
+      clear CA4       
+    end
+end
+
+

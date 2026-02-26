@@ -1,0 +1,158 @@
+function [histOut,params]=showHist(cidCellList,params)
+%params is a structure with these:
+%'colormapping' - 'ind' or 'typ'
+%'binEdges' - [0:0.02:1] is default
+%'ymax' - 70000 is default (size of large t-OFF-a RGC)
+%'fvDir' - the one for 'Final' Volume is default
+%'figNam' - figure name. new figure if missing
+%'noFig' - if 1 or 'true' don't make a figure
+if isempty(params)
+    params=struct();
+end
+if ~isfield(params,'customMap')
+    params.customMap=[[0.537254902	0.192156863	0.937254902]; ...
+    [0.949019608	0.792156863	0.098039216]; ...
+    [1	0	0.741176471]; ...
+    [0	0.341176471	0.91372549]; ...
+    [0.529411765	0.91372549	0.066666667]; ...
+    [0.882352941	0.094117647	0.270588235]];
+    colPal2=params.customMap(:,[3 1 2]);
+    colPal3=params.customMap(:,[2 3 1]);
+    colPal4=params.customMap(:,[3 2 1]);
+    colPal5=params.customMap(:,[2 1 3]);
+    colPal6=params.customMap(:,[3 1 2]);
+    params.customMap=vertcat(params.customMap,colPal2,colPal3,colPal4,colPal5,colPal6);
+end
+if ~isfield(params,'colormapping')
+    params.colormapping='ind';
+end
+if ~isfield(params,'noFig')
+    params.noFig=0;
+end
+if ~isfield(params,'noLeg')
+    params.noLeg=0;
+end
+if ~isfield(params,'noLab')
+    params.noLab=0;
+end
+if ~isfield(params,'colormapping')
+    params.colormapping='ind';
+end
+if ~isfield(params,'ymax')
+    params.ymax=70000;
+end
+if ~isfield(params,'fvDir')
+    params.fvDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Analysis\fvLibrary\';
+end
+if ~isfield(params,'binEdges')
+    params.binEdges=[0:.02:1];
+end
+if ~isfield(params,'figNam') && ~params.noFig
+    %params.figNam='f1';
+    params.figNam=figure();
+    %eval([params.figNam '=figure()']);
+end
+histOut=cell(length(cidCellList),2);
+
+colPal=params.customMap;
+for k=1:64
+    curCol=rand(1,3);
+    colPal=vertcat(colPal,curCol);
+end
+binEdges=params.binEdges;
+
+xmin=params.binEdges(1);
+xmax=params.binEdges(end);
+ymin=0;
+ymax=params.ymax;
+if ~params.noFig
+    figNam=params.figNam;
+    figure(figNam);
+    %eval(['figure(' params.figNam ')']);
+    %clf
+    hold on
+    %ax1=axes;
+    %xlim([0.2 0.7])
+    xlim([xmin xmax]);
+    ylim([ymin ymax]);
+end
+itrtr=1;
+legendNames={};
+fvDir=params.fvDir;
+if length(fvDir)==length(cidCellList)
+    fvDirList=fvDir;
+else
+    fvDirList=cell(size(cidCellList));
+    fvDirList(:)={fvDir};
+end
+
+plotz={};
+for i=1:length(cidCellList)
+    i
+    curList=cidCellList{i};
+    legendNames={legendNames{:} string(num2str(curList(:)'))};
+    curFVs=getFV(curList,fvDirList{i});
+    histDat=zeros(length(curFVs),length(binEdges)-1);
+    vertDat=cell(length(curFVs),1);
+    for j=1:length(curFVs)
+        j
+        %curP={};
+        if params.colormapping=='ind'
+            k=itrtr;
+        elseif params.colormapping=='typ'
+            k=i;
+        else
+            k=mod(size(colPal,1),i);
+        end
+        if ~isempty(curFVs{j}.vertices)
+            [n,m,curFVdepths]=getIPLdepth(curFVs{j}.vertices(:,3),curFVs{j}.vertices(:,1),curFVs{j}.vertices(:,2),[],[]);
+            vertDat{j}=curFVdepths;
+            curHistDat=histcounts(curFVdepths,binEdges);
+            
+            histDat(j,:)=curHistDat;
+            xlocs=binEdges(2:end)-(binEdges(2)-binEdges(1))/2;
+            
+            [~,maxInd]=max(curHistDat(1:round(length(curHistDat)*.8)));
+            maxX=xlocs(maxInd);
+            maxY=curHistDat(maxInd);
+            curCid=curList(j);
+            offset=[0.1 0.05];
+            if ~params.noFig
+                curP(j)=area(xlocs,curHistDat);
+                curP(j).FaceColor=colPal(k,:);
+                alph=round(.3/sqrt(length(curFVs)),3);
+                curP(j).FaceAlpha=alph;
+                curP(j).LineStyle=':';
+                curP(j).EdgeColor=colPal(k,:);
+                
+                ax1=get(gca);
+                gridOffset=ax1.Position;
+                xrat=(maxX/xmax)*gridOffset(3)+gridOffset(1);
+                yrat=(maxY/ymax)*gridOffset(4)+gridOffset(2);
+                arrowX=[xrat-offset(1) xrat];
+                arrowY=[yrat+offset(2) yrat];
+                if arrowY(1)>gridOffset(4)
+                    arrowY=[yrat-offset(2) yrat];
+                end
+                if mod(i,2)==0
+                    arrowX=[xrat+offset(1) xrat];
+                    %arrowY=arrowY([2 1]);
+                end
+                
+                %annotation('textarrow',[gridOffset(1) gridOffset(1)+gridOffset(3)],[gridOffset(2) gridOffset(2)+gridOffset(4)],'String','x13 y24')
+                arrowX(arrowX>1)=1;
+                arrowY(arrowY>1)=1;
+                if ~params.noLab
+                annotation('textarrow',arrowX,arrowY,'String',num2str(curCid))
+                end
+            end
+            itrtr=itrtr+1;
+        end
+    end
+    plotz{i}=curP;
+    histOut{i,1}=histDat;
+    histOut{i,2}=vertDat;
+end
+if ~params.noLeg
+legend(legendNames);
+end

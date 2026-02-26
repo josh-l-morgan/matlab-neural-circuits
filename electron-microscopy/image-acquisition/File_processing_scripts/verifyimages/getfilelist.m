@@ -1,0 +1,39 @@
+function filelist=getfilelist(directory,filetemplate)
+%returns a cell array of filenames which have the given filetemplate
+%By Daniel Berger for MIT-BCS Seung / Harvard Lichtman, March 2010
+
+  if (directory(end)=='/')
+    directory=directory(1:end-1);
+  end;
+
+  d=dir(directory);
+  %endtemplatesize=size(endtemplate,2);
+  nrfiles=0;
+  filelist={};
+  nrf=size(d,1);
+  for f=1:1:nrf
+    if d(f).isdir
+      if (strcmp(d(f).name,'.'))||(strcmp(d(f).name,'..'))
+      else
+        %go into subdirectory
+        filelist2=getfilelist([directory '/' d(f).name],filetemplate);
+        if size(filelist2,1)>0
+          filelist=[filelist filelist2];
+          nrfiles=size(filelist,2);
+        end;
+      end;
+    end;
+  end;
+  d=dir([directory '/' filetemplate]);
+  nrf=size(d,1);
+  for f=1:1:nrf
+    if d(f).isdir==0
+      %ending=d(f).name(end-3:end);
+      %ending=d(f).name(end-endtemplatesize+1:end);
+      %if strcmp(ending,endtemplate)
+        nrfiles=nrfiles+1;
+        filelist{nrfiles}=[directory '/' d(f).name];
+      %end;
+    end;
+  end;
+end

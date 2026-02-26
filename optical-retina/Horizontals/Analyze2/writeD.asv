@@ -1,0 +1,4 @@
+[TPN]=GetMyDir
+
+load([TPN 'pics\D.mat'])
+imwriteNp(TPN,D,'D')

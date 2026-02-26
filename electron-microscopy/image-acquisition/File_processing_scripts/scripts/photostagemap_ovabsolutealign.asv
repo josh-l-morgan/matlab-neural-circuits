@@ -1,0 +1,54 @@
+function param=photostagemap_ovabsolutealign(param)
+%This function computes an absolute coordinates in a global coordinate
+%space for all overview slice images
+%By Daniel Berger for MIT-BCS Seung / Harvard Lichtman, March 2010
+
+lparam=param.ovabsolutealign;
+
+for w=param.processwafers
+  nrofslices=size(param.alignoverviewimages.stsec{3},1); %size(param.generatestagemap.linearslicepos{w},1);
+  gavail=param.alignoverviewimages.gavail{w};
+  gtransx=param.alignoverviewimages.gtransx{w};
+  gtransy=param.alignoverviewimages.gtransy{w};
+  grot=param.alignoverviewimages.grot{w};
+  gcorr=param.alignoverviewimages.gcorr{w};
+  gmatrix=param.alignoverviewimages.gmatrix{w};
+  
+  gabsmatrix=cell(nrofslices,lparam.nrofpredictions);
+  gabsmatrixcount=zeros(nrofslices,1);
+  gabsmatrix{1}=[[1 0 0]; [0 1 0]; [0 0 1]]; gabsmatrixcount(1)=1;
+  %Do recursive alignment to slice 1
+  switch lparam.alignmode
+    case 0  % lparam.npredictions predictions for each slice, average all equally
+      %while sum(gabsmatrixcount==0)>0
+      while sum(gabsmatrixcount==lparam.nrofpredictions)<nrofslices
+        %for rec=1:1:nrofrecursions
+        for i=1:1:nrofslices
+          if gabsmatrixcount(i)>0 %source exists
+            for j=1:1:nrofslices
+              if gavail(i,j) %&&(gcorr(i,j)>lparam.mincorr)) %transformation source-target exists and correlation is high enough
+                if gabsmatrixcount(j)<lparam.nrofpredictions
+                  gabsmatrixcount(j)=gabsmatrixcount(j)+1;
+                  gabsmatrix{j,gabsmatrixcount(j)}=gabsmatrix{i,1}*squeeze(gmatrix(i,j,:,:));
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+      %average predictions
+      for i=1:1:nrofslices
+        ggabsmatrix{i}=gabsmatrix{i,1};
+        if lparam.nrofpredictions>1
+          %compute arithmetic mean
+          for j=2:1:lparam.nrofpredictions
+            ggabsmatrix{i}=ggabsmatrix{i}+gabsmatrix{i,j};
+          end;
+          ggabsmatrix{i}=ggabsmatrix{i}/lparam.nrofpredictions;
+          ggabsmatrix{i}=makerigidmatrix(ggabsmatrix{i}); %normalize to make rigid transformation
+        end;
+      end;
+  end;
+  param.ovabsolutealign.gabsmatrixcount{w}=gabsmatrixcount;
+  param.ovabsolutealign.gabsmatrix{w}=ggabsmatrix;
+end;

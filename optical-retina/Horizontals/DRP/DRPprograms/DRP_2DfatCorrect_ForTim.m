@@ -1,0 +1,419 @@
+%% Give  both 3D and 2D versions of DRP
+%Helps to filter the crap out of image prior to thresholding ( so long as
+%objects dont touch
+
+%%Resolutions
+    % 60x z2 1024 = .103 FV1000
+    % 25x z1 1024 = .4944 ? not tested
+clear all
+colormap gray(256)
+
+TPN = GetMyDir;
+%load([TPN 'Temp.mat'])
+
+'getting image info', pause(.1)
+prompt = {'Minimum Object size ','Dimensions ', 'Objective', 'Zoom','Resolution','Zstep','Bin','Look','Res at 60xz1 2048'};
+nLines = 1;
+
+Title='Get Image Info';
+
+ImageInfo= inputdlg(prompt,Title,nLines,{'1','2','40','1','1024','2','1','100','0.103'});
+for i = 1:length(ImageInfo)
+    ImageInfo{i}= str2num(ImageInfo{i});
+end
+pause(.01)
+
+minObSize=ImageInfo{1};
+Dim = ImageInfo{2};
+Objective = ImageInfo{3};
+Zom = ImageInfo{4};
+Resolution = ImageInfo{5};
+zum = ImageInfo{6};
+Bin = ImageInfo{7};
+Look = ImageInfo{8};
+StandardRes = ImageInfo{9};
+
+xyum=(StandardRes/Zom)*(60/Objective)*(2048/Resolution);
+
+
+%% Get image
+'getting image'
+TPNi=[TPN]
+Idir=dir(TPNi);
+In={};
+for i = 1: length(Idir)
+    name=Idir(i).name;
+    LN=length(name);
+    if LN>=3
+        if length(name)>=4
+        if sum(name(LN-3:LN)=='.tif')==4;
+            In{length(In)+1}=name;
+        end
+        end
+    end
+end
+
+I = imread([TPNi '\' In{1}]);
+I = max(I,[],3);
+siz = [size(I,1) size(I,2) length(In)];
+
+if siz(3)>1
+    I = zeros(siz,'uint8');
+for i = 1:siz(3)
+    I(:,:,i)=imread([TPNi '\' In{i}]);
+end
+end
+Imax=max(I,[],3);
+image(Imax'*1000);
+
+I = I > median(I(:)); %remove any background
+I = uint16(I);
+
+%% Grab positions
+% 'grabbing positions'
+% idc=3;
+% if siz(3)>1
+%    [Is idc]=bwlabeln(I(:,:,1:2));
+%    I(:,:,1:2)=Is;
+%     for i = 3: size(I,3)
+%         i
+%         [Is2 numo]=bwlabeln(I(:,:,i-1:i));
+%         
+%         for o = 1 :numo
+%             Targ=I(:,:,i-1);
+%             Vals=Targ(find(Is2(:,:,1)==o));
+%             Vals=unique(Vals);
+%             %image(max(I,[],3)),pause
+%             idc=idc+1;
+%             for v = 1:length(Vals)  %% Mark image
+%                 I(I==Vals(v))=idc;
+%             end
+%            
+%             [yi xi]=ind2sub(siz(1:2),find(Is2(:,:,2)==o));
+%             zi=ones(length(yi),1)*i;
+%             if ~isempty(yi)
+%                 I(sub2ind(siz,yi,xi,zi))=idc;
+%             end
+%         end
+%     end
+% 
+% end
+% colormap colorcube(256)
+% for i = 1: size(I,3)
+%    image(I(:,:,i)),pause 
+% end
+% 
+
+
+%%
+
+
+[I numOb] =bwlabeln(I,26);
+Pos=[];
+for i = 1: numOb
+    ObInd=find(I==i);
+    if length(ObInd)>=minObSize  %if big enough
+        [y x z] = ind2sub(siz,ObInd);
+        Pos(size(Pos,1)+1,:)=mean([y x z],1);
+    end %% if big enough
+    ['imaging ' num2str(i) ' of ' num2str(numOb)]
+end
+
+%% Randomize
+
+
+
+%%Show centers
+% CentI=sub2ind(siz,round(Pos(:,1)),round(Pos(:,2)),round(Pos(:,3)));
+% Centers=(I>0)*50;
+% Centers(CentI)=200;
+% ImwriteNp(TPN,Centers,'Centers')
+
+clear Centers I
+
+%%Scale Positions
+Pos=round(Pos);
+Pos(:,1:2)=Pos(:,1:2)*xyum;
+Pos(:,3)=Pos(:,3)*zum;
+
+%% Find Dists to centers
+Dnum=size(Pos,1);
+Dists=zeros(Dnum);
+for d = 1:Dnum
+    Dists2(d,:)=sort(dist(Pos(:,1:2), Pos(d,1:2)));  %use rounded positions
+end
+
+Dists=Dists2;
+
+%% Nearest Neighbor
+mDists=mean(Dists,1);
+Near2=Dists2(:,2);
+hNear=hist(Near2,2.5:1:max(Near2(:)));
+
+
+
+
+%% Create distance matrix
+
+
+
+    LookPix=(1./[xyum xyum]) * Look;
+    Mid=fix(LookPix)+1;
+    DmatSize=Mid*2+1;
+    Dmat=zeros(DmatSize);
+    [dmy dmx]=ind2sub(DmatSize(1:2),find(Dmat(:,:)==0));
+    Dmat(:)=sqrt((dmy-Mid(1)).^2 + (dmx-Mid(2)).^2 );  
+    Dmat=Dmat*xyum;
+
+%%(Tmat is now the 2d distace matrix)
+
+%% Density Recovery Profile
+' Running DRP'
+
+maxDist=Look;%max(Dists(:));
+DUsed=(0:Look)';
+Cnum2=zeros(Dnum,size(DUsed,1));  %hist of cell bodies relative to each cellbody
+Anum2=Cnum2; Anum3=Anum2; Cnum3=Cnum2;%hist of area pixels relative to each cell body
+DistsA=Dnum;
+for c = 1:Dnum    
+    ['running ' num2str(c) ' of ' num2str(Dnum)],pause(.01)
+    cPos=Pos(c,:); %% find center
+    cPos=round(cPos./[xyum xyum zum]);
+    dPos=siz-cPos; %% find difference from size (direction 2)
+    pPos=[cPos;dPos];
+    Vmat=Dmat*0;
+    
+    
+    if (siz(3)==1) | (Dim == 2),  %if 2D
+             startP = max(1,Mid-cPos(1:2)+1); 
+             stopP = min([DmatSize ;Mid+dPos(1:2)],[],1);
+              Vmat(startP(1):stopP(1),startP(2):stopP(2))=1;
+     
+        
+    else  %% if 3D
+        
+    %% NEEDS SHIFTING ACCORDING TO DIM 1!!!!!!!!!!!!!!!!
+    for py = 1:2, for px = 1:2, for pz = 1:2
+                uPos=[pPos(py,1) pPos(px,2) pPos(pz,3)];
+                sp=[py-1, px-1, pz-1];
+                uPos=uPos+sp;
+                uPos=min([uPos; DmatSize],[],1);  %% ??? Which goes first
+                
+                Vmat(py:uPos(1),px:uPos(2),pz:uPos(3))=Vmat(py:uPos(1),px:uPos(2),pz:uPos(3))+1;
+    end, end, end
+   
+
+  
+    
+    %%Find 2D cells and Areas
+    Amat=Vmat(:,:,1);
+    for d = 2:length(DUsed)
+       Anum3(c,d)=sum(sum(sum(Amat(Tmat<DUsed(d) & Tmat>DUsed(d-1))))); 
+       Cnum3(c,d)=sum((Dists2(c,:)<=DUsed(d)) & (Dists2(c,:)>DUsed(d-1))); 
+    end
+    end
+    
+      %%find 3D cells and Volumes
+    for d = 2:length(DUsed)
+       Anum2(c,d)=sum(sum(sum(Vmat(Dmat<=DUsed(d) & Dmat>DUsed(d-1))))); 
+       Cnum2(c,d)=sum((Dists2(c,:)<=DUsed(d)) & (Dists2(c,:)>DUsed(d-1))); 
+    end
+    
+    
+end
+
+%% Convert to area/volume
+pix=(xyum*xyum)/(1000)^2;
+vox=pix * zum/1000;
+Anum2=Anum2*pix;
+
+
+if Dim == 3 
+    Anum3=Anum3*vox;
+    Anum=Anum3;
+    Cnum=Cnum3;
+else
+    Anum=Anum2;
+    Cnum=Cnum2;
+end
+
+
+% Dnum=Cnum./Anum;
+% ADnum=mean(Dnum,1);
+% bar(ADnum)
+
+Csum=mean(Cnum,1)';
+Asum=mean(Anum,1)';
+
+CoA=Csum./Asum;
+bar(CoA)
+
+
+%% Bin
+Rebin=2;
+Bins=(Rebin:Rebin:Look)-Rebin/2
+clear Cbin Abin CbinS AbinS
+for d = 1 : size(Asum,1)
+    Cbin(d)=sum(Csum(max(d-Rebin/2,2):min(d+Rebin/2,size(Csum,1))));
+    Abin(d)=sum(Asum(max(d-Rebin/2,2):min(d+Rebin/2,size(Asum,1))));
+end
+
+for d = 1 : length(Bins)
+    max(Bins(d)-Rebin/2,2):min(Bins(d)+Rebin/2,size(Csum,1))
+    CbinS(d)=sum(Csum(max(Bins(d)-Rebin/2,2):min(Bins(d)+Rebin/2,size(Csum,1))));
+    AbinS(d)=sum(Asum(max(Bins(d)-Rebin/2,2):min(Bins(d)+Rebin/2,size(Asum,1))));
+end
+
+
+
+CAbin=Cbin./Abin;
+CAbinS=CbinS./AbinS;
+
+plot(CAbin)
+bar(Abin)
+bar(Cbin)
+bar(CAbin),pause(.01)
+bar(CAbinS),pause(.01)
+
+%% Reshape
+
+
+Rebin=5;
+Bins=(1:Rebin:Look);
+Bins=Bins(Bins<(Look-Rebin+1));
+clear Cb Ab
+numBin=length(Bins);
+for d = 1 : numBin
+    Bins(d):Bins(d)+Rebin-1
+    Cb(:,d)=sum(Cnum(:,Bins(d):Bins(d)+Rebin-1),2);
+    Ab(:,d)=sum(Anum(:,Bins(d):Bins(d)+Rebin-1),2);
+end
+
+CA=Cb./Ab;
+
+bar(Bins,mean(CA))
+
+%%Get SE
+
+
+Ref=CA(:,fix(size(CA,2)/2):size(CA,2));
+Ref=Ref(:);
+hold off
+
+
+% clear Rsums
+% for i = 1:numBin
+% Rsums(i)=ranksum(CA(:,i),Ref);
+% end
+% 
+% % subplot(2,1,2)
+% plot(Bins+Rebin/2,Rsums,'r')
+% [Bins + Rebin ; Rsums]
+% hold off
+% 
+% ys=ylim;
+% ylim([min(0,ys(1)) ys(2)]);
+
+
+
+
+
+%% Extract info
+%%Get average nearest neighbor, Recovered density, Mean density, half width
+%%Effective Radius,maximum Radius and Packing Factor  (See Rodieck)
+
+
+TotMMcube=prod(siz.*[xyum xyum zum])/1000^3;
+TotMMsqr=prod(siz(1:2).*[xyum xyum])/1000^2;
+CellPerMMsqr=(Dnum/TotMMsqr);
+
+D = CellPerMMsqr;
+d=CoA;
+A = Asum;
+ % Calculate missing volumes
+%%Calculate Dead Space
+
+clear V
+for i = 1: length(CoA)
+   if CAbin(i)>=D; break, end 
+   V(i)=Asum(i)*D-Csum(i); 
+   MaxRadius=DUsed(i);
+end
+Ve=sum(V);
+Re=sqrt(Ve/(pi*D));
+
+DeadSpace=Ve;
+EffectiveRadius = Re * 1000;
+
+
+%%Calculate Packing factor
+Rm=sqrt(sqrt(4/3)/D); % find max radius
+PackingFactor = (Re/Rm)^2;
+
+%%
+N=size(Cb,1); 
+clear E
+for b = 1:numBin
+    E(b)=std(CA(:,b)/D/sqrt(N));    
+end
+bar(Bins+Rebin/2,mean(CA/D,1))
+hold on
+errorbar(Bins+Rebin/2,mean(CA/D,1),E,'+')
+hold off
+% 
+
+%% SaveData
+
+clear Dat
+
+Dat.CellPerMMsqr=CellPerMMsqr;
+Dat.DeadSpace=DeadSpace;
+Dat.EffectiveRadius=EffectiveRadius;
+Dat.MaxRadius=MaxRadius;
+Dat.AveNearest2=mean(Near2);
+Dat.PackingFactor=PackingFactor;
+Dat.TotMMsqr=TotMMsqr;
+Dat.Cells=Dnum;
+Dat.DUsed=DUsed;
+
+Dat.Image.ImageInfo=ImageInfo;
+Dat.Image.siz=siz;
+
+Dat.Raw.Anum2=Anum2;
+Dat.Raw.Cnum2=Cnum2;
+Dat.Raw.Near2=Near2;
+Dat.Raw.Pos=Pos;
+
+Dat.Rebin=Rebin;
+
+if Dim==3;
+    Dat.Raw.Anum3=Anum3;
+    Dat.Raw.Cnum3=Cnum3;
+    Dat.Raw.Near3=Near3;
+    Dat.AveNearest3=mean(Near3);
+end
+
+
+Dat.Other.TotMMcube=TotMMcube;
+save([TPN 'Dat.mat'],'Dat')
+
+Dat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

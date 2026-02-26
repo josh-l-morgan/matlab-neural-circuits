@@ -1,0 +1,65 @@
+TPN = GetMyDir;
+TPNd = dir(TPN); TPNd=TPNd(3:length(TPNd));
+
+for i = 1:length(TPNd)
+   nam = TPNd(i).name
+   if length(nam)>3
+   if strcmp(nam(length(nam)-3:length(nam)),'.mat')
+        load([TPN nam])
+   end
+   end
+end
+
+
+Hit= Classify.Hit;
+Miss = Classify.Miss;
+Unknown = 1:length(Classify.only);
+Unknown = setdiff(Unknown,Hit);
+Unknown = setdiff(Unknown,Miss);
+Pos = find(result);
+Neg = find(~result);
+
+ImSize = Dots.ImSize;
+
+I = zeros(ImSize,'uint8');
+
+%% Make color map
+%six color
+col = [ 1 0 0;
+    0 1 0;
+    0 0 1;
+    1 0 1;
+    1 1 0;
+    0 1 1;];
+
+for i = 1:size(col,1)
+    i
+    pic(1,1,:) = col(i,:);
+    image(pic),pause(.1)
+end
+
+%% Draw everything
+for c = 1:3 % draw each channel
+end
+
+
+%% false negatives
+falseNeg = intersect(Hit, Neg);  
+for i = 1:length(falseNeg)
+   I(Dots.Vox(falseNeg(i)).Ind) = 255;   
+end
+
+imwriteNp(TPN,I,'falseNeg')
+
+%% false postitieves
+falsePos = intersect(Miss, Pos);  
+for i = 1:length(falsePos)
+   I(Dots.Vox(falsePos(i)).Ind) = 255;   
+end
+
+imwriteNp(TPN,I,'falsePos')
+
+
+
+
+

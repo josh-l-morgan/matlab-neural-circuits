@@ -1,0 +1,232 @@
+%%Pools DRP from multiple images
+clear all
+
+%% Get all directories
+Got=0; TPNa={};
+while 1
+    Got=GetMyDir;
+    if strcmp(Got(2),'\'),break,end
+    TPNa{length(TPNa)+1}=Got;
+end
+
+%% Read in 
+clear Msiz
+
+for i = 1:length(TPNa)
+    TPN = TPNa{i};
+    load([TPN 'Dat.mat'])
+    
+    CnumA{i}=Dat.Raw.Cnum2;
+    AnumA{i}=Dat.Raw.Anum2;
+    [y x] = size(CnumA{i});
+    Msiz(i+1,:)=[y x];   
+    
+    
+    %%Other info
+    ImageInfo=Dat.Image.ImageInfo;
+    Look=ImageInfo{8};
+    sizs(i,:)=Dat.Image.siz;
+    Cells(i)=Dat.Cells;
+    Areas(i)=Dat.TotMMsqr;
+    
+    subplot(length(TPNa)+1,1,i)
+    bar(mean(CnumA{i},1)./mean(AnumA{i},1)),pause(.01)
+    
+end
+subplot(length(TPNa)+1,1,length(TPNa)+1)
+
+%%Compile
+Cnum=zeros(sum(Msiz(:,1),1),max(Msiz(:,2),[],1));
+Anum=Cnum;
+for i = 1:length(TPNa)
+   Cnum(sum(Msiz(1:i,1))+1:sum(Msiz(1:i+1,1)),1:size(CnumA{i},2))=CnumA{i};
+   Anum(sum(Msiz(1:i,1))+1:sum(Msiz(1:i+1,1)),1:size(CnumA{i},2))=AnumA{i};
+end
+
+rCoA=Cnum./Anum;
+bar(mean(rCoA,1))
+
+
+Csum=mean(Cnum,1)';
+Asum=mean(Anum,1)';
+
+CoA=Csum./Asum;
+bar(CoA)
+
+%% Bin
+Rebin=2;
+Bins=(Rebin:Rebin:Look)-Rebin/2
+clear Cbin Abin
+for d = 1 : size(Asum,1)
+    Cbin(d)=sum(Csum(max(d-Rebin/2,2):min(d+Rebin/2,size(Csum,1))));
+    Abin(d)=sum(Asum(max(d-Rebin/2,2):min(d+Rebin/2,size(Asum,1))));
+end
+
+for d = 1 : length(Bins)
+    CbinS(d)=sum(Csum(max(Bins(d)-Rebin/2,2):min(Bins(d)+Rebin/2,size(Csum,1))));
+    AbinS(d)=sum(Asum(max(Bins(d)-Rebin/2,2):min(Bins(d)+Rebin/2,size(Asum,1))));
+end
+
+CAbin=Cbin./Abin;
+CAbinS=CbinS./AbinS;
+
+plot(CAbin)
+bar(Abin)
+bar(Cbin)
+bar(CAbin),pause(.01)
+bar(CAbinS),pause(.01)
+
+
+
+
+%% Extract info
+%%Get average nearest neighbor, Recovered density, Mean density, half width
+%%Effective Radius,maximum Radius and Packing Factor  (See Rodieck)
+
+
+ScaledDensity=sum(((Cells./Areas).*Cells))/sum(Cells)
+TotMMsqr=sum(Areas);
+Dnum=sum(Cells);
+CellPerMMsqr=(Dnum/TotMMsqr);
+RecoveredDensity=mean(CoA(30:length(CoA)));
+
+Bin=1; %!!!!!!!!!!
+maxDist=max(Msiz(:,2),[],1);
+DUsed=((Bin/2:Bin:fix(maxDist)))';
+
+
+D = ScaledDensity;
+d=CoA;
+A = Asum;
+ % Calculate missing volumes
+%%Calculate Dead Space
+
+clear V
+for i = 1: length(CoA)
+   if CAbin(i)>=D; break, end 
+   V(i)=Asum(i)*D-Csum(i); 
+   MaxRadius=DUsed(i);
+end
+Ve=sum(V);
+Re=sqrt(Ve/(pi*D));
+
+DeadSpace=Ve
+EffectiveRadius = Re * 1000
+MaxRadius
+
+%%Calculate Packing factor
+Rm=sqrt(sqrt(4/3)/D); % find max radius
+PackingFactor = (Re/Rm)^2
+
+
+%%  Calculate significance
+
+Rebin=2;
+Bins=(1:Rebin:Look);
+clear Cb Ab
+for d = 1 : length(Bins)
+    Bins(d):Bins(d)+Rebin-1
+    Cb(:,d)=sum(Cnum(:,Bins(d):Bins(d)+Rebin-1));
+    Ab(:,d)=sum(Anum(:,Bins(d):Bins(d)+Rebin-1));
+end
+
+Denb=Cb./Ab;
+
+bar(mean(Denb,1))
+
+bar(mean(Cb,1)./mean(Ab,1))
+
+
+%% Reshape Final Figure
+subplot(1,1,1)
+
+
+Rebin=5;
+Bins=(1:Rebin:Look);
+Bins=Bins(Bins<(Look-Rebin+1));
+clear Cb Ab
+numBin=length(Bins);
+for d = 1 : numBin
+    Bins(d):Bins(d)+Rebin-1
+    Cb(:,d)=sum(Cnum(:,Bins(d):Bins(d)+Rebin-1),2);
+    Ab(:,d)=sum(Anum(:,Bins(d):Bins(d)+Rebin-1),2);
+end
+
+CA=Cb./Ab;
+
+bar(Bins,mean(CA))
+
+%%Get SE
+Ref=CA(:,fix(size(CA,2)/2):size(CA,2));
+Ref=Ref(:);
+hold off
+
+N=size(Cb,1); 
+clear E
+for b = 1:numBin
+    E(b)=std(CA(:,b)/D/sqrt(N));    
+end
+bar(Bins+Rebin/2,mean(CA/D,1))
+hold on
+errorbar(Bins+Rebin/2,mean(CA/D,1),E,'+')
+hold off
+% 
+% clear Rsums
+% for i = 1:numBin
+% Rsums(i)=ranksum(CA(:,i),Ref);
+% end
+% 
+% % subplot(2,1,2)
+% plot(Bins+Rebin/2,Rsums,'r')
+% [Bins + Rebin ; Rsums]
+% hold off
+% 
+% ys=ylim;
+% ylim([min(0,ys(1)) ys(2)]);
+
+%% Extract info again
+%%Get average nearest neighbor, Recovered density, Mean density, half width
+%%Effective Radius,maximum Radius and Packing Factor  (See Rodieck)
+
+
+ScaledDensity=sum(((Cells./Areas).*Cells))/sum(Cells)
+TotMMsqr=sum(Areas);
+Dnum=sum(Cells);
+CellPerMMsqr=(Dnum/TotMMsqr);
+RecoveredDensity=mean(CoA(30:length(CoA)));
+
+Bin=5; %!!!!!!!!!!
+maxDist=max(Msiz(:,2),[],1);
+DUsed=((Bin/2:Bin:fix(maxDist)))';
+
+
+D = ScaledDensity;
+d=mean(CA,1);
+A = mean(Ab);
+C = mean(Cb);
+ % Calculate missing volumes
+%%Calculate Dead Space
+
+clear V
+for i = 1: length(d)
+   if d(i)>=D; break, end 
+   V(i)=A(i)*D-C(i); 
+   MaxRadius=Bins(i);
+   LastBin=i;
+end
+
+Ve=sum(V);
+Re=sqrt(Ve/(pi*D));
+
+DeadSpace=Ve
+EffectiveRadius = Re * 1000
+MaxRadius
+
+%%Calculate Packing factor
+Rm=sqrt(sqrt(4/3)/D); % find max radius
+PackingFactor = (Re/Rm)^2
+
+
+
+
+

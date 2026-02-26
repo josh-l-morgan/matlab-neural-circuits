@@ -1,0 +1,64 @@
+global tis
+load('G:\Data\MATLAB\DF2020\Volumes\DF2020_2\Merge\vastSubs.mat');
+load('G:\Data\MATLAB\DF2020\Volumes\DF2020_2\Merge\obI.mat');
+load('G:\Data\MATLAB\DF2020\Volumes\DF2020_2\Merge\dsObj.mat');
+
+synCensusResults=struct;
+
+vgcCidList=[2 3 4 10 11 14 20];
+
+for vgcIt=1:length(vgcCidList)
+    curVgcCid=vgcCidList(vgcIt);
+    outputs=tis.syn.edges(tis.syn.edges(:,2)==curVgcCid,:);
+    outputIDs=tis.syn.obID(tis.syn.edges(:,2)==curVgcCid,:);
+    outputAnchors=zeros(length(outputIDs),3);
+    for i=1:length(outputIDs)
+        curOutputID=outputIDs(i);
+        curAnchor=tis.obI.colStruc.anchors(find(tis.obI.colStruc.ids==curOutputID),:);
+        outputAnchors(i,:)=curAnchor;
+    end
+    targList=outputs(:,1);
+    synCensusResults(vgcIt).vgcCid=curVgcCid;
+    synCensusResults(vgcIt).totalOutputSyns=length(targList);
+    targTypeList=[];
+    for targIt=1:length(targList)
+        targCid=targList(targIt);
+        targType=tis.cells.type.typeID(tis.cells.cids==targCid);
+        if ~isempty(targType)
+            targTypeList(targIt)=targType;
+        end
+    end
+    
+    %unclassified
+    
+    %RGC block
+    uniqueRGCtargs=targList(targTypeList==1);
+    synCensusResults(vgcIt).rgcOutputSyns=length(uniqueRGCtargs);
+    %uniqueRGCs
+    uniqueRGCtargs=unique(uniqueRGCtargs);
+    synCensusResults(vgcIt).rgcOutputCidList=uniqueRGCtargs;
+    uniqueRGCsizeList=[];
+    for curIt=1:length(uniqueRGCtargs)
+        curRGCCid=uniqueRGCtargs(curIt);
+        curRGCObjList=obI.cell.obIDs(obI.cell.name==curRGCCid);
+        curRGCvoxList=[];
+        for j=1:length(curRGCObjList)
+            curObjID=curRGCObjList{j};
+            curRGCvoxList=cat(1,curRGCvoxList, dsObj(curObjID).subs);
+        end
+        uniqueRGCvoxList=unique(curRGCvoxList,'rows');
+        uniqueRGCsizeList=[uniqueRGCsizeList length(uniqueRGCvoxList)];
+    end
+    synCensusResults(vgcIt).
+    
+    
+end
+
+
+targTypeList
+uniqueRGCtargs=targList;
+uniqueRGCtargs=targList(targTypeList==1)
+unique(uniqueRGCtargs)
+length(ans)
+unique(uniqueRGCtargs)
+uniqueRGCtargs=unique(uniqueRGCtargs)

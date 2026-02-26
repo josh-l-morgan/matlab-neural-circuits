@@ -1,0 +1,8 @@
+function[y,x,z,v]=find3(matrix,equals)
+% finds a number (second argument) in a 3D matrix (first argument)
+
+
+[ys,xs,zs]=size(matrix);
+[y,xz]=find(matrix==equals);
+x=mod(xz-1,xs)+1;
+z=fix((xz-1)./xs)+1;

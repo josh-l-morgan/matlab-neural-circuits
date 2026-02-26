@@ -1,0 +1,45 @@
+cvCidList=[2 3 4 5 13 14];
+
+projCutoff=1;
+
+s={};
+
+figA=figure();
+tlA=tiledlayout(2,length(cvCidList));
+
+for curCidIt=1:length(cvCidList)
+    curCid=cvCidList(curCidIt);
+curVox=getCidVox(curCid,1,highObj,highTis);
+curVox=curVox{1};
+curVox=curVox(curVox(:,1)>1,:);
+bbox=[min(curVox(:,1)),max(curVox(:,1));min(curVox(:,2)),max(curVox(:,2));min(curVox(:,3)),max(curVox(:,3))];
+boxDims=bbox(:,2)-bbox(:,1)+1;
+miniVox=curVox-(bbox(:,1)'-1);
+volImg=zeros(boxDims(1),boxDims(2),boxDims(3),'logical');
+indList=sub2ind(size(volImg),miniVox(:,1),miniVox(:,2),miniVox(:,3));
+volImg(indList)=1;
+volImg2=volImg(:,:,[2:end 1]);
+volImg3=volImg(:,:,[end 1:end-1]);
+volImgSum=volImg+volImg2+volImg3;
+sumZproj=sum(volImgSum,3);
+nexttile();
+imAa=image(sumZproj*10);
+title(curCid);
+sumZprojBin=sumZproj>projCutoff;
+nexttile();
+imAb=image(sumZprojBin*128);
+hold on;
+title(curCid);
+[cvx,cvy]=ind2sub(size(sumZprojBin),find(sumZprojBin>0));
+convHullInds=convhull(cvx,cvy);
+plot(cvy(convHullInds),cvx(convHullInds),'m-');
+curCidArea=polyarea(cvy(convHullInds)/10,cvx(convHullInds)/10);
+curProps = regionprops(sumZprojBin, 'Orientation', 'MajorAxisLength', ...
+    'MinorAxisLength', 'Eccentricity');
+s{curCidIt} = regionprops(sumZprojBin, 'Orientation', 'MajorAxisLength', ...
+    'MinorAxisLength', 'Eccentricity');
+[~,goodPropInd]=max(vertcat(curProps.MajorAxisLength));
+%cid	arbor um	Convex Hull Area	Major Axis	Minor Axis	Orientation.
+fprintf('%.0f, %.0f, %.0f, %.0f, %.0f\n',curCid,curCidArea,curProps(goodPropInd).MajorAxisLength/10, ...
+    curProps(goodPropInd).MinorAxisLength/10,curProps(goodPropInd).Orientation)
+end

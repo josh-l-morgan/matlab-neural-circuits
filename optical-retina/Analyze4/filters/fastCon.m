@@ -1,0 +1,43 @@
+function[I] = fastCon(I,K);
+
+% 
+% kSize = 11;
+% fKern = zeros(kSize,kSize,kSize);
+% fKern(round(kSize/2),round(kSize/2),round(kSize/2)) = 1;
+% dfKern = bwdist(fKern);
+% dfKern = kSize/2-dfKern;
+% dfKern = dfKern/max(dfKern(:));
+% 
+% gKern = 1 * exp(-.5 * ((dfKern-kSize+1)/(kSize/6)).^2);
+% for i = 1:size(gKern,3)
+%    image(fitH(gKern,i)),pause(.1); 
+% end
+% 
+% K = gKern;
+% I = zeros(100,100,100);
+% I(50,50,50) = 1;
+% I(1,1,1) = 1;
+
+% get size
+[iys ixs izs] = size(I);
+[kys kxs kzs] = size(K);
+
+% pad with zeros
+K(kys + iys , ixs + kxs, izs + kzs) = 0;
+I(kys + iys, ixs + kxs, izs + kzs) = 0;
+
+% convolve by fft
+cI = ifftn(fftn(I).*fftn(K));
+
+% recover non zeros
+I = cI(round(kys/2):round(kys/2)+iys - 1,...
+    round(kxs/2):round(kxs/2)+ixs - 1,...
+    round(kzs/2):round(kzs/2)+izs - 1);
+
+% image
+% for i = 1:size(cutI,3)
+%    image(fitH(cutI,i)),pause; 
+% end
+
+
+

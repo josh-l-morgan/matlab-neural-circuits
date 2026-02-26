@@ -1,0 +1,84 @@
+function[vastSubs] = fixVastSubs(vastSubs)
+
+global glob
+
+
+%%Embarassing hak
+if strcmp(glob.NA.export.exportName,'Josh_B') & ...
+        strcmp(glob.vol.activeName,'v1')
+    hackCellNavGlob
+end
+
+
+if isfield(glob.NA.export,'fix')
+
+    %%Shift z position of all subs
+    if isfield(glob.NA.export.fix,'changeZ')
+        disp('Shifting z for vastSubs')
+        for i = 1:length(vastSubs)
+            if ~isempty(vastSubs{i})
+                vastSubs{i}(:,3) = vastSubs{i}(:,3) + glob.NA.export.fix.changeZ;
+            end
+        end
+    end
+
+end
+
+
+load("MPN.mat");
+if exist([MPN 'shiftZ.mat'],'file')
+    disp('shifting planes')
+    load([MPN 'shiftZ.mat']);
+
+    % if 0
+    %     %Collect subs
+    %     allSubs = zeros(length(vastSubs) * 200,4);
+    %     L1 = 0;
+    %     for v = 1 : length(vastSubs)
+    %         sub = vastSubs{v};
+    %         L2 = L1+size(sub,1);
+    %         if L2 > size(allSubs,1)
+    %             allSubs(L2*2,1) = 0;
+    %         end
+    %         allSubs(L1+1:L2,:) = [sub zeros(size(sub,1),1)+v];
+    %         L1 = L2;
+    %     end
+    %     allSubs = allSubs(1:L2,:);
+    % 
+    %     zs = unique(allSubs(:,3));
+    %     isZ = zeros(size(allSubs,1),1);
+    %     for zn = 1:length(zs)
+    %         disp(sprintf('transforming plane %d of %d',zn,length(zs)))
+    %         z = zs(zn);
+    %         tform = shiftZ.tforms(z).tform;
+    %         isZ = allSubs(:,3)==z;
+    %         allSubs(isZ,1:2) = rigidPts(allSubs(isZ,1:2),tform.A);
+    %     end
+    % 
+    %     for v = 1 : length(vastSubs)
+    %         disp(sprintf('fixing sub %d of %d',v,length(vastSubs)))
+    %         isV = allSubs(:,4);
+    %         vastSubs{v} = allSubs(isV,1:3);
+    %     end
+    % else
+
+
+        for v = 1:length(vastSubs)
+            disp(sprintf('fixing sub %d of %d',v,length(vastSubs)))
+            if ~isempty(vastSubs{v})
+                zs = unique(vastSubs{v}(:,3));
+                for zn = 1:length(zs)
+                    z = zs(zn);
+                    tform = shiftZ.tforms(z).tform;
+                    isZ = find(vastSubs{v}(:,3)==z);
+                    vastSubs{v}(isZ,1:2) = rigidPts(vastSubs{v}(isZ,1:2),tform.A);
+                end
+            end
+        end
+    % end
+
+end
+
+
+
+

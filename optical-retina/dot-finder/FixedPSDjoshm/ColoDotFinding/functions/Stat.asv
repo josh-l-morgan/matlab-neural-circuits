@@ -1,0 +1,61 @@
+function[Status] = Stat(TPN)
+%% Checks and retrives cell Status when given folder name
+
+  %%Get or make Status
+    clear Status
+    if ~strcmp(TPN(1,size(TPN,2)),'\')
+    TPN=
+    DPN=[TPN Map(i).IMfolder '\'];
+    if exist([TPN 'Status.mat'])
+       load([TPN 'Status.mat'])
+    else 
+       Status.Fix=0;
+       Status.Ra=0;
+       Status.Ma=0;
+       Status.Dr=0;
+       Status.Running=0;
+       Status.FD=0;
+       Status.Sk=0;
+       Status.Results=0;
+       save([TPN 'Status.mat'],'Status')
+    end
+   
+    
+    
+    %~strcmp(Map(i).IMfolder,'?')&& 
+    
+    %%If data folder is found
+       if exist([Map(i).TPN 'data\BigFilled.mat']), Status.FD=1;
+       else Status.FD=0; end
+       
+       if exist([Map(i).TPN 'data\AllSeg.mat']), Status.Sk=1;
+       else Status.Sk=0; end       
+       
+       if exist([Map(i).TPN 'data\MaskedAt.mat']), Status.Ma=1;
+       else Status.Ma=0; end   
+       
+       if exist([Map(i).TPN 'data\DotStats.mat']), Status.Ra=1;
+       else Status.Ra=0; end  
+       
+       if exist([Map(i).TPN 'data\Results.mat']), Status.Results=1;
+       else Status.DD=0; end   
+
+       if exist([Map(i).TPN 'dataFix']), Status.Fix =1;
+       else Status.Fix=0; end
+   
+       if exist([Map(i).TPN 'images\Combo.tif']), Status.Dr =1;
+       else Status.Dr =0; end
+       
+       Status.Fields=0;
+       Status.Fields=fieldnames(Status);
+       save([TPN 'Status.mat'],'Status')
+    
+       %%Write to MapC 
+       S=struct2cell(Status)';
+        MapC(i,3:2+size(S,2))=S;
+        save([BatchFolder '\temp\MapC.mat'],'MapC')
+        
+
+        
+          
+end %run all data

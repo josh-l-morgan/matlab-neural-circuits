@@ -1,0 +1,140 @@
+
+clear D Tip siz reps Hyp Live Ext Ret As DCon
+
+D(1,:,:)=[0 0; 0 .5];
+Tip(1,:)=[ 1;1];
+siz=[200 200];
+reps=1000;
+Hyp=1;
+Live=1>0;
+DCon=Live<0;
+As=1;
+Ext=1>0;
+Ret=0>0;
+
+
+%make presynaptic field
+[Prey Prex]=find(ones(50,50));
+Pre=[Prey Prex];
+Pre=Pre*4;
+PreCon=zeros(size(Pre,1),1)>0;
+
+for r = 1:reps;
+    
+    
+    %%REmove tips
+    [TipID TipS]=find(Tip);
+    Tips=find(Tip );
+    for i = 1:size(Tips,1)
+       %%Set retract states
+       if (size(D,1)-1000)/100000>rand
+           Ret(TipID(i))=1; %start retraction
+       end
+       if Ret(TipID(i))
+            Live(TipID(i))=0;
+            RM=D(TipID(i),:,1); %Get Base
+            aTip=(D(:,1,2)==RM(1)) & ((D(:,2,2) ==RM(2)));
+            aBase=(D(:,1,1)==RM(1)) & ((D(:,2,1) ==RM(1)));
+            if sum(aTip) & ~sum(aBase)
+                Tip(aTip,2)=1; %enter all new tip positions as tips
+                Ret(aTip,2)=1;
+                Ext(aTip,2)=0;
+            end
+
+       end %if in retract state
+    end
+
+    %clean up info
+
+    D=D(Live,:,:);
+    Tip=Tip(Live,:);
+    Live=Live(Live);
+
+    %Grow tips
+    [TipID TipS]=find(Tip);
+    Tips=find(Tip );
+    id = size(D,1);
+    for i = 1:size(Tips,1)
+        
+        if Ext(TipID(i))
+            %make new node
+            id = id + 1;
+            y=D(TipID(i),1,TipS(i)); x = D(TipID(i),2,TipS(i));
+            A=As(TipID(i))+(randn * 2*pi)/20; %pick random angle
+            yd=sin(A) * Hyp;
+            xd=cos(A) * Hyp;
+            yn= y + yd;
+            xn= x + xd;
+
+            %enter new seg
+            D(id,1,1)= y; D(id,2,1) = x;
+            D(id,1,2)= yn; D(id,2,2) = xn;
+            Tip(TipID(i),TipS(i))=0;
+            Tip(id,2)=1;
+            Tip(id,1)=0;
+            Live(id)=1;
+            DCon(id)=0;
+            As(id)=A;
+            Ext(id)=1;
+            Ret(id)=0;
+        
+        end %if in extended state
+
+    end
+
+    %Grow inner
+    Rnd=rand(size(D,1),1);
+    Pik=Rnd==max(Rnd);
+    Piks=find(Pik);
+    id = size(D,1);
+    for i = 1:size(Piks,1)
+
+        Pn=.00001;
+        if rand>Pn & ~DCon(Piks(i));
+            %make new node
+            id = id + 1;
+            y=D(Piks(i),1,1); x = D(Piks(i),2,1);
+            A=As(Piks(i))+pi/2; %pick random angle
+            yd=sin(A) * Hyp;
+            xd=cos(A) * Hyp;
+            yn= y + yd;
+            xn= x + xd;
+
+            %enter new seg
+            D(id,1,1)= y; D(id,2,1) = x;
+            D(id,1,2)= yn; D(id,2,2) = xn;
+            Tip(Piks(i),1)=0;
+            Tip(id,2)=1;
+            Tip(id,1)=0;
+            Live(id)=1;
+            DCon(id)=0;
+            As(id)=A;
+            Ext(id)=1;
+            Ret(id)=0;
+        end
+    end
+
+
+    %%Check for connections
+%     for i = 1: size(Pre,1)
+%         Dists=sqrt((D(i,1,2)-Pre(:,1)).^2 + (D(i,2,2)-Pre(:,2)).^2);
+%         Dist=Dists<10;
+% 
+%         if sum(~PreCon(Dist))
+%             DCon(i)=1; %contact Post
+%         end
+%         PreCon(Dist)=1; %contact Pre
+%     end
+% 
+%     sum(DCon)
+
+    %% Show Result
+    Mids=mean(D,3);
+    I=showvec(Mids,siz);
+    image(I*100);pause(.01)
+
+
+
+end
+
+

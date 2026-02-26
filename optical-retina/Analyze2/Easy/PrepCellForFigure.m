@@ -1,0 +1,49 @@
+clear all
+TPN = GetMyDir
+
+load([TPN 'Dots.mat'])
+load([TPN 'find\SG.mat'])
+
+
+%% 
+DrawDots=zeros(Dots.ImSize,'uint8');
+
+P=find(SG.passF);
+for i = 1:size(P,1)
+   pos = round(Dots.Pos(P(i),:));
+   DrawDots(pos(1),pos(2),pos(3))=     DrawDots(pos(1),pos(2),pos(3)) +1;
+    
+end
+
+
+%% Make Filter
+
+SS=6;
+Sph=zeros(2*SS+1, 2*SS+1, fix(2/3*SS)+1);
+for y=1:size(Sph,1), for x = 1:size(Sph,2), for z = 1:size(Sph,3)
+            Sph(y,x,z)=sqrt(((SS+1)-y)^2+( (SS+1)-x)^2 +(((SS/3+1)-z)*3)^2);
+end, end , end
+Sph=Sph+1;
+Sph(Sph>SS+1.5)=0;
+Sph=(SS+2)*(Sph>0)-Sph;
+Sph=Sph*230/max(Sph(:));
+Sph(Sph>0)=Sph(Sph>0)+20;
+image(max(Sph,[],3))
+
+Side=max(Sph,[],2);
+Side=shiftdim(Side,2);
+image(Side)
+
+
+
+
+
+%% Filter
+DrawDots=imfilter(DrawDots,Sph);
+
+maxDots=max(DrawDots,[],3);
+image(maxDots)
+
+imwriteNp(TPN, DrawDots,'DrawDots')
+
+

@@ -1,0 +1,130 @@
+
+clear all
+
+TPN=GetMyDir
+
+%% load info
+load([TPN 'Dots.mat'])
+load([TPN 'find\SG.mat'])
+load([TPN 'data\AllSegCut.mat'])
+
+%%Extract Dot Positions
+OK=SG.passF;
+DPos=Dots.Pos(OK,:);
+DPos(:,1:2)=DPos(:,1:2)*.103; DPos(:,3)=DPos(:,3)*.3;
+
+%%Extract Dend positions 
+Mids=mean(AllSegCut,3);
+Length=sqrt((AllSegCut(:,1,1)-AllSegCut(:,1,2)).^2 ...
+           + (AllSegCut(:,2,1)-AllSegCut(:,2,2)).^2 ...
+           + (AllSegCut(:,3,1)-AllSegCut(:,3,2)).^2);
+       
+%%Scale times 10
+DPos=round(DPos*10);
+Mids=round(Mids*10);
+
+%% Draw maps
+
+%%insure no negs
+minDPos=min(DPos)-1; minMids=min(Mids)-1;
+minBoth=min(minDPos,minMids);
+for d = 1:3, 
+    if minBoth(d)<0;
+        DPos(:,d)=DPos(:,d)-minBoth(:,d); 
+        Mids(:,d)=Mids(:,d)-minBoth(:,d); 
+    end
+end
+
+Msize=fix(max(max(DPos),max(Mids)))+1;
+
+%%Draw Dot map
+DotMap=zeros(Msize(1),Msize(2));
+for i=1:size(DPos,1)
+    DotMap(DPos(i,1),DPos(i,2))=DotMap(DPos(i,1),DPos(i,2))+1;
+end
+
+%%Draw Dend map
+DendMap=zeros(Msize(1),Msize(2));
+for i=1:size(Mids,1)
+    DendMap(Mids(i,1),Mids(i,2))=DendMap(Mids(i,1),Mids(i,2))+Length(i);
+end
+
+%% Filter maps
+
+%%make distance filter
+Frad=50;
+Dfilt=zeros(Frad*2+1);
+for y=1:Frad*2+1
+    for x=1:Frad*2+1
+        Dfilt(y,x)=sqrt((y-(Frad+1))^2+(x-(Frad+1))^2);
+    end
+end
+Dfilt=Dfilt*-1 +Frad;
+Dfilt(Dfilt<0)=0;
+Dfilt=Dfilt/Frad;
+image(Dfilt*100)
+
+
+Disk=fspecial('disk',50);
+Disk=Disk/max(Disk(:));
+DotFilt=imfilter(DotMap,Dfilt,'same');
+DendFilt=imfilter(DendMap,Dfilt,'same');
+
+%% Get cell YX territory
+
+%%By closing
+SE=strel('disk',100);
+DendC=imclose(DendMap,SE);
+DFlab=bwlabel(DendC);
+for i = 1:max(DFlab(:))
+    lSize(i)=size(find(DFlab==i),1); %#ok<AGROW>
+end
+TerClose=DFlab*0;
+TerClose(DFlab==find(lSize==max(lSize)))=1;
+
+%%By disk filter
+DFlab=bwlabel(DotFilt);
+for i = 1:max(DFlab(:))
+    lSize(i)=size(find(DFlab==i),1); %#ok<AGROW>
+end
+TerFilt=DFlab*0;
+TerFilt(DFlab==find(lSize==max(lSize)))=1;
+
+%image((DotFilt.*Ter)./(DendFilt.*Ter)*100)
+image((DotFilt.*TerFilt*10+TerFilt*2)*3)
+
+
+%%  Neighbors
+DPosR=Dots.Pos(OK,:);
+DPosR(:,1:2)=DPosR(:,1:2)*.103; DPosR(:,3)=DPosR(:,3)*.3;
+
+DDists=zeros(size(DPosR,1));
+Near10=zeros(size(DPosR,1),10);
+for i = 1: size(DPosR,1)
+    DDist=dist(DPosR,DPosR(i,:))';
+    DDists(i,:)=DDist;
+    DDist=sort(DDist);
+    Near10(i,:)=DDist(2:11);
+    In5(i)=sum(DDist<=5);
+    %DHist(i,101)=hist(DDist(i,:),1:.1:100);
+end
+
+In5hist=hist(In5);
+
+plot(mean(Near10),'r')
+hold on
+for i = 1:size(Near10,1)
+    plot(Near10(i,:),'b')
+    pause(.01)
+    
+end
+plot(mean(Near10),'r')
+hold off
+
+
+
+
+
+
+
+

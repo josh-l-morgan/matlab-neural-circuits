@@ -1,0 +1,185 @@
+function[]=anaMaM(TPN,DPN)
+%% Apply Mask to Data
+%%Recieves mask in the form of 0=exterior, 1=dend (to which dots are
+%%related), 2=crap (from which sements are removed)
+
+
+colormap gray(255)
+
+%Get directory name
+%DPN=GetMyDir
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+%% Load Dots and Dendrites
+load([TPN 'Dots.mat'])
+yxum=.103; zum=.3;  %% Assign voxel dimensions
+DotPos=Dots.Pos;
+DotPos(:,1:2)=DotPos(:,1:2)*yxum;
+DotPos(:,3)=DotPos(:,3)*zum;
+
+
+%% READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'reading image'
+
+if exist([TPN 'mask']) %% mask is image in folder 'mask' if exists
+    d=dir([TPN 'mask']); %get number of files in directory
+    d=d(3:size(d,1));
+    
+    clear I IM 
+    for i=1:size(d,1)
+        IM(:,:,i)=imread([TPN 'mask\' d(i).name]);
+        PercentRead=i/size(d,1)*100
+    end
+else %default mask is 
+    load([TPN 'data\D.mat']); %load thresholded dendrite arbor
+    renvar('D','IM')
+    IM=IM>0; %(make sure its in binary)
+    clear D
+end
+[ys xs zs]=size(IM);
+
+%% Check Dend against IM Mask pixel by pixel
+%%Segment tips rounded to the nearest pixel should be within a Mask Pixel
+%%(concider dialating mask)
+
+load([TPN 'data\AllSeg.mat'])
+%%Save Segments
+
+SegCheck=ones(size(AllSeg,1),1);
+if max(IM(:))>1 %if there is a crap region
+
+    'Checking all dendrite Segments'
+    
+    SegMid=mean(AllSeg,3);
+    SegMid(:,1:2)=SegMid(:,1:2)/yxum;
+    SegMid(:,3)=SegMid(:,3)/zum;
+    SegMid=round(SegMid);
+    SegMid(SegMid(:,3)>size(IM,3),3)=size(IM,3);
+    SegMid(SegMid(:,1)>size(IM,1),1)=size(IM,1);
+    SegMid(SegMid(:,2)>size(IM,2),2)=size(IM,2);
+    
+    %%is either end of a segment within a crap region (==2)
+    for i=1:size(SegMid,1)
+        SegCheck(i)=~(IM(SegMid(i,1),SegMid(i,2),SegMid(i,3))==2);
+    end
+    save([TPN 'data\SegCheck.mat'],'SegCheck')
+end
+
+AllSegCut=AllSeg(logical(SegCheck),:,:);
+save([TPN 'data\AllSegCut.mat'],'AllSegCut')
+
+
+%% Find out what part of the mask 0, 1, 2 the puncta lays on
+for i = 1: Dots.Num
+   Cut(i)=IM(round(Dots.Pos(i,1)),round(Dots.Pos(i,2)),round(Dots.Pos(i,3))); 
+end
+Dots.Cut=Cut;
+
+
+%% List mask
+clear mask
+mask=[0 0 0];
+IM=logical(IM==1);
+'Counting surround'
+IM=CountSurround(IM);
+'Done With Surround'
+IM=IM>6;  %remove small objects
+for i=1:size(IM,3)
+    [y x z]=find3(IM(:,:,i));
+    z=(z>0)*i;
+    mask=cat(1,mask,[y x z]);
+end
+mask=mask(2:size(mask,1),:);
+mask(:,1:2)=mask(:,1:2)*yxum;
+mask(:,3)=mask(:,3)*zum;
+
+
+
+%% Save Backup for All Seg and Dot Data
+if ~exist([TPN 'data\AllSegBackup.mat'])
+    save([TPN 'data\AllSegBackup.mat'],'AllSeg')
+end
+
+
+%% Check Dots against Mask
+%%Find distance between dot and nearest masked pixel
+[ys xs zs]=size(IM);
+
+clear Dist mDotToMaskDist
+CheckDist=1;
+for i =1:Dots.Num
+      Dist=dist(mask,DotPos(i,:)); 
+      mDotToMaskDist(i)=min(Dist);
+      PercentDoneWithDots=double(i)/Dots.Num*100
+end
+save([TPN 'mDotToMaskDist.mat'],'mDotToMaskDist')
+
+Dots.DistToMask=mDotToMaskDist;
+%change dotdata to those puncta within 2um
+save([TPN 'Dots.mat'],'Dots')
+
+
+%% Check Dend against mask (min distance
+%%Find distance between dot and nearest masked pixel
+%{
+for i =1:size(AllSegCut,1)
+  Dist1=dist(mask,AllSegCut(i,:,1)); 
+  Dist2=dist(mask,AllSegCut(i,:,2));
+  Dist=min(Dist1,Dist2);
+  
+  mDendToMaskDist(i)=min(Dist);
+  PercentDoneWithDend=double(i)/size(AllSegCut,1)*100
+end
+save([TPN 'mDendToMaskDist.mat'],'mDendToMaskDist')
+%}
+
+
+
+%% Draw Dot and Dend
+'Drawing Dots and Dendrites'
+xyum=yxum;
+Sc=(1/xyum)/2;
+DDm=uint8(zeros(round(max(max(AllSegCut(:,1,:)))*Sc),round(max(max(AllSegCut(:,2,:)))),round(max(max(AllSegCut(:,3,:)))*Sc)));
+
+%%Draw Segments
+SkelRes=.1;
+for i=1:size(AllSegCut,1)
+        Dist=sqrt((AllSegCut(i,1,1)-AllSegCut(i,1,2))^2 + (AllSegCut(i,2,1)-AllSegCut(i,2,2))^2 + (AllSegCut(i,3,1)-AllSegCut(i,3,2))^2); %find distance
+        Length(i)=Dist;
+          devs=max(1,round(Dist/SkelRes)); %Find number of subdivisions
+        for d=1:devs+1
+            sy=AllSegCut(i,1,1)+((AllSegCut(i,1,2)-AllSegCut(i,1,1))/devs)*(d-1);
+            sx=AllSegCut(i,2,1)+((AllSegCut(i,2,2)-AllSegCut(i,2,1))/devs)*(d-1);
+            sz=AllSegCut(i,3,1)+((AllSegCut(i,3,2)-AllSegCut(i,3,1))/devs)*(d-1);
+            DDm(round(sy*Sc)+1,round(sx*Sc)+1,round(sz*Sc)+1)=1; %draw Skel
+        end
+end
+clear Dist
+
+%%DrawNodes
+for i=1:size(AllSegCut,1)
+        DDm(round(AllSegCut(i,1,1)*Sc)+1,round(AllSegCut(i,2,1)*Sc)+1,round(AllSegCut(i,3,1)*Sc)+1)=2;
+        DDm(round(AllSegCut(i,1,2)*Sc)+1,round(AllSegCut(i,2,2)*Sc)+1,round(AllSegCut(i,3,2)*Sc)+1)=2;
+end
+
+%%Draw Dots
+for i=1:Dots.Num
+        DDm(round(DotPos(i,1)*Sc)+1,round(DotPos(i,2)*Sc)+1,round(DotPos(i,3)*Sc)+1)=Dots.DistToMask(i)*10;
+end
+
+
+colormap colorcube
+image(max(DDm,[],3)*30)
+imwriteNp(TPN,DDm,'DDm')
+
+
+
+
+
+
+
+

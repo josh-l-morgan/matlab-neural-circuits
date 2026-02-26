@@ -1,0 +1,29 @@
+
+
+[ty tx] = find(TargF);
+Smell=zeros(size(TargF,1),size(TargF,2),size(ty,1));
+side=[0 1 ; 0 -1; -1 0; 1 0];
+
+
+for t = 1 : size(ty,1) % run all targets
+    
+    starty=ty(t); startx=tx(t);
+    for s = 1:100;  %run 100 itterations for each target
+        nexty=[]; nextx = [];
+        for n = 1: size(starty,1) %run each pixel in wave
+            Path = ~(field | Wall | Smell(:,:,t));
+            neary=side(:,1)+starty(n);
+            nearx=side(:,2)+startx(n);
+            inear=sub2ind([fsize fsize],neary,nearx);
+            Pn=Path(inear);
+            Smell(neary(Pn),nearx(Pn),t)=1/t;
+            nexty=[nexty ;neary(Pn)];
+            nextx=[nextx ;nearx(Pn)];
+        end
+        starty=nexty; startx = nextx;
+        image(Smell(:,:,t)*100),pause(.01)
+    end
+    
+    
+end
+    

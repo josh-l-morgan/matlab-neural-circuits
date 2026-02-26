@@ -1,0 +1,85 @@
+
+'Get Cells'
+load('UseCells.mat')
+[Age ONs OFFs BIs Others]=GetCellInfo(UseCells);
+GetBIs=find(BIs);
+BIAge=Age(BIs);
+'Cells Gotten'
+
+
+%%  Draw Markers
+
+for k = 1:size(GetBIs,1)
+    TPN = char(UseCells(GetBIs(k)));
+    load([TPN 'Use.mat'])
+    
+    Mids=Use.Mids;
+    
+    
+    %% Generate layer label
+    CellZ=Use.Cent(3);
+    Top=Use.Top;
+    Bottom=Use.Bottom;
+    
+    Layer=zeros(size(Mids,1),1)+1;
+    
+    Layer((Mids(:,3)>=Top(1)) & (Mids(:,3)<=Bottom(1)))=2;
+    if size(Top,2)>1
+        Layer((Mids(:,3)>Top(2)) & (Mids(:,3)<=Bottom(2)))=3;
+    end
+    
+    Mids=fix(Mids*3)+1;
+    MaxMids=max(Mids);
+    DrawMarked=zeros(MaxMids,'uint8');
+    for i = 1:size(Mids,1)
+        DrawMarked(Mids(i,1),Mids(i,2),Mids(i,3))=Layer(i);
+    end
+    %%Mark
+    DrawMarked(:,:,1)=100;
+    DrawMarked(1,1,1)=200;
+    DrawMarked(1,size(DrawMarked,2),1)=200;
+    DrawMarked(size(DrawMarked,1),size(DrawMarked,2),1)=200;
+    DrawMarked(size(DrawMarked,1),1,1)=200;
+    
+    Mmap=[0 0 0 ; 1 0 0; 0 1 0; 0 0 1; 0 0 0];
+    colormap(Mmap)
+    image(sum(DrawMarked,3)-99),pause(.3)
+    imwriteNp(TPN,DrawMarked,'DrawMarked')
+
+end
+%}
+
+
+%% Find Rotation
+for k = 1:size(GetBIs,1)
+    TPN = char(UseCells(GetBIs(k)));
+    isSp(GetBIs(k))=exist([TPN 'pics\Spun']);
+end
+    
+getSp=find(isSp);
+
+for k = 1: size(getSp,1)
+    TPN = char(UseCells(getSp(k)));
+    dirS=dir([TPN 'pics\Spun']);dirS=dirS(3:size(dirS));
+    clear Spun
+    for i = 1:size(dirS)
+        Spun(:,:,i)=imread([TPN 'pics\Spun\' dirS(i).name]);
+    end
+    [PlaneY PlaneX PlaneZ]=find3(Spun>10);
+    Plane=[PlaneY  PlaneX  PlaneZ];
+    [CorY CorX CorZ] = find3(Spun>110);
+    Corners=[CorY CorX CorZ];
+    %[Co Sc]=princomp(Plane)
+    
+    Mids=CoRot(Mids,Co);
+    Rot=Co;
+    save([TPN 'Rot.mat'],'Rot')
+    
+    
+end
+    
+    
+    
+    
+    
+    

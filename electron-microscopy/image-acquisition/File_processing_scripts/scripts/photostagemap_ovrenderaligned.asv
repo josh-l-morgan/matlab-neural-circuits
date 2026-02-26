@@ -1,0 +1,41 @@
+function param=photostagemap_ovrenderaligned(param)
+%This function renders a stack of aligned overview images (aligned within-wafer only)
+%By Daniel Berger for MIT-BCS Seung / Harvard Lichtman, March 2010
+
+lparam=param.ovrenderaligned;
+
+for w=param.processwafers
+  nrofslices=size(param.generatestagemap.linearslicepos{w},1);
+  
+  %generate strip section list
+  stsec=zeros(nrofslices,2);
+  i=1;
+  nrofstrips=size(param.generatestagemap.stripslicepos{w},1);
+  for st=1:1:nrofstrips
+    nrofsections=size(param.generatestagemap.stripslicepos{w}{st},1);
+    for sec=1:1:nrofsections
+      stsec(i,1)=st; stsec(i,2)=sec;
+      i=i+1;
+    end;
+  end;
+  
+  %Render images
+  for i=1:1:nrofslices
+    sourceimagename=[param.overviewimages.targetdirectory sprintf(param.overviewimages.filenametemplate,w,stsec(i,1),stsec(i,2))];
+    %imagename=sprintf('./images/%02d.tif',i);
+    img1=double(imread(sourceimagename));
+    %alignedimg=zeros(size(img1,1),size(img1,2));
+    minx=1; miny=1; maxx=size(img1,2); maxy=size(img1,1); twidth=size(img1,2); theight=size(img1,1);
+    if lparam.useregionalign==1
+      rmat=param.ovregionabsolutealign.gabsmatrix{w}{i};
+    else
+      rmat=param.ovabsolutealign.gabsmatrix{w}{i};
+    end;
+    image1=renderaffineimage(img1,rmat,minx,miny,maxx,maxy,twidth,theight,'linear');
+    alignedimg=(image1-min(min(image1)))/((max(max(image1))-min(min(image1))));
+    targetimagename=sprintf(lparam.targetimagetemplate,w,stsec(i,1),stsec(i,2));
+    fulltargetimagename=[lparam.targetdirectory targetimagename];
+    %imagename=sprintf('./rigid/%02d.png',i);
+    imwrite(alignedimg,fulltargetimagename,lparam.targetimagetype);
+  end;
+end;

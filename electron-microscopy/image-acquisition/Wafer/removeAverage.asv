@@ -1,0 +1,27 @@
+
+
+%% Remove average from set of images
+colormap gray(256)
+TPN = GetMyDir;
+
+nams = getPics(TPN);
+info = imfinfo([TPN nams{1}]);
+dims = [info.Height info.Width]
+xdim = [1 dims(3)];
+ydims= dims(1);
+
+for y = 1:10:ydims;
+    %Isum = double(imread([TPN nams{1}],'PixelRegion',{[y, ydims],xdim}));
+
+    for i = 1:length(nams)
+        I = imread([TPN nams{i}],'PixelRegion',{[y, y],xdim});
+        Isum(i,:) = I;
+    end
+    %image(Isum),pause(.01)
+    Ifilt(y,:) = median(Isum,1);
+    y
+
+end
+image(Ifilt)
+
+for i = 1:

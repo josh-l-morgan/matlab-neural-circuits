@@ -1,0 +1,233 @@
+%% Seperate signals from two sources that are mixed into two channels. 
+%%written by Josh Morgan and Daniel Kerschensteiner
+
+
+%% Get image
+%clear all
+
+colormap gray(256)
+Dil=5; %Dilation diameter
+Pt=1; % time to pause at each image
+
+'getting image info', pause(.1)
+prompt = {'Enter file type [3D tiff = 1, 2D RGBs in folder = 2, OIF = 3]','Channel for analysis: ',...
+    'Number of Channels (if 3D tiff): ','Binary(0) or Grayscale(1)?: '};
+title = 'Type of image';
+nLines = 1;
+
+ImageInfo= inputdlg(prompt,title,nLines,{'1','1','1','1'});
+
+isGray=str2num(ImageInfo{4});
+
+%% Read Image
+
+'reading tiffs'
+if str2num(ImageInfo{1}) == 2
+    RPN = GetMyDir;
+    RPNd=dir(RPN);RPNd=RPNd(3:length(RPNd));
+    c=0;
+    for i = 1:length(RPNd)
+       Nam = RPNd(i).name;
+       if sum(Nam(length(Nam)-3:length(Nam))=='.tif')==4
+           c=c+1;
+           if c==1
+              Is=imread([RPN Nam]);
+              [ys,xs,cs]=size(Is);
+              I=zeros(ys,xs,cs,length(RPNd),'uint16');
+              I(:,:,:,c)=Is;
+           else
+            I(:,:,:,c)=imread([RPN Nam]);
+           end
+       end
+       
+    end
+    I=I(:,:,:,1:c);
+    Isum=find(sum(sum(sum(I,1),2),4));
+    if length(Isum)==1
+        channel = squeeze(I(:,:,Isum(1),:));
+    else
+        channel = squeeze(I(:,:,str2num(ImageInfo{2}),:));
+
+    end
+    clear I
+    
+    TPN=[RPN(1:length(RPN)-1) '_Unmix'];
+       if isdir(TPN), rmdir(TPN,'s'), end
+    mkdir(TPN)
+    name='unmix';
+    
+elseif str2num(ImageInfo{1}) == 3
+    RPN = GetMyDir;
+    I=oifread(RPN);
+    Isum=find(sum(sum(sum(I,1),2),4));
+    if length(Isum)==1
+        channel = squeeze(I(:,:,Isum(1),:));
+    else
+        channel = squeeze(I(:,:,str2num(ImageInfo{2}),:));
+
+    end
+    clear I
+    
+    TPN=[RPN(1:length(RPN)-1) '_Unmix'];
+    if isdir(TPN), rmdir(TPN,'s'), end
+    mkdir(TPN)
+        name='unmix';
+else
+    
+    [DFN DPN] = GetMyFile;
+    TargFile=[DPN DFN];
+
+    Iall = tiffread2(TargFile);
+    for i = 1: size(Iall,2)
+    I(:,:,i)=Iall(i).data;
+    end
+    clear Iall
+
+    
+    sizi=size(I,3);
+    Chans=str2num(ImageInfo{3});
+    Chan=str2num(ImageInfo{2});
+    startC=(sizi/Chans)*(Chan - 1)+1;
+    stopC=(sizi/Chans)*(Chan);
+    channel=I(:,:,startC:stopC);
+        
+    
+    name=DFN(1:find(DFN=='.')-1);
+    TPN=[DPN  name ];
+    name=DFN(1:find(DFN=='.')-1);
+
+
+end
+
+
+%% Area 
+[ys xs zs]=size(channel);
+Neu=channel; %!!!!!!!!!!!!!!!!!!!!!!!
+clear channel
+
+%% If grayscale that needs preprocessing
+if isGray  
+    
+%% median
+for r = 1:3
+for i = 1: size(Neu,3)
+    Neu(:,:,i)=medfilt2(Neu(:,:,i));
+end
+end
+NeuMax=max(Neu,[],3);
+image(NeuMax*.05),pause(.5)
+
+% %% Threshold
+% for i = median(Neu(:)) : median(Neu(:))*5
+%     image(max(Neu>=i,[],3)*300),i,pause
+% end
+
+%% Threshold
+level=graythresh(mean(Neu,3));
+for i = 1: size(Neu,3)
+    NT(:,:,i)=im2bw(Neu(:,:,i),level);
+end
+Thresh = 300;
+NT=Neu>Thresh;
+NTmax=max(NT,[],3);
+image(NTmax*1000),pause(.5)
+
+se = strel('disk',Dil);
+NTc=imclose(NTmax,se);
+
+image(NTc*1000),pause(.5)
+
+%% Get Big (labels objects and retreivs biggest
+
+NTL=bwlabel(NTc);
+for i = 1:max(NTL(:))
+    Siz(i)=sum(sum(NTL==i));
+end
+biggest= find(Siz==max(Siz));
+NTb=NTL==biggest;
+
+else
+NTb=Neu>0;
+end
+
+NTp=bwperim(NTb);
+image(NTp*1000),pause(.5)
+
+%% Connect
+
+NTcon=NTp*0;
+NTpu=NTp;
+res=1;
+while sum(NTpu(:))>0
+    [y x]= find(NTpu);
+    Dists=dist([y x],[y(1) x(1)]);
+    ydif=y-y(1); xdif=x-x(1);
+    for e = 1:length(x)
+        for rep = 1:Dists(e)/res
+            sy=y(1)+(ydif(e)/(Dists(e)/res)) * rep;
+            sx=x(1)+(xdif(e)/(Dists(e)/res)) * rep;
+            sy=round(sy); sx=round(sx);
+            NTcon(sy,sx)=1;
+            Off=abs(sy-y(e))+abs(sx-x(e));
+            if Off
+                NTpu(sy,sx)=0;
+            end
+        end
+    end
+    image(NTcon*50+NTp*50+NTpu*100),pause(.01)
+    NTpu(y(1),x(1))=0;
+end
+
+%% Fill holes
+NTfill=imclose(NTcon,se);
+NThole=bwlabel(~NTfill);
+Bord=NThole*0;
+Bord(1:size(Bord,1),1)=1;
+Bord(1:size(Bord,1),size(Bord,2))=1;
+Bord(1,1:size(Bord,2))=1;
+Bord(size(Bord,1),1:size(Bord,2))=1;
+;
+for i = 1: size(NThole)
+    Overlap=Bord & NThole==i;
+    if ~sum(Overlap(:))
+        NTfill(NThole==i)=1;
+    end
+end
+image(NTfill*1000),pause(Pt)
+
+
+
+%% Draw
+NTperim=bwperim(NTfill);
+
+NTfinal=double(NeuMax)*255/double(max(NeuMax(:)))*2+NTperim*1000;
+image(NTfinal),pause(Pt)
+
+% NTcol=zeros(ys,xs,3,'uint8');
+% NTcol(:,:,1)=double(NeuMax)*255/double(max(NeuMax(:)))*2;
+% NTcol(:,:,2)=NTmax*0;
+% NTcol(:,:,3)=NTperim*300;
+% 
+% image(NTcol),pause(.1)
+
+%% Get Dat
+PixelArea=sum(NTfill(:))
+
+[y x] = find(NTfill>0);
+V=[y x];
+[Co,Sc]=princomp(V);  %find principal components of object
+minVfirst=find(Sc(:,1)==min(Sc(:,1)),1); %find position of min extreme position
+maxVfirst=find(Sc(:,1)==max(Sc(:,1)),1); %find position of max extreme position
+minVsecond=find(Sc(:,2)==min(Sc(:,2)),1); %find position of min extreme position
+maxVsecond=find(Sc(:,2)==max(Sc(:,2)),1); %find position of max extreme position
+Length=max(Sc(:,1))-min(Sc(:,1))
+Width=max(Sc(:,2))-min(Sc(:,2))
+
+NTpc=N
+
+
+
+
+
+
+

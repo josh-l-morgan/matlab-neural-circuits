@@ -1,0 +1,70 @@
+%% Analyze FFT of subregions to check focus
+%%Currently doing FFT only in Y dimension
+
+clear all
+colormap gray(256)
+
+sS = 101;  % Define pixel length of area used for FFT sampling
+minSigArea = .1; % proportion of image that must have signal
+
+'Get good image'
+[TFN TPN] =GetMyFile('Get reference Image');
+riNam{1} = [TPN TFN];
+'Get marginal image'
+[TFN TPN] = GetMyFile('Get noise Image');
+riNam{2} = [TPN TFN];
+
+
+TPN = GetMyDir;
+
+
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name;
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+            iNam{length(iNam)+1} = nam;
+        end
+    end
+end
+
+
+%% Read Reference images
+hold off
+for i = 1:length(riNam);
+    sprintf('running reference %d of %d',i,length(riNam))
+    Ir = double(imread(riNam{i}));
+    %[mfIs, listYX] =funSubFFT(Ir);
+    scaleI = Ir - mean(Ir(:));
+            fftI = abs(fft(scaleI/var(scaleIm(:)),[],1));
+            fftI = fftshift(fftI,1);
+            mfIa = mean(fftI,2);
+            
+            scaleIm = medfilt2(scaleI,[3 3]);
+            fftIm = abs(fft(scaleIm/var(scaleIm(:)),[],1));
+            fftIm = fftshift(fftIm,1);
+            mfIam = mean(fftIm,2);
+            
+            plot(mfIa,'b'); hold on
+            plot(mfIam,'r'); hold off
+            sor = mean(Ir(:))/std(Ir(:))
+            
+            
+            mfI = mfIa(2:fix(length(mfIa)/2));
+            bgFFT = mean(mfI(end-10:end));
+            mfI = mfI - bgFFT;
+            mfIs(c,:) = mfI;
+            
+            
+            listYX(c,:) = [y x];
+    memMFIs{i} = mfIs;
+    memListYX{i} = listYX;
+    allMFIs(i,:) = mean(mfIs,1);
+end
+
+
+%estimate for power fall off for natural images. 1/f^2
+

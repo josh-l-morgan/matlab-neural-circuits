@@ -1,0 +1,1385 @@
+- - - - - - - - - - - - - - - - -
+cid7010 syn cid4 ||| cid0 syn cid4 | 0.07um
+Liam_xac ||| josh
+33695 32506 547 ||| 33693 32488 547
+size=15 vox || size=17 vox -- overlap=15 vox
+keeping cid7010 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7010 syn cid4 ||| cid0 syn cid4 | 0.07um
+Liam_xac ||| josh
+33695 32506 547 ||| 33693 32488 547
+size=15 vox || size=17 vox -- overlap=15 vox
+keeping cid7010 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7010 syn cid4 ||| cid4 syn cid3051 trgc | 0.60um
+Liam_xac ||| karl2
+33695 32506 547 ||| 33715 32363 548
+size=15 vox || size=5 vox -- overlap=0 vox
+keeping both cid4 syn cid3051 trgc and cid7010 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3009 syn cid4 ||| cid3009 syn cid4 | 0.23um
+Liam_xac ||| josh
+33900 32682 551 ||| 33860 32687 550
+size=9 vox || size=6 vox -- overlap=6 vox
+keeping cid3009 syn cid4 ; removing cid3009 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3056 syn cid4 ||| cid3056 syn cid4 | 0.10um
+Liam_xac ||| josh
+33270 31945 574 ||| 33282 31922 574
+size=6 vox || size=8 vox -- overlap=6 vox
+keeping cid3056 syn cid4 ; removing cid3056 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3056 syn cid0 ||| cid3056 syn cid3124 | 0.56um
+Liam_xac ||| Liam_xac
+33307 31784 578 ||| 33207 31693 579
+size=7 vox || size=3 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid7010 syn cid13 ||| cid0 syn cid13 | 0.16um
+Liam_xac ||| josh2
+35553 38352 574 ||| 35543 38353 575
+size=16 vox || size=24 vox -- overlap=14 vox
+keeping cid7010 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid3056 syn cid4 ||| cid4 syn cid3056 | 0.65um
+Liam_xac ||| josh
+33336 31770 606 ||| 33346 31750 602
+size=13 vox || size=12 vox -- overlap=10 vox
+- - - - - - - - - - - - - - - - -
+cid7011 syn cid4 ||| cid4 syn cid3099 | 0.76um
+Liam_xac ||| josh2
+32117 35919 508 ||| 32250 35810 510
+size=18 vox || size=9 vox -- overlap=0 vox
+keeping both cid4 syn cid3099 and cid7011 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7011 syn cid4 ||| cid4 syn cid3100 | 0.59um
+Liam_xac ||| josh2
+32117 35919 508 ||| 32205 36005 510
+size=18 vox || size=4 vox -- overlap=0 vox
+keeping both cid4 syn cid3100 and cid7011 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7011 syn cid4 ||| cid0 syn cid4 | 0.18um
+Liam_xac ||| josh2
+32117 35919 508 ||| 32132 35904 507
+size=18 vox || size=19 vox -- overlap=16 vox
+keeping cid7011 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7012 syn cid2 ||| cid0 syn cid2 famc | 0.26um
+Liam_xac ||| suppKarl
+30567 28943 596 ||| 30614 28921 597
+size=7 vox || size=8 vox -- overlap=5 vox
+keeping cid7012 syn cid2 ; removing cid0 syn cid2 famc
+
+- - - - - - - - - - - - - - - - -
+cid7012 syn cid13 ||| cid0 syn cid13 | 0.03um
+Liam_xac ||| josh2
+30766 35601 489 ||| 30764 35609 489
+size=16 vox || size=15 vox -- overlap=14 vox
+keeping cid7012 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7012 syn cid0 ||| cid1179 rib (cid5 cid0) | 0.77um
+Liam_xac ||| karl
+30371 42040 588 ||| 30454 42209 589
+size=5 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid13 ||| cid0 syn cid13 | 0.11um
+Liam_xac ||| josh2
+31211 35413 519 ||| 31206 35439 519
+size=14 vox || size=16 vox -- overlap=13 vox
+keeping cid7013 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid2 ||| cid0 syn cid2 famc | 0.43um
+Liam_xac ||| suppKarl
+30674 36286 509 ||| 30734 36326 507
+size=7 vox || size=6 vox -- overlap=6 vox
+keeping cid7013 syn cid2 ; removing cid0 syn cid2 famc
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid0 ||| cid7013 syn cid4 | 0.20um
+Liam_xac ||| karl2
+28958 37747 521 ||| 28931 37731 520
+size=9 vox || size=10 vox -- overlap=6 vox
+keeping cid7013 syn cid4 ; removing cid7013 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid5 ||| cid0 syn cid5 | 0.13um
+Liam_xac ||| josh2
+27217 38581 522 ||| 27195 38557 522
+size=22 vox || size=19 vox -- overlap=16 vox
+keeping cid7013 syn cid5 ; removing cid0 syn cid5
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid5 ||| cid0 syn cid5 | 0.74um
+Liam_xac ||| josh2
+27217 38581 522 ||| 27391 38641 522
+size=22 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid5 ||| cid7017 syn cid5 | 0.71um
+Liam_xac ||| karl2
+27217 38581 522 ||| 27386 38635 522
+size=22 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid13 ||| cid0 syn cid13 | 0.21um
+Liam_xac ||| josh2
+27260 38354 519 ||| 27288 38373 520
+size=5 vox || size=9 vox -- overlap=4 vox
+keeping cid7013 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid2 ||| cid0 syn cid2 famc | 0.17um
+Liam_xac ||| suppKarl
+26501 39547 501 ||| 26511 39533 502
+size=12 vox || size=8 vox -- overlap=7 vox
+keeping cid7013 syn cid2 ; removing cid0 syn cid2 famc
+
+- - - - - - - - - - - - - - - - -
+cid7013 syn cid0 ||| cid7013 syn cid6923 | 0.34um
+Liam_xac ||| karl2
+24411 41240 504 ||| 24389 41263 506
+size=21 vox || size=20 vox -- overlap=13 vox
+keeping cid7013 syn cid6923 ; removing cid7013 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid13 ||| cid0 syn cid13 | 0.04um
+Liam_xac ||| josh2
+29916 35234 512 ||| 29906 35234 512
+size=7 vox || size=6 vox -- overlap=4 vox
+keeping cid7014 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid13 ||| cid6897 syn cid13 | 0.03um
+Liam_xac ||| suppKarl
+29916 35234 512 ||| 29909 35229 512
+size=7 vox || size=6 vox -- overlap=5 vox
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid0 ||| cid6897 syn cid6898 | 0.35um
+Liam_xac ||| suppKarl
+30537 35073 525 ||| 30539 35106 523
+size=10 vox || size=4 vox -- overlap=4 vox
+keeping cid6897 syn cid6898 ; removing cid7014 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid4 ||| cid0 syn cid4 | 0.08um
+Liam_xac ||| josh
+33848 33747 556 ||| 33835 33733 556
+size=11 vox || size=7 vox -- overlap=7 vox
+keeping cid7014 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid4 ||| cid4 syn cid1138 | 0.45um
+Liam_xac ||| josh
+33848 33747 556 ||| 33870 33645 557
+size=11 vox || size=12 vox -- overlap=0 vox
+keeping both cid4 syn cid1138 and cid7014 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid4 ||| cid6897 syn cid4 | 0.10um
+Liam_xac ||| suppKarl
+33848 33747 556 ||| 33826 33733 556
+size=11 vox || size=11 vox -- overlap=10 vox
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid2 ||| cid0 syn cid2 famc | 0.33um
+Liam_xac ||| suppKarl
+34947 33730 589 ||| 35011 33679 589
+size=13 vox || size=0 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid2 ||| cid6897 syn cid2 | 0.58um
+Liam_xac ||| suppKarl
+34947 33730 589 ||| 34923 33653 586
+size=13 vox || size=23 vox -- overlap=9 vox
+- - - - - - - - - - - - - - - - -
+cid7015 syn cid13 ||| cid0 syn cid13 | 0.12um
+Liam_xac ||| josh2
+29860 34616 505 ||| 29857 34646 505
+size=5 vox || size=4 vox -- overlap=3 vox
+keeping cid7015 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7016 syn cid13 ||| cid0 syn cid13 | 0.17um
+Liam_xac ||| josh2
+29580 33890 506 ||| 29594 33883 505
+size=10 vox || size=8 vox -- overlap=8 vox
+keeping cid7016 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7017 syn cid13 ||| cid0 syn cid13 | 0.18um
+Liam_xac ||| josh2
+29833 34623 496 ||| 29812 34631 495
+size=8 vox || size=6 vox -- overlap=5 vox
+keeping cid7017 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid7016 syn cid2 ||| cid0 syn cid2 famc | 0.18um
+Liam_xac ||| soma
+28386 32051 559 ||| 28368 32046 560
+size=6 vox || size=9 vox -- overlap=5 vox
+keeping cid7016 syn cid2 ; removing cid0 syn cid2 famc
+
+- - - - - - - - - - - - - - - - -
+cid103 syn cid2 ||| cid0 syn cid2 famc | 0.77um
+josh ||| soma
+28057 31829 806 ||| 27938 31683 805
+size=19 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid2001 amc-amc ||| cid0 syn cid4 | 0.47um
+josh ||| josh
+33939 28898 587 ||| 34018 28868 585
+size=10 vox || size=14 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid2001 amc-amc
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3026 ||| cid4 syn cid3058 | 0.64um
+josh ||| josh
+34338 30568 684 ||| 34459 30664 683
+size=16 vox || size=8 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3026 ||| cid4 syn cid3419 | 0.65um
+josh ||| josh
+34338 30568 684 ||| 34440 30526 687
+size=16 vox || size=11 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3056 ||| cid0 syn cid4 | 0.25um
+josh ||| josh
+33247 31877 658 ||| 33233 31831 657
+size=7 vox || size=11 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3056
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid1138 ||| cid1138 rib (cid4 cid6564) | 0.32um
+josh ||| josh
+33318 31981 640 ||| 33326 31911 641
+size=8 vox || size=13 vox -- overlap=0 vox
+keeping both cid1138 rib (cid4 cid6564) and cid4 syn cid1138
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6565 syn cid6007 recip | 0.69um
+josh ||| karl2
+33567 31483 619 ||| 33449 31364 618
+size=9 vox || size=8 vox -- overlap=0 vox
+keeping both cid6565 syn cid6007 recip and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid7000 syn cid4 | 0.16um
+josh ||| suppKarl
+33428 31879 589 ||| 33436 31873 590
+size=16 vox || size=11 vox -- overlap=10 vox
+keeping cid7000 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid1138 rib (cid4 cid1107) | 0.37um
+josh ||| josh
+33237 32226 607 ||| 33161 32193 606
+size=15 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid6858 syn cid4 ||| cid6859 syn cid4 | 0.42um
+josh ||| josh
+33139 32391 547 ||| 33093 32305 546
+size=20 vox || size=17 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid6858 syn cid4 ||| cid6860 syn cid4 | 0.66um
+josh ||| josh
+33139 32391 547 ||| 33139 32348 543
+size=20 vox || size=15 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid6859 syn cid4 ||| cid6860 syn cid4 | 0.54um
+josh ||| josh
+33093 32305 546 ||| 33139 32348 543
+size=17 vox || size=15 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid1078 ||| cid1103 syn cid4 | 0.67um
+josh ||| karl
+37767 30352 613 ||| 37818 30366 617
+size=43 vox || size=20 vox -- overlap=0 vox
+keeping both cid1103 syn cid4 and cid4 syn cid1078
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.60um
+josh ||| josh
+36181 28806 714 ||| 36039 28784 715
+size=19 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6890 syn cid4 | 0.38um
+josh ||| suppKarl
+38167 29697 630 ||| 38148 29744 632
+size=19 vox || size=8 vox -- overlap=7 vox
+keeping cid6890 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.70um
+josh ||| josh
+38256 30428 626 ||| 38423 30462 625
+size=17 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6837 syn cid4 | 0.65um
+josh ||| suppKarl
+38256 30428 626 ||| 38413 30472 626
+size=17 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6896 syn cid4 | 0.69um
+josh ||| suppKarl
+38256 30428 626 ||| 38270 30368 630
+size=17 vox || size=14 vox -- overlap=11 vox
+keeping cid6896 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid2003 | 0.69um
+josh ||| josh
+38470 30441 635 ||| 38353 30398 632
+size=10 vox || size=16 vox -- overlap=0 vox
+keeping both cid4 syn cid2003 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6837 syn cid4 | 0.03um
+josh ||| suppKarl
+38470 30441 635 ||| 38476 30446 635
+size=10 vox || size=12 vox -- overlap=9 vox
+keeping cid6837 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid2003 ||| cid6837 syn cid4 | 0.71um
+josh ||| suppKarl
+38353 30398 632 ||| 38476 30446 635
+size=16 vox || size=12 vox -- overlap=0 vox
+keeping both cid6837 syn cid4 and cid4 syn cid2003
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid2003 ||| cid6896 syn cid4 | 0.48um
+josh ||| suppKarl
+38353 30398 632 ||| 38270 30368 630
+size=16 vox || size=14 vox -- overlap=0 vox
+keeping both cid6896 syn cid4 and cid4 syn cid2003
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6837 syn cid1026 | 0.79um
+josh ||| suppKarl
+38423 30462 625 ||| 38617 30450 624
+size=10 vox || size=15 vox -- overlap=0 vox
+keeping both cid6837 syn cid1026 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6837 syn cid4 | 0.17um
+josh ||| suppKarl
+38423 30462 625 ||| 38413 30472 626
+size=10 vox || size=10 vox -- overlap=6 vox
+keeping cid6837 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid1026 | 0.63um
+josh ||| josh
+38453 30289 605 ||| 38508 30432 606
+size=21 vox || size=7 vox -- overlap=0 vox
+keeping both cid4 syn cid1026 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6891 syn cid4 | 0.16um
+josh ||| suppKarl
+39244 30973 566 ||| 39254 30974 567
+size=13 vox || size=8 vox -- overlap=8 vox
+keeping cid6891 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.57um
+josh ||| josh
+39923 31733 602 ||| 39976 31837 600
+size=8 vox || size=15 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid4 syn cid3026 | 0.18um
+josh ||| karl2
+39801 31880 628 ||| 39782 31874 629
+size=4 vox || size=4 vox -- overlap=3 vox
+keeping cid4 syn cid3026 ; removing cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3007 ||| cid4 syn cid3049 | 0.77um
+josh ||| josh
+35591 32488 568 ||| 35697 32512 572
+size=6 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid4 syn cid1021 | 0.05um
+josh ||| suppKarl
+33270 34497 482 ||| 33282 34502 482
+size=7 vox || size=8 vox -- overlap=6 vox
+keeping cid4 syn cid1021 ; removing cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid2003 | 0.33um
+josh ||| josh
+39293 29780 681 ||| 39348 29842 681
+size=7 vox || size=17 vox -- overlap=0 vox
+keeping both cid4 syn cid2003 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid1104 syn cid4 internal spine ||| cid1104 syn cid1102 | 0.78um
+josh ||| karl
+38028 29194 639 ||| 38042 29085 635
+size=26 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid1138 ||| cid6897 syn cid4 | 0.42um
+josh ||| suppKarl
+33870 33645 557 ||| 33826 33733 556
+size=12 vox || size=11 vox -- overlap=0 vox
+keeping both cid6897 syn cid4 and cid4 syn cid1138
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3051 ||| cid0 syn cid4 | 0.54um
+josh ||| josh
+34347 37139 388 ||| 34235 37215 388
+size=7 vox || size=3 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3051
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3034 ||| cid0 syn cid4 | 0.35um
+josh ||| josh
+34593 37678 366 ||| 34656 37725 367
+size=23 vox || size=17 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3034
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid0 syn cid4 | 0.71um
+josh ||| josh
+34712 27449 646 ||| 34744 27516 642
+size=4 vox || size=11 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3028 recip ||| cid3028 syn cid4 recip | 0.51um
+josh ||| josh
+34359 28456 593 ||| 34374 28493 596
+size=8 vox || size=9 vox -- overlap=3 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3028 recip ||| cid0 syn cid4 | 0.74um
+josh ||| josh
+34359 28456 593 ||| 34522 28376 594
+size=8 vox || size=11 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3028 recip
+
+- - - - - - - - - - - - - - - - -
+cid6582 syn cid4 ||| cid2016 rib (cid4 cid6582) | 0.62um
+josh ||| josh
+32393 26522 516 ||| 32260 26526 514
+size=21 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid3017 | 0.64um
+josh ||| josh
+32523 26380 524 ||| 32435 26513 524
+size=21 vox || size=12 vox -- overlap=0 vox
+keeping both cid4 syn cid3017 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid2016 rib (cid4 cid3017 cid6583) | 0.76um
+josh ||| josh
+32425 26314 533 ||| 32241 26286 532
+size=16 vox || size=12 vox -- overlap=0 vox
+keeping both cid2016 rib (cid4 cid3017 cid6583) and cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid2016 syn (cid4 cid3017) ||| cid3020 syn cid3017 | 0.34um
+josh ||| josh
+33009 27596 518 ||| 32926 27608 518
+size=3 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3011 recip ||| cid3011 syn cid4 recip | 0.04um
+josh ||| josh
+32817 26845 530 ||| 32813 26854 530
+size=7 vox || size=9 vox -- overlap=3 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3010 ||| cid4 syn cid3009 | 0.63um
+josh ||| josh
+33569 32612 550 ||| 33704 32588 552
+size=6 vox || size=8 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid4 syn cid0 | 0.58um
+josh ||| josh
+33552 32649 545 ||| 33647 32722 543
+size=8 vox || size=3 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid1083 recip ||| cid1083 rib (cid4 cid0) | 0.55um
+josh ||| karl2
+38363 34304 563 ||| 38297 34313 560
+size=5 vox || size=6 vox -- overlap=0 vox
+keeping both cid1083 rib (cid4 cid0) and cid4 syn cid1083 recip
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid1006 recip ||| cid10 syn cid3110 trgc | 0.77um
+josh ||| karl2
+38863 33724 555 ||| 39012 33841 554
+size=18 vox || size=12 vox -- overlap=0 vox
+keeping both cid10 syn cid3110 trgc and cid4 syn cid1006 recip
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3001 ||| cid6588 syn cid2021 recip | 0.58um
+josh ||| karl2
+36960 35193 535 ||| 36875 35303 534
+size=14 vox || size=5 vox -- overlap=0 vox
+keeping both cid6588 syn cid2021 recip and cid4 syn cid3001
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.16um
+josh ||| josh
+37165 35649 526 ||| 37165 35642 527
+size=9 vox || size=8 vox -- overlap=4 vox
+keeping cid0 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 recip ||| cid0 syn cid4 recip | 0.39um
+josh ||| josh
+36908 35692 538 ||| 36961 35715 540
+size=17 vox || size=23 vox -- overlap=3 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 recip ||| cid4 syn cid3051 trgc | 0.54um
+josh ||| karl2
+36908 35692 538 ||| 36951 35792 536
+size=17 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 recip ||| cid4 syn cid3051 trgc | 0.71um
+josh ||| karl2
+36961 35715 540 ||| 36951 35792 536
+size=23 vox || size=9 vox -- overlap=0 vox
+keeping both cid4 syn cid3051 trgc and cid0 syn cid4 recip
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid1033 rib (cid4 cid6589) | 0.71um
+josh ||| josh
+38052 37086 538 ||| 38051 37164 542
+size=8 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid3005 syn cid1006 ||| cid1006 rib (cid13 cid6511) | 0.78um
+josh ||| josh2
+38068 34251 593 ||| 37978 34405 595
+size=16 vox || size=7 vox -- overlap=0 vox
+keeping both cid1006 rib (cid13 cid6511) and cid3005 syn cid1006
+
+- - - - - - - - - - - - - - - - -
+cid3024 syn cid1026 ||| cid3024 syn cid1026 | 0.75um
+josh ||| josh
+33300 28018 615 ||| 33426 27904 613
+size=12 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid2005 syn cid3032 ||| cid3 syn cid0 tamc | 0.54um
+josh ||| karl
+39569 29689 645 ||| 39488 29798 645
+size=9 vox || size=15 vox -- overlap=0 vox
+keeping both cid3 syn cid0 tamc and cid2005 syn cid3032
+
+- - - - - - - - - - - - - - - - -
+cid3 syn cid3049 ||| cid0 syn cid3 famc | 0.52um
+josh ||| karl
+35397 37040 582 ||| 35520 37049 581
+size=7 vox || size=25 vox -- overlap=0 vox
+keeping both cid0 syn cid3 famc and cid3 syn cid3049
+
+- - - - - - - - - - - - - - - - -
+cid3 syn cid3049 ||| cid3116 rib (cid3 cid3049) | 0.42um
+josh ||| karl
+35397 37040 582 ||| 35330 37060 580
+size=7 vox || size=10 vox -- overlap=3 vox
+keeping cid3116 rib (cid3 cid3049) ; removing cid3 syn cid3049
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3069 ||| cid4 syn cid0 | 0.38um
+josh ||| josh
+35875 26302 927 ||| 35866 26250 925
+size=19 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6904 syn cid4 | 0.49um
+josh ||| suppKarl
+36042 25689 700 ||| 36031 25669 703
+size=10 vox || size=13 vox -- overlap=7 vox
+keeping cid6904 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6872 syn cid3007 | 0.78um
+josh ||| suppKarl
+38624 23960 715 ||| 38513 23951 719
+size=5 vox || size=9 vox -- overlap=0 vox
+keeping both cid6872 syn cid3007 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6871 rib (cid3007 cid0) | 0.78um
+josh ||| suppKarl
+38677 23610 731 ||| 38651 23457 728
+size=4 vox || size=3 vox -- overlap=0 vox
+keeping both cid6871 rib (cid3007 cid0) and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3007 ||| cid1099 rib (cid4 cid3007) | 0.75um
+josh ||| josh
+38524 22424 741 ||| 38442 22277 743
+size=5 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.54um
+josh ||| josh
+39832 24824 684 ||| 39880 24860 681
+size=11 vox || size=14 vox -- overlap=4 vox
+keeping cid0 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid3073 | 0.69um
+josh ||| josh
+40169 24860 662 ||| 40091 24990 660
+size=11 vox || size=11 vox -- overlap=0 vox
+keeping both cid4 syn cid3073 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3074 ||| cid3075 syn cid4 | 0.56um
+josh ||| josh
+40718 25261 646 ||| 40657 25164 644
+size=10 vox || size=8 vox -- overlap=0 vox
+keeping both cid3075 syn cid4 and cid4 syn cid3074
+
+- - - - - - - - - - - - - - - - -
+cid3075 syn cid4 ||| cid3075 syn cid4 | 0.41um
+josh ||| josh
+40738 24959 668 ||| 40823 25001 667
+size=3 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3076 ||| cid4 syn cid3007 maybe | 0.43um
+josh ||| suppKarl
+41063 24799 659 ||| 41061 24898 660
+size=10 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid3076 | 0.76um
+josh ||| josh
+41114 25023 667 ||| 41098 24875 670
+size=10 vox || size=6 vox -- overlap=0 vox
+keeping both cid4 syn cid3076 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3080 ||| cid4 syn cid3082 | 0.34um
+josh ||| josh
+41619 26121 614 ||| 41646 26137 616
+size=3 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid3081 syn cid4 ||| cid4 syn cid3081 | 0.48um
+josh ||| josh
+41932 26206 613 ||| 42051 26211 613
+size=14 vox || size=7 vox -- overlap=0 vox
+keeping both cid4 syn cid3081 and cid3081 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3087 syn cid4 ||| cid4 syn cid3088 | 0.73um
+josh ||| josh
+42657 26017 644 ||| 42604 25861 646
+size=10 vox || size=8 vox -- overlap=0 vox
+keeping both cid4 syn cid3088 and cid3087 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3089 syn cid4 ||| cid4 syn cid3089 | 0.53um
+josh ||| josh
+42829 26040 653 ||| 42823 25934 651
+size=8 vox || size=7 vox -- overlap=0 vox
+keeping both cid4 syn cid3089 and cid3089 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3089 syn cid4 ||| cid4 syn cid3090 | 0.20um
+josh ||| josh
+42829 26040 653 ||| 42831 26011 654
+size=8 vox || size=4 vox -- overlap=0 vox
+keeping both cid4 syn cid3090 and cid3089 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3089 ||| cid4 syn cid3090 | 0.57um
+josh ||| josh
+42823 25934 651 ||| 42831 26011 654
+size=7 vox || size=4 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid3075 syn cid2027 | 0.71um
+josh ||| josh
+40829 25404 620 ||| 40692 25509 621
+size=4 vox || size=10 vox -- overlap=0 vox
+keeping both cid3075 syn cid2027 and cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.80um
+josh ||| josh
+40442 25475 615 ||| 40301 25548 618
+size=6 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3092 ||| cid0 syn cid4 | 0.75um
+josh ||| josh
+40208 25578 614 ||| 40301 25548 618
+size=5 vox || size=5 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3092
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid4 syn cid0 | 0.65um
+josh ||| josh
+33103 23940 719 ||| 33053 23841 722
+size=36 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid0 | 0.75um
+josh ||| josh
+33393 24627 657 ||| 33319 24800 657
+size=8 vox || size=3 vox -- overlap=0 vox
+keeping both cid4 syn cid0 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid0 | 0.65um
+josh ||| josh
+33393 24627 657 ||| 33319 24507 655
+size=8 vox || size=9 vox -- overlap=0 vox
+keeping both cid4 syn cid0 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3026 ||| cid4 syn cid3026 trgc | 0.46um
+josh ||| karl2
+32983 35703 471 ||| 33084 35664 472
+size=15 vox || size=11 vox -- overlap=10 vox
+keeping cid4 syn cid3026 ; removing cid4 syn cid3026 trgc
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 famc | 0.67um
+josh ||| karl2
+33257 36574 515 ||| 33276 36615 511
+size=12 vox || size=15 vox -- overlap=8 vox
+keeping cid0 syn cid4 famc ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 famc | 0.50um
+josh ||| karl2
+32068 35630 489 ||| 32093 35722 487
+size=21 vox || size=8 vox -- overlap=5 vox
+keeping cid0 syn cid4 ; removing cid0 syn cid4 famc
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0unk ||| cid3191 syn cid2033 | 0.69um
+josh2 ||| josh2
+41413 34033 677 ||| 41261 34014 675
+size=5 vox || size=21 vox -- overlap=0 vox
+keeping both cid3191 syn cid2033 and cid4 syn cid0unk
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3105 ||| cid4 syn cid3103 | 0.65um
+josh2 ||| josh2
+42268 35396 599 ||| 42178 35460 602
+size=8 vox || size=8 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid2033 rib (cid4 cid1107 cid6500) | 0.51um
+josh2 ||| josh2
+41621 35017 627 ||| 41629 34974 624
+size=5 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3099 ||| cid4 syn cid3014 | 0.68um
+josh2 ||| josh2
+32250 35810 510 ||| 32261 35755 514
+size=9 vox || size=8 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid6901 syn cid4 | 0.53um
+josh2 ||| suppKarl
+31345 36692 494 ||| 31401 36683 497
+size=8 vox || size=11 vox -- overlap=8 vox
+keeping cid6901 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3101 ||| cid3101 syn cid1232 | 0.70um
+josh2 ||| josh2
+31480 36767 468 ||| 31433 36713 472
+size=18 vox || size=5 vox -- overlap=0 vox
+keeping both cid3101 syn cid1232 and cid4 syn cid3101
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid3113 | 0.76um
+josh2 ||| josh2
+31174 36944 502 ||| 31092 37009 498
+size=8 vox || size=9 vox -- overlap=0 vox
+keeping both cid4 syn cid3113 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.46um
+josh2 ||| josh2
+30726 37426 495 ||| 30736 37534 496
+size=11 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3114 ||| cid4 syn cid3102 | 0.25um
+josh2 ||| josh2
+30460 37521 471 ||| 30454 37475 472
+size=6 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.49um
+josh2 ||| josh2
+31761 32321 487 ||| 31853 32393 486
+size=9 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid13 famc | 0.63um
+josh2 ||| karl2
+31853 32393 486 ||| 31756 32511 485
+size=12 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid2005 syn cid3122 ||| cid6892 syn cid5002 | 0.40um
+josh2 ||| suppKarl
+39087 29969 598 ||| 39028 30038 599
+size=4 vox || size=8 vox -- overlap=0 vox
+keeping both cid6892 syn cid5002 and cid2005 syn cid3122
+
+- - - - - - - - - - - - - - - - -
+cid2019 syn cid3122 inclusion ||| cid2018 rib (cid4 cid6579) | 0.78um
+josh2 ||| josh
+34206 31287 562 ||| 34316 31444 563
+size=13 vox || size=17 vox -- overlap=0 vox
+keeping both cid2018 rib (cid4 cid6579) and cid2019 syn cid3122 inclusion
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3119 | 0.67um
+josh2 ||| josh2
+28992 40299 607 ||| 28968 40342 611
+size=15 vox || size=13 vox -- overlap=0 vox
+keeping both cid13 syn cid3119 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3119 ||| cid0 syn cid13 | 0.50um
+josh2 ||| josh2
+28589 40727 599 ||| 28494 40797 598
+size=35 vox || size=6 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid3119
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.70um
+josh2 ||| josh2
+28161 41781 545 ||| 28223 41813 549
+size=17 vox || size=7 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.65um
+josh2 ||| josh2
+30062 38125 541 ||| 30222 38148 541
+size=12 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid7016 syn cid13 | 0.04um
+josh2 ||| karl2
+29398 38776 553 ||| 29394 38768 553
+size=10 vox || size=9 vox -- overlap=7 vox
+keeping cid7016 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid3310 rib (cid13 cid6083) | 0.78um
+josh2 ||| josh2
+29622 38867 576 ||| 29581 38971 572
+size=12 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3229 ||| cid3116 rib (cid13 cid6507) | 0.62um
+josh2 ||| josh2
+32628 37978 591 ||| 32635 37882 588
+size=7 vox || size=12 vox -- overlap=0 vox
+keeping both cid3116 rib (cid13 cid6507) and cid13 syn cid3229
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3119 | 0.76um
+josh2 ||| josh2
+34029 38056 581 ||| 34170 38015 578
+size=9 vox || size=9 vox -- overlap=0 vox
+keeping both cid13 syn cid3119 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3049 ||| cid0 syn cid13 | 0.71um
+josh2 ||| josh2
+35175 38421 583 ||| 34998 38429 583
+size=7 vox || size=6 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid3049
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3226 | 0.65um
+josh2 ||| josh2
+36745 37932 547 ||| 36764 37906 551
+size=7 vox || size=5 vox -- overlap=0 vox
+keeping both cid13 syn cid3226 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid1044 syn cid3 | 0.74um
+josh2 ||| karl
+36745 37932 547 ||| 36803 38002 543
+size=7 vox || size=10 vox -- overlap=0 vox
+keeping both cid1044 syn cid3 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid1074 rib (cid3 cid13 cid3226) | 0.48um
+josh2 ||| karl
+36745 37932 547 ||| 36655 37927 549
+size=7 vox || size=4 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3226 ||| cid1074 rib (cid3 cid13 cid3226) | 0.55um
+josh2 ||| karl
+36764 37906 551 ||| 36655 37927 549
+size=5 vox || size=4 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid3116 rib (cid13 cid6509) | 0.65um
+josh2 ||| josh2
+33699 37097 567 ||| 33667 36960 565
+size=11 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3211 ||| cid13 syn cid3211 | 0.70um
+josh2 ||| josh2
+34821 35523 548 ||| 34878 35484 552
+size=17 vox || size=13 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid3001 syn cid13 | 0.24um
+josh2 ||| suppKarl
+35230 35271 540 ||| 35282 35241 540
+size=18 vox || size=5 vox -- overlap=3 vox
+keeping cid3001 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3207 ||| cid13 syn cid3206 | 0.33um
+josh2 ||| josh2
+35832 34842 551 ||| 35845 34853 549
+size=8 vox || size=4 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3049 | 0.61um
+josh2 ||| josh2
+36186 34843 548 ||| 36100 34809 545
+size=21 vox || size=16 vox -- overlap=0 vox
+keeping both cid13 syn cid3049 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid6895 syn cid13 | 0.06um
+josh2 ||| suppKarl
+36186 34843 548 ||| 36193 34830 548
+size=21 vox || size=10 vox -- overlap=10 vox
+keeping cid6895 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3049 ||| cid6895 syn cid13 | 0.61um
+josh2 ||| suppKarl
+36100 34809 545 ||| 36193 34830 548
+size=16 vox || size=10 vox -- overlap=0 vox
+keeping both cid6895 syn cid13 and cid13 syn cid3049
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.36um
+josh2 ||| josh2
+38615 34838 553 ||| 38548 34779 553
+size=10 vox || size=7 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.46um
+josh2 ||| josh2
+38766 34826 540 ||| 38736 34723 539
+size=12 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid1026 | 0.38um
+josh2 ||| josh2
+39955 36228 594 ||| 39992 36191 596
+size=8 vox || size=10 vox -- overlap=0 vox
+keeping both cid13 syn cid1026 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid6503 syn cid13 | 0.65um
+josh2 ||| josh2
+40756 36024 635 ||| 40708 35926 638
+size=17 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3200 ||| cid13 syn cid3194 | 0.64um
+josh2 ||| josh2
+41516 35756 621 ||| 41427 35815 624
+size=11 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid14 famc | 0.62um
+josh2 ||| karl2
+39873 34799 619 ||| 40011 34870 619
+size=18 vox || size=7 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid2002 ||| cid0 syn cid13 | 0.67um
+josh2 ||| josh2
+41935 34090 658 ||| 41794 34050 660
+size=9 vox || size=26 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid2002
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid2002 ||| cid3189 syn cid2002 | 0.79um
+josh2 ||| josh2
+41935 34090 658 ||| 42075 34018 661
+size=9 vox || size=16 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3189 ||| cid2033 rib (cid13 cid3189) | 0.40um
+josh2 ||| josh2
+42092 33738 658 ||| 42072 33683 660
+size=12 vox || size=8 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid2003 ||| cid2008 rib (cid13 cid3110) | 0.34um
+josh2 ||| josh2
+37788 31103 613 ||| 37784 31017 613
+size=4 vox || size=9 vox -- overlap=0 vox
+keeping both cid2008 rib (cid13 cid3110) and cid13 syn cid2003
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid6890 syn cid13 | 0.03um
+josh2 ||| suppKarl
+37813 31053 605 ||| 37813 31061 605
+size=13 vox || size=11 vox -- overlap=4 vox
+keeping cid6890 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3184 ||| cid13 syn cid3183 | 0.71um
+josh2 ||| josh2
+37605 28662 543 ||| 37559 28603 547
+size=20 vox || size=17 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid1026 syn cid13 ||| cid0 syn cid13 | 0.62um
+josh2 ||| josh2
+35092 27978 546 ||| 35034 28115 545
+size=15 vox || size=5 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3178 | 0.54um
+josh2 ||| josh2
+36685 28142 539 ||| 36821 28144 539
+size=6 vox || size=4 vox -- overlap=0 vox
+keeping both cid13 syn cid3178 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid4010 ||| cid13 syn cid3295 | 0.47um
+josh2 ||| josh2
+37549 28891 459 ||| 37658 28913 458
+size=14 vox || size=16 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3295 ||| cid13 syn cid3295 | 0.60um
+josh2 ||| josh2
+37658 28913 458 ||| 37699 29051 457
+size=16 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid4001 ||| cid0 syn cid14 famc | 0.65um
+josh2 ||| karl2
+37360 28726 587 ||| 37371 28888 587
+size=4 vox || size=6 vox -- overlap=0 vox
+keeping both cid0 syn cid14 famc and cid13 syn cid4001
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3176 | 0.39um
+josh2 ||| josh2
+36462 28266 641 ||| 36505 28233 643
+size=13 vox || size=9 vox -- overlap=0 vox
+keeping both cid13 syn cid3176 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid4001 | 0.77um
+josh2 ||| josh2
+36959 28942 633 ||| 37123 28849 634
+size=16 vox || size=4 vox -- overlap=0 vox
+keeping both cid13 syn cid4001 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid14 famc | 0.73um
+josh2 ||| karl2
+36959 28942 633 ||| 36922 28763 633
+size=16 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid4001 ||| cid2009 rib (cid14 cid0) | 0.76um
+josh2 ||| karl
+37123 28849 634 ||| 37070 28760 638
+size=4 vox || size=6 vox -- overlap=0 vox
+keeping both cid2009 rib (cid14 cid0) and cid13 syn cid4001
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3103 ||| cid13 syn cid3103 | 0.55um
+josh2 ||| josh2
+31467 36464 586 ||| 31401 36467 583
+size=6 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid2003 ||| cid13 syn cid3163 | 0.30um
+josh2 ||| josh2
+31388 34589 492 ||| 31422 34537 491
+size=13 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3273 ||| cid3274 syn cid3310 | 0.55um
+josh2 ||| josh2
+28367 39420 557 ||| 28452 39321 558
+size=4 vox || size=14 vox -- overlap=0 vox
+keeping both cid3274 syn cid3310 and cid13 syn cid3273
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.68um
+josh2 ||| josh2
+26961 40126 470 ||| 26799 40153 471
+size=12 vox || size=13 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.74um
+josh2 ||| josh2
+27000 40056 465 ||| 27120 39915 465
+size=18 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3216 | 0.74um
+josh2 ||| josh2
+34937 38735 636 ||| 35075 38618 637
+size=17 vox || size=13 vox -- overlap=0 vox
+keeping both cid13 syn cid3216 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3084 ||| cid13 syn cid3262 | 0.65um
+josh2 ||| josh2
+33838 40487 495 ||| 33855 40498 491
+size=19 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3102 ||| cid13 syn cid3262 | 0.49um
+josh2 ||| josh2
+33738 40501 490 ||| 33855 40498 491
+size=18 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.68um
+josh2 ||| josh2
+34658 41507 540 ||| 34824 41540 540
+size=17 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+0cid syn cid13 conventional from bip ||| cid1179 rib (cid13 cid6538) | 0.51um
+josh2 ||| josh2
+32828 40366 533 ||| 32912 40453 534
+size=12 vox || size=6 vox -- overlap=3 vox
+keeping cid1179 rib (cid13 cid6538) ; removing 0cid syn cid13 conventional from bip
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid1110 ||| cid0 syn cid13 | 0.52um
+josh2 ||| josh2
+31257 38409 548 ||| 31179 38475 546
+size=23 vox || size=18 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid1110
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid7013 syn cid13 | 0.40um
+josh2 ||| karl2
+28852 37815 511 ||| 28943 37815 512
+size=12 vox || size=14 vox -- overlap=6 vox
+keeping cid7013 syn cid13 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3257 ||| cid13 syn cid3051 | 0.72um
+josh2 ||| josh2
+28883 37683 505 ||| 28988 37824 504
+size=14 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3257 ||| cid3257 syn cid3056 | 0.35um
+josh2 ||| josh2
+28883 37683 505 ||| 28954 37634 505
+size=14 vox || size=16 vox -- overlap=0 vox
+keeping both cid3257 syn cid3056 and cid13 syn cid3257
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3257 ||| cid4 syn cid3257 | 0.77um
+josh2 ||| karl2
+28883 37683 505 ||| 28787 37537 507
+size=14 vox || size=11 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3051 ||| cid3257 syn cid3056 | 0.79um
+josh2 ||| josh2
+28988 37824 504 ||| 28954 37634 505
+size=9 vox || size=16 vox -- overlap=0 vox
+keeping both cid3257 syn cid3056 and cid13 syn cid3051
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3255 ||| cid6901 syn cid13 | 0.61um
+josh2 ||| suppKarl
+28901 37405 478 ||| 28914 37556 478
+size=16 vox || size=9 vox -- overlap=0 vox
+keeping both cid6901 syn cid13 and cid13 syn cid3255
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3254 ||| cid13 syn cid3253 | 0.52um
+josh2 ||| josh2
+28568 36230 463 ||| 28601 36269 460
+size=9 vox || size=3 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid1070 ||| cid0 syn cid13 | 0.78um
+josh2 ||| josh2
+30270 36397 418 ||| 30243 36574 420
+size=14 vox || size=22 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid1070
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid1070 ||| cid13 syn cid3278 | 0.53um
+josh2 ||| josh2
+30270 36397 418 ||| 30215 36389 421
+size=14 vox || size=15 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid1070 ||| cid13 syn cid3276 | 0.37um
+josh2 ||| josh2
+30270 36397 418 ||| 30343 36455 418
+size=14 vox || size=36 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid1070 ||| cid13 syn cid6064 trgc | 0.79um
+josh2 ||| josh2
+30270 36397 418 ||| 30235 36202 418
+size=14 vox || size=6 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3278 | 0.77um
+josh2 ||| josh2
+30243 36574 420 ||| 30215 36389 421
+size=22 vox || size=15 vox -- overlap=0 vox
+keeping both cid13 syn cid3278 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3276 | 0.70um
+josh2 ||| josh2
+30243 36574 420 ||| 30343 36455 418
+size=22 vox || size=36 vox -- overlap=0 vox
+keeping both cid13 syn cid3276 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3278 ||| cid13 syn cid3276 | 0.75um
+josh2 ||| josh2
+30215 36389 421 ||| 30343 36455 418
+size=15 vox || size=36 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn  cid13 | 0.62um
+josh2 ||| josh2
+30596 37533 625 ||| 30539 37395 626
+size=7 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3246 ||| cid13 syn cid3119 | 0.71um
+josh2 ||| josh2
+31111 38259 409 ||| 31152 38326 405
+size=15 vox || size=9 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3138 ||| cid13 syn cid3280 | 0.75um
+josh2 ||| josh2
+26684 37777 419 ||| 26597 37661 416
+size=47 vox || size=27 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3293 | 0.57um
+josh2 ||| josh2
+26123 36747 348 ||| 26198 36732 345
+size=13 vox || size=11 vox -- overlap=3 vox
+keeping cid13 syn cid3293 ; removing cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3293 ||| cid3293 syn cid3336 | 0.79um
+josh2 ||| josh2
+26198 36732 345 ||| 26300 36791 341
+size=11 vox || size=9 vox -- overlap=0 vox
+keeping both cid3293 syn cid3336 and cid13 syn cid3293
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3243 ||| cid13 syn cid3243 | 0.56um
+josh2 ||| josh2
+27815 38100 552 ||| 27822 38216 550
+size=7 vox || size=36 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid2 syn cid6102 trgc | 0.74um
+josh2 ||| suppKarl
+27403 37787 536 ||| 27285 37709 533
+size=9 vox || size=10 vox -- overlap=0 vox
+keeping both cid2 syn cid6102 trgc and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3158 ||| cid3311 rib (cid13 cid0) | 0.63um
+josh2 ||| josh2
+28996 43792 541 ||| 29118 43691 541
+size=43 vox || size=10 vox -- overlap=0 vox
+keeping both cid3311 rib (cid13 cid0) and cid13 syn cid3158
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.42um
+josh2 ||| josh2
+29773 47146 544 ||| 29861 47201 544
+size=18 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3049 ||| cid3168 syn cid13 | 0.60um
+josh2 ||| josh2
+30717 46903 522 ||| 30832 46847 524
+size=19 vox || size=24 vox -- overlap=0 vox
+keeping both cid3168 syn cid13 and cid13 syn cid3049
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3049 ||| cid13 syn cid3168 recip | 0.48um
+josh2 ||| josh2
+30717 46903 522 ||| 30818 46956 521
+size=19 vox || size=11 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid3168 syn cid13 ||| cid13 syn cid3168 recip | 0.65um
+josh2 ||| josh2
+30832 46847 524 ||| 30818 46956 521
+size=24 vox || size=11 vox -- overlap=3 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3169 | 0.50um
+josh2 ||| josh2
+30023 47697 512 ||| 29985 47786 510
+size=11 vox || size=47 vox -- overlap=0 vox
+keeping both cid13 syn cid3169 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.62um
+josh2 ||| josh2
+28991 40006 555 ||| 29059 40077 552
+size=22 vox || size=14 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3102 ||| cid0 syn cid13 | 0.78um
+josh2 ||| josh2
+28903 40507 507 ||| 28947 40361 504
+size=18 vox || size=26 vox -- overlap=0 vox
+keeping both cid0 syn cid13 and cid13 syn cid3102
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid13 syn cid3151 | 0.52um
+josh2 ||| josh2
+30785 42716 356 ||| 30774 42587 356
+size=15 vox || size=16 vox -- overlap=0 vox
+keeping both cid13 syn cid3151 and cid0 syn cid13
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.50um
+josh2 ||| josh2
+23585 39394 399 ||| 23525 39505 399
+size=7 vox || size=10 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid0 syn cid13 ||| cid0 syn cid13 | 0.62um
+josh2 ||| josh2
+22555 41833 425 ||| 22460 41854 428
+size=5 vox || size=12 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid13 syn cid3237 ||| cid3237 syn cid13 | 0.76um
+josh2 ||| josh2
+22781 41952 437 ||| 22717 42030 441
+size=6 vox || size=12 vox -- overlap=0 vox
+keeping both cid3237 syn cid13 and cid13 syn cid3237
+
+- - - - - - - - - - - - - - - - -
+cid13 syn cid0 ||| cid13 syn cid3236 | 0.48um
+josh2 ||| josh2
+27523 35059 462 ||| 27520 35052 465
+size=10 vox || size=7 vox -- overlap=3 vox
+keeping cid13 syn cid3236 ; removing cid13 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid3194 syn cid3 ||| cid3 syn cid1188 trgc | 0.69um
+josh2 ||| karl
+41199 37761 629 ||| 41168 37926 630
+size=6 vox || size=12 vox -- overlap=0 vox
+keeping both cid3 syn cid1188 trgc and cid3194 syn cid3
+
+- - - - - - - - - - - - - - - - -
+cid3299 syn cid1083 ||| cid1083 rib (cid3299 cid0) | 0.65um
+josh2 ||| josh2
+37909 34644 539 ||| 37930 34629 543
+size=10 vox || size=5 vox -- overlap=3 vox
+- - - - - - - - - - - - - - - - -
+cid3299 syn cid1083 ||| cid1083 rib (cid3299 cid0) | 0.59um
+josh2 ||| josh2
+38094 34659 548 ||| 38129 34735 545
+size=9 vox || size=8 vox -- overlap=0 vox
+keeping both cid1083 rib (cid3299 cid0) and cid3299 syn cid1083
+
+- - - - - - - - - - - - - - - - -
+cid5 syn cid3644 tamc ||| cid5 syn cid9644 tamc | 0.55um
+josh2 ||| karl2
+29303 28330 595 ||| 29307 28265 598
+size=22 vox || size=25 vox -- overlap=9 vox
+- - - - - - - - - - - - - - - - -
+cid5 syn cid3051 ||| cid5 syn cid0 tamc | 0.69um
+josh2 ||| josh2
+33378 26965 654 ||| 33353 26844 657
+size=3 vox || size=11 vox -- overlap=0 vox
+- - - - - - - - - - - - - - - - -
+cid5 syn cid3051 ||| cid5 syn cid3051 trgc vgc2w3 | 0.29um
+josh2 ||| suppKarl
+33521 26907 632 ||| 33560 26861 631
+size=16 vox || size=15 vox -- overlap=12 vox
+keeping cid5 syn cid3051 ; removing cid5 syn cid3051 trgc vgc2w3
+
+- - - - - - - - - - - - - - - - -
+cid5 syn cid6619 ||| cid5 syn cid3110 | 0.70um
+josh2 ||| suppKarl
+36579 26575 656 ||| 36452 26590 659
+size=10 vox || size=6 vox -- overlap=0 vox

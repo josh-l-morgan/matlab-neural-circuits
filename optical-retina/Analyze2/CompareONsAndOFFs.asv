@@ -1,0 +1,34 @@
+%% To be run after God Whole
+
+CompareAges(Age(ONs ),DD(ONs),Age(OFFs),DD(OFFs))
+CompareAges(Age(ONs),DtOA(ONs),Age(OFFs),DtOA(OFFs))
+CompareAges(Age(ONs),DdOA(ONs),Age(OFFs),DdOA(OFFs))
+CompareAges(Age(ONs),Rdend(ONs),Age(OFFs),Rdend(OFFs))
+CompareAges(Age(ONs),Rdot(ONs),Age(OFFs),Rdot(OFFs))
+CompareAges(Age(ONs),RDD(ONs),Age(OFFs),RDD(OFFs))
+
+Unk=[12 27 29 33 75];
+unk=zeros(size(ONs,1),1);
+unk(Unk)=1;
+unk=unk>0;
+CompareAges(Age(ONs & ~ unk),DD(ONs & ~ unk),Age(OFFs & ~ unk),DD(OFFs & ~ unk))
+CompareAges(Age(ONs),DtOA(ONs),Age(OFFs),DtOA(OFFs))
+CompareAges(Age(ONs),DdOA(ONs),Age(OFFs),DdOA(OFFs))
+CompareAges(Age(ONs),Rdend(ONs),Age(OFFs),Rdend(OFFs))
+CompareAges(Age(ONs),Rdot(ONs),Age(OFFs),Rdot(OFFs))
+CompareAges(Age(ONs),RDD(ONs),Age(OFFs),RDD(OFFs))
+
+
+
+ranksum(DD(ONs & Age>30),DD(OFFs & Age>30))
+
+
+ranksum(RDD(ONs & Age>30),RDD(OFFs & Age>30))
+ranksum(Rdend(ONs & Age==12),Rdend(OFFs & Age==12))
+ranksum(Rdend(ONs & Age>30),Rdend(OFFs & Age>30))
+ranksum(DdOA(ONs & Age==12),DdOA(OFFs & Age==12))
+ranksum(DdOA(ONs & Age>30),DdOA(OFFs & Age>30))
+ranksum(DtOA(ONs & Age==12),DtOA(OFFs & Age==12))
+ranksum(DtOA(ONs & Age>30),DtOA(OFFs & Age>30))
+ranksum(DD(ONs & Age==12),DD(OFFs & Age==12))
+ranksum(DD(ONs & Age>10),DD(OFFs & Age>10))

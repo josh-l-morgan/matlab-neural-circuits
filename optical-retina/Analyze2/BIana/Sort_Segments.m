@@ -1,0 +1,113 @@
+%% Compare ON vs OFF
+%%different from previous ON OFF in that the only cut off is the dividing
+%%line between arbors. 
+
+
+'Get Cells'
+load(['UseCells.mat'])
+[Age ONs OFFs BIs Others]=GetCellInfo(UseCells);
+GetBIs=find(BIs);
+BIAge=Age(BIs);
+'Cells Gotten'
+
+
+
+%% 
+for k = 1:size(GetBIs,1)
+    k
+    clear ONOFF
+    TPN=char(UseCells(GetBIs(k)))
+    load([TPN 'Use.mat'])
+    load([TPN 'BranchSb.mat'])
+    
+    %Get Rotation if it exists
+    if exist([TPN 'Rot.mat']), 
+        eRot=1; load([TPN 'Rot.mat']),else
+        eRot=0; Rot=[1 0 0; 0 1 0; 0 0 1];
+    end;
+    DPos=CoRot(Use.DPos,Rot);
+    Mids=CoRot(Use.Mids,Rot);
+    BPos=CoRot(Branch.Pos,Rot);
+    
+    %%show orthog
+    oBPos=ShowVec([BPos(:,3),BPos(:,2)],[50 200]);
+    image(oBPos*1000),pause(.01)
+    
+    
+    load([TPN 'data\ResultsComp.mat'])
+    
+    
+    %%Find cell position
+      
+    load([TPN 'data\ResultsComp.mat'])
+    Top=[]; Bottom=[];
+    for a = 1:size(Results.Arbor,2)
+        Top(a)=Results.Arbor(a).Top;
+        Bottom(a)=Results.Arbor(a).Bottom;
+    end
+    
+       
+    Cent=CoRot(Use.Cent,Rot);
+    CellZ=Cent(3);
+    if abs(CellZ-mean(Top))>abs(CellZ-mean(Bottom));
+        Flip=1; else Flip=0; 
+    end
+    Fr(k)=Flip
+    
+    Middle=(Bottom(2)+Top(1))/2;
+    
+    
+    %% Find Mids Layer
+    Layer=zeros(size(Mids,1),1);
+    Layer((Mids(:,3)<Middle))=1;
+    Layer((Mids(:,3)>Middle))=2;
+
+    %Find Dots Layer
+    DotLayer=zeros(size(DPos,1),1);
+    DotLayer((DPos(:,3)<Middle))=1;
+    DotLayer((DPos(:,3)>Middle) )=2;
+    
+    %Find Segs layer
+    SegLayer=zeros(size(BPos,1),1);
+    SegLayer((BPos(:,3)<Middle))=1;
+    SegLayer((BPos(:,3)>Middle))=2;
+
+    ONOFF.DotLayer=DotLayer;
+    ONOFF.MidLayer=Layer;
+    ONOFF.SegLayer=SegLayer;
+    
+    save([TPN 'ONOFFa.mat'],'ONOFF')
+    
+    ONOFFL(k,1)=sum(Use.Length(ONOFF.MidLayer==1));
+    ONOFFL(k,2)=sum(Use.Length(ONOFF.MidLayer==2));
+    ONOFFD(k,1)=sum(ONOFF.DotLayer==1);
+    ONOFFD(k,2)=sum(ONOFF.DotLayer==2); 
+    ONOFFS(k,1)=mean(Branch.DD(ONOFF.SegLayer==1));
+    ONOFFS(k,2)=mean(Branch.DD(ONOFF.SegLayer==2));
+    
+    
+    
+    
+end
+
+
+%% Run Density Measures
+
+ONOFFDD=ONOFFD./ONOFFL;
+
+
+
+bar(ONOFFDD(BIAge>30,:))
+
+
+
+
+
+
+
+
+
+
+
+
+

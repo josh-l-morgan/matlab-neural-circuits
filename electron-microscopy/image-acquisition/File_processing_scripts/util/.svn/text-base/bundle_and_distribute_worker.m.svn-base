@@ -1,0 +1,10 @@
+function [bundle_results]=bundle_and_distribute_worker(bundle)
+%save /home/viren/saved_networks/
+%bundle=bundle{1};
+bundle_results=[];
+for i=1:length(bundle)
+	args=bundle{i};
+	job_f=args{end};
+	bundle_results{i}=cell(1,nargout(job_f));
+	[bundle_results{i}{:}]=job_f(args{1:end-1});
+end

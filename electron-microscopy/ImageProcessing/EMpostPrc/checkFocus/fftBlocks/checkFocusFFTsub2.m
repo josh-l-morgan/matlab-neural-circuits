@@ -1,0 +1,122 @@
+%% Analyze FFT of subregions to check focus
+%%Currently doing FFT only in Y dimension
+profile on
+clear all
+colormap gray(256)
+
+sS = 101;  % Define pixel length of area used for FFT sampling
+minSigArea = .1; % proportion of image that must have signal
+
+TPN = GetMyDir;
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name;
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+            iNam{length(iNam)+1} = nam;
+        end
+    end
+end
+
+
+%% Start Reading
+
+for i = 1:length(iNam);
+    sprintf('running %d of %d',i,length(iNam))
+    Ir = double(imread([TPN iNam{i}]));
+    if size(Ir,1)>500 & size(Ir,2)>500;
+        I = Ir(100:end-100,10:end-100);
+    else
+        I = Ir;
+    end
+    [ys xs] = size(I);
+    %%Fix Contrast
+    I = I - min(I(:));
+    I = I * 255/double(max(I(:)));
+    
+    iFFTs = [];
+
+    yStep = 1:sS:ys-sS;
+    xStep = 1:sS:xs-sS;
+    fftMos = zeros(length(yStep),length(xStep));
+    for y = 1:length(yStep)
+        for x = 1:length(xStep)
+
+            subI = I(yStep(y):yStep(y)+sS-1,xStep(x):xStep(x)+sS-1);
+%             subI = subI - min(subI(:));
+%             subI = subI * 255/max(subI(:));
+                        
+            fftI = abs(fft(subI-mean(subI(:)),[],1));
+            mfI = mean(fftI,2);
+             
+            fftCut = mfI(10:fix(length(mfI)/2));
+            bgFFT = mean(fftCut(end-10:end));
+            fftMos(y,x) = mean(fftCut(1:end)-bgFFT);
+            
+        end
+    end
+
+    subplot(2,1,1),
+    image(I)
+    subplot(2,1,2)
+    image(fftMos * 5),
+    pause(.1)
+
+    sortFM = sort(fftMos(:),'descend')/1000;
+    grab = min(fix(length(sortFM) * minSigArea)+1,length(sortFM))-1;
+    highFFT(i) = median(sortFM(1:grab));
+    medianFFT(i) = median(sortFM);
+    lowFFT(i) = median(sortFM(length(sortFM)-grab:end));
+    percentSat(i) = (sum(I(:)==0)+ sum(I(:)==255))/(ys * xs) * 100;
+        
+    showFFT{i,1} = iNam{i};
+    showFFT{i,2} = highFFT(i);
+    showFFT{i,3} = medianFFT(i);
+    showFFT{i,4} = lowFFT(i);
+    showFFT{i,5} = percentSat(i);
+% 
+%     plot(sortFM),pause(.1)
+%     hold on
+    
+end
+% hold off
+bar(highFFT)
+
+%% find bad
+
+bestHalf = sort(highFFT,'descend');
+bestHalf = bestHalf(1:min(fix(length(bestHalf)/3)+1,length(bestHalf)));
+targ  = mean(bestHalf);
+bHstd = std(bestHalf);
+cutOff = targ - (bHstd * 3);
+badies = find(highFFT<cutOff);
+badNames = {iNam{badies}}';
+badFs = highFFT;
+badFs(badFs>= cutOff) = 0;
+
+bar(highFFT)
+hold on
+bar(badFs,'FaceColor','r','EdgeColor','r')
+hold off
+
+%% write Exel
+save([TPN 'showFFT.mat'],'showFFT')
+
+if isempty(badNames),badNames = {'No failures found'};end
+xlswrite([TPN 'badFocus.xls'],showFFT,'Results');
+xlswrite([TPN 'badFocus.xls'],badNames,'BadPics');
+
+%%Sort by highFFT
+sortFFT = showFFT;
+[sorted grab] = sort(highFFT,'ascend');
+for i = 1: size(showFFT,1)
+    sortFFT(i,:) = showFFT(grab(i),:);
+end
+xlswrite([TPN 'badFocus.xls'],sortFFT,'sortedResults');
+%scatter(highFFT,percentSat)
+
+profile off
+

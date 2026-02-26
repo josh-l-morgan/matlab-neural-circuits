@@ -1,0 +1,80 @@
+
+
+load('Y:\karlsRetina\EmilyImages\CorrectRegistratedFiles\Ai148_129SVG3_Translation_122618_2002');
+avg=mean(I,3);
+f1=figure();
+%image(avg.*5);
+imshow(avg.*.05);
+hold on
+set(gca,'visible','off')
+set(gcf,'color','w');
+
+
+testLoc=[[3,108];[13,108];[16,27]];
+colMat=[[1 0 1];[0 1 1];[1 1 0]];
+f2=figure();
+for i=1:length(testLoc)
+    %subplot(length(testLoc),1,i)
+    curLoc=testLoc(i,:);
+    plotDat=squeeze(I(curLoc(1),curLoc(2),:));
+    plotDat=smooth(plotDat);
+    a=area(plotDat);
+    a.FaceAlpha = 0.2;
+    a.FaceColor = colMat(i,:);
+    %plot(smooth(plotDat))
+hold on
+xlim([600 800])
+ylim([0 250])
+set(gca,'visible','off')
+set(gcf,'color','w');
+end
+
+load('C:\work\phys\2002.mat')
+corrMat2=corrMat+corrMat';
+testFig=figure();
+image(corrMat2.*200);
+activeVox=find(avg>5);
+testZeros=zeros(size(avg,[1 2]));
+testZeros(activeVox)=200;
+f5=figure();
+image(reshape(testZeros,32,256));
+miniCorr=corrMat2(activeVox,activeVox);
+
+f3=figure();
+image(miniCorr.*100);
+%histogram(miniCorr)
+
+%f4=figure();
+testCorr=corrMat2(sub2ind(size(I,[1 2]),3,108),:);
+testImg=reshape(testCorr,size(I,[1 2]));
+f5=figure();
+image(testImg.*200);
+
+
+physDir='Y:\karlsRetina\EmilyImages\CorrectRegistratedFiles\';
+physSaveDir='C:\work\phys\avg\';
+fileNames={'Ai148_129SVG3_Translation_122618_1005.mat', ...
+        'Ai148_129SVG3_Translation_122618_1006.mat', ...
+        'Ai148_129SVG3_Translation_122618_1007.mat', ...
+        'Ai148_129SVG3_Translation_122618_1008.mat', ...
+        'Ai148_129SVG3_Translation_122618_1009.mat', ...
+        'Ai148_129SVG3_Translation_122618_1010.mat', ...
+        'Ai148_129SVG3_Translation_122618_2001.mat', ...
+        'Ai148_129SVG3_Translation_122618_2002.mat', ...
+        'Ai148_129SVG3_Translation_122618_2003.mat', ...
+        'Ai148_129SVG3_Translation_122618_2004.mat', ...
+        'Ai148_129SVG3_Translation_122618_2005.mat', ...
+        'Ai148_129SVG3_Translation_122618_2006.mat'};
+    saveNames={'1005.png','1006.png','1007.png','1008.png','1009.png','1010.png','2001.png','2002.png','2003.png','2004.png','2005.png','2006.png'};
+    %uberDat=cell(length(saveNames),1); %zeros(32*256,32*256,length(saveNames));
+    
+for m=1:12
+        fileName=fileNames{m};
+        test=load([physDir fileName]);
+        meanImg=mean(test.I,3);
+        scaleFactor=prctile(meanImg(:),0.9);
+        meanImgScaled=meanImg.*.5;
+        savLoc=[physSaveDir saveNames{m}];
+        imwrite(meanImgScaled, savLoc);
+end
+        

@@ -1,0 +1,86 @@
+% clear
+% clc
+% uiopen
+% [m nExperiments] = size(OFFBSBIPHASIC);
+buffer = 3;
+for k=1:4%nExperiments
+    [o nCells1] = size(OFFBSBIPHASIC(k).spikes);
+    [o nCells2] = size(ONBSFAST(k).spikes);
+
+    for i=1:nCells1
+        [z beta0 xy] = gausspreparation (OFFBSBIPHASIC(k).spikes(i).STA);
+        gaussOptions = statset ('MaxIter', 10000);
+        beta = nlinfit(xy, z, @gaussian2d, beta0, gaussOptions);
+        %         ellipsedraw(beta(5), beta(6),beta(2), beta(3) , beta(4),'m')
+        %         hold on
+        OFFBSBIPHASIC(k).spikes(i).space.beta = beta;
+    end
+    for j=1:nCells2
+        [z beta0 xy] = gausspreparation (ONBSFAST(k).spikes(j).STA);
+        gaussOptions = statset ('MaxIter', 10000);
+        beta = nlinfit(xy, z, @gaussian2d, beta0, gaussOptions);
+        %         ellipsedraw(beta(5), beta(6),beta(2), beta(3) , beta(4),'m')
+        %         hold on
+        ONBSFAST(k).spikes(j).space.beta = beta;
+    end
+
+
+    for i=1:nCells1
+        xI = OFFBSBIPHASIC(k).spikes(i).space.beta(2);
+        yI = OFFBSBIPHASIC(k).spikes(i).space.beta(3);
+        for j=1:nCells2
+            xJ = ONBSFAST(k).spikes(j).space.beta(2);
+            yJ = ONBSFAST(k).spikes(j).space.beta(3);
+            D = sqrt( (yJ-yI)^2 + (xJ-xI)^2 );
+            m = (yJ -yI)/(xJ -xI);
+            if xI < xJ
+                X = linspace(xI-buffer,xJ+buffer,1000);
+                Y = linspace(yI-(m*buffer),yJ+(m*buffer),1000);
+            else
+                X = linspace(xI+buffer,xJ-buffer,1000);
+                Y = linspace(yI+(m*buffer),yJ-(m*buffer),1000);
+            end
+            beta = OFFBSBIPHASIC(k).spikes(i).space.beta;
+            [hEllipse XE YE]=...
+                ellipsedraw2(beta(5), beta(6),beta(2), beta(3) , beta(4),'m');
+            nX = length(X);
+            nXE = length(XE);
+            E = zeros(nX, nXE);
+            indVect = 1:nX*nXE;
+            for d=1:nX
+                for e=1:nXE
+                    E(d,e) = (X(d)-XE(e))^2 + (Y(d)-YE(e))^2;
+                end
+            end
+            IND = indVect(E==min(E(:)));
+            [dc ec] = ind2sub([nX, nXE], IND);
+            SI = sqrt( (yI-Y(dc))^2 + (xI-X(dc))^2 );
+
+            beta = ONBSFAST(k).spikes(j).space.beta;
+            [hEllipse XE YE]=...
+                ellipsedraw2(beta(5), beta(6),beta(2), beta(3) , beta(4),'m');
+            nXE = length(XE);
+            E = zeros(nX, nXE);
+            indVect = 1:nX*nXE;
+            for d=1:nX
+                for e=1:nXE
+                    E(d,e) = (X(d)-XE(e))^2 + (Y(d)-YE(e))^2;
+                end
+            end
+            IND = indVect(E==min(E(:)));
+            [dc ec] = ind2sub([nX, nXE], IND);
+            SJ = sqrt( (yJ-Y(dc))^2 + (xJ-X(dc))^2 );
+            SR(i,j) = D(i,j)/(SI+SJ);
+        end
+    end
+    if exist('spaceRatio','var')
+        spaceRatio = [spaceRatio; SR(SR>=0)];
+    else
+        spaceRatio = SR(SR>=0);
+    end
+end
+
+
+
+
+

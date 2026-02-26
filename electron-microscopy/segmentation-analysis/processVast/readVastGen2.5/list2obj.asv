@@ -1,0 +1,21 @@
+function[] = list2obj(SPN)
+
+
+TPN = [SPN(1:end-1) '_mat\'];
+load([TPN 'pointList.mat']);
+
+uniqueIds = unique(pointList.ids);
+countIds = hist(pointList.ids,uniqueIds);
+idRange = [1 cumsum(countIds)];
+
+parfor i = 1:max(uniqueIDs);
+    
+    targ = find(uniqueIds==i);
+    if ~isempty(targ)
+        vastOb{i} = cat(2,pointList.Y(idRange(targ):idRange(targ+1)),...
+            pointList.X(idRange(targ):idRange(targ+1)),...
+            pointList.Z(idRange(targ):idRange(targ+1)));
+    end
+end
+
+save([TPN 'vastOb.mat'],'vastOb')

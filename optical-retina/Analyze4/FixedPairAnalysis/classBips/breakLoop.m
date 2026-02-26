@@ -1,0 +1,178 @@
+function[links] = breakLoop(links,uPairs,jointVol)
+
+% allNodes = unique(links);
+% nonPairs = setdiff(uPairs,allNodes);
+% uPairs = cat(1,uPairs,nonPairs);
+[uPairs ix] = sort(uPairs);
+jointVol = jointVol(ix);
+
+ 
+
+%% find loop
+startOver = 1;
+while startOver
+    startOver = 0;
+   %extract paths and start points from links
+    [paths, showP] = getPaths(links);
+    stackP = [];pathID = []; ao = [];
+    for p = 1:length(paths)
+        stackP = cat(1,stackP,paths{p}) ;
+        pathID = cat(1,pathID, ones(length(paths{p}),1) * p);
+        path = paths{p};
+        ao = cat(1,ao,[path(1),path(end)]);
+    end
+
+    %%Run all segments within the paths
+    for s = 1:size(ao,1)
+        targ = ao(s,2);
+        occ = find(ao(:,2)==targ);
+
+        if length(occ)>1;
+            backPs = targ;
+            check = ones(size(ao,1),1);
+            check(occ(1)) = 0;
+            check(occ(2)) = 2;
+            backPs(2,1) = ao(occ(1),1);
+            fLoop = [];
+            while isempty(fLoop)
+                lastN = size(backPs,1);
+                for p = 1: size(backPs,2)
+                    backP = backPs(1:lastN,p);
+                    targ = backP(lastN);
+                    [seg side] = find(ao == targ);
+                    oside = ~(side-1)+1;
+                    spouse = ao(sub2ind(size(ao),seg,oside));
+                    ok = check(seg);
+
+                    if sum(ok==2)
+                        fLoop = cat(1,backP, spouse(ok==2));
+                        break
+                    end
+
+                    check(seg) = 0;
+                    spouse = spouse(ok>0);
+                    if isempty(spouse), spouse = 0; end
+                    backPs(lastN+1,p) = spouse(1);
+
+                    for n = 2:length(spouse) %write branches
+                        backPs(:,size(backPs,2)+1) = cat(1,backP, spouse(n));
+                    end
+
+                end %runn all paths
+            end  %while you havent found the loop
+            
+            %%Build pathn (does not deal with multiple paths to same
+            %%endpoints)
+            pLoop = fLoop(1); involved = [];
+            for fL = 1:length(fLoop)-1
+              
+                aTarg = find((ao(:,1) == fLoop(fL))&(ao(:,2)== fLoop(fL+1)));
+                involved = cat(1,involved, aTarg);
+                for t = 1:length(aTarg)
+                    path = paths{aTarg(t)};
+                    pLoop = cat(1,pLoop,path(1:end));
+                end
+
+                aTarg = find((ao(:,2) == fLoop(fL))&(ao(:,1)== fLoop(fL+1)));
+                involved = cat(1,involved, aTarg);
+                for t = 1: length(aTarg)
+                    path = flipud(paths{aTarg(t)});
+                    pLoop = cat(1,pLoop,path(1:end));
+                end
+            end
+            
+            %%Break loop
+            loopJoints = unique(pLoop(ismember(pLoop,uPairs)));
+            strength = jointVol(ismember(uPairs, loopJoints));
+            weakest = find(strength == min(strength),1);
+            rm = loopJoints(weakest); %node to remove
+            
+            spouse = [];
+            for v = 1:length(involved)
+                path = paths{involved(v)};
+                rmPos = find(path==rm);
+                linkPos = [rmPos - 1; rmPos + 1];
+                linkPos=linkPos((linkPos>0) & (linkPos<=length(path)));
+                spouse = cat(1,spouse,path(linkPos));
+            end
+            
+            for r = 1:length(spouse) %remove weakest
+                    links = links(~((links(:,1) == rm) & (links(:,2) == spouse(r))),:);
+                    links = links(~((links(:,2) == rm) & (links(:,1) == spouse(r))),:);
+            end
+
+            %start over
+            startOver = 1;
+            break
+        end %if there are two ends
+
+    end  %rinse and repeat
+end % while still finding start overs
+%{
+
+
+%% find loop
+startOver = 1;
+while startOver
+    startOver = 0;
+    for p = 2:length(paths)  %run all paths
+        path = paths{p};
+        endP = path(end);
+        occurance = find(stackP == endP);
+        if length(occurance)>1
+            memPath = pathID(occurance)
+            seed = path(1);
+            sourcePath = pathID(find(stackP == seed));
+            sourcePath = setdiff(sourcePath,p);
+            pause
+
+
+
+        end
+    end
+
+    %%
+
+    for l = 1:p-1   %compare to previous paths
+        if startOver == 0
+            shared = intersect(paths{l},paths{p});
+            shared = shared(shared>0);
+            if length(shared)>1
+                %get paths in loop
+                path1 = paths{p};
+                pRange = find((path1==shared(1)) | (path1 == shared(2)));
+                path1 = path1(pRange(1):pRange(end));
+                path2 = paths{l};
+                pRange = find((path2==shared(1)) | (path2 == shared(2)));
+                path2 = path2(pRange(1):pRange(end));
+
+                %Get weakes links
+                segs1  =  [path1(1:end-1) path1(2:end)];
+                segs2 = [path2(1:end-1) path2(2:end)];
+                segs = cat(1,segs1,segs2);
+                nodes = sort(unique(segs));
+                strength = jointVol(ismember(uPairs, nodes));
+                weakest = find(strength == min(strength),1);
+                rm = nodes(weakest); %node to remove
+                [n s] = find(segs == rm);
+                spouse = segs(sub2ind(size(segs),n,~(s-1)+1));
+                weakLinks = [ones(length(spouse),1)*rm  spouse];
+
+                for r = 1:size(weakLinks,1) %remove weakest
+                    links = links(~((links(:,1) == rm) & (links(:,2) == spouse(r))),:);
+                    links = links(~((links(:,2) == rm) & (links(:,1) == spouse(r))),:);
+                end
+
+                %start over
+                [paths, showP] = getPaths(links);
+                startOver = 1;
+                break
+            end
+        end
+    end
+end
+
+end
+
+%}
+

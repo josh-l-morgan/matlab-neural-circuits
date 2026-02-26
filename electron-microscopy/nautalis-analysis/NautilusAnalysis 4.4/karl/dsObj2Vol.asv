@@ -1,0 +1,25 @@
+
+load('MPN.mat')
+load('WPN.mat')
+load([MPN 'obI.mat'])
+load([MPN 'dsObj.mat'])
+
+val = [];
+for i = 1:length(dsObj)
+    val(length(val)+1:length(val)+size(dsObj(i).subs,1)) = i;   
+end
+
+subs = cat(1,dsObj.subs);
+
+maxV = max(subs,[],1);
+
+vol = zeros(maxV);
+ind = sub2ind(maxV,subs(:,1),subs(:,2),subs(:,3));
+vol(ind) = val;
+
+maxVol = max(vol,[],3);
+image(maxVol)
+
+
+%% or see 
+p = patch(maxVol>0)

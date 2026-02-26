@@ -1,0 +1,250 @@
+% function[rleDat] = getRLEtoSubs(TPN,miplevel);
+%
+% %Please connect to VAST with vasttools first!
+%
+% global vdata;
+%
+% tic
+
+vast=VASTControlClass();
+res = vast.connect('127.0.0.1',22081,1000)
+
+TPN = GetMyDir;
+TPN2 = [TPN(1:end-1) '_lowRes\'];
+mkdir(TPN2)
+writeLowRes = 1;
+
+xSize = 69672
+ySize = 70052
+zSize = 1046
+
+%%
+
+zStep = 1;%16; %100 for mip3, 20 for mip 1
+%xyStep = 4096;
+xStep = xSize-1;%16*16*16;
+yStep = 1;%16*16*16;
+miplevel = 0;
+checkMip = 2;
+checkDown = 2^checkMip;
+
+blockDim = [yStep xStep zStep];
+
+
+%% Get seg data
+%if ~exist([SPN 'colData.mat'], 'file')
+[nr, res] = vast.getnumberofsegments();
+colData = vast.getallsegmentdata;
+names = vast.getallsegmentnames;
+for s = 1 : length(names)
+    colData{s}.name = names{s};
+end
+save([TPN 'colData.mat'],'colData');
+
+%% Get bounding box
+bBox = zeros(nr-1,6);
+for i = 1:nr-1
+    %data = vast.getsegmentdata(i);
+    %bBox(i,:) = double(data.boundingbox);
+    bBox(i,:) = colData{i}.boundingbox;
+end
+max(bBox,[],1);
+useBox = sum(bBox>=0,2)==6;
+allBBox = [min(bBox(useBox,1:3),[],1)'  max(bBox(useBox,4:6),[],1)']+1;
+allBBox2 = allBBox/checkDown;
+allBBox2(:,1) = fix(allBBox2(:,1));
+allBBox2(:,2) = ceil(allBBox2(:,2));
+
+
+%% 
+
+info=vast.getinfo();
+segNum = vast.getnumberofsegments
+segData = vast.getallsegmentdata;
+%segNames = vast.getallsegmentnames
+
+
+minx=0; miny=0; minz=0;
+maxx=double(bitshift(info.datasizex,-miplevel));
+maxy=double(bitshift(info.datasizey,-miplevel));
+%same as: maxy=floor(info.datasizey/2^miplevel);
+maxz=double(info.datasizez);
+vSize = [maxy-miny+1 maxx-minx+1 maxz-minz+1];
+surfonlyflag=0;
+
+
+datSize = [maxx; maxy; maxz];
+zSteps = 1:zStep:maxz;
+xSteps = 1:xStep:maxx;
+ySteps = 1:yStep:maxy;
+
+% zSteps = 687:zStep:687+200;
+% xSteps = 36673:xStep:36673 + 10000;
+% ySteps = 26090:yStep:26090 + 10000;
+
+startTime = clock
+
+i = 0;
+numBlocks = length(zSteps) * length(ySteps) ;
+countYvox = 0;
+countYseg = 0;
+startYtime = tic;
+
+for z = 500:length(zSteps);
+    disp(sprintf('fetching sections %d-%d of %d',zSteps(z),zSteps(z)+zStep-1,maxz))
+    secV = [];
+    secRLE = [];
+    for y = 5000:length(ySteps);
+        yDur = toc(startYtime);
+        disp(sprintf('%0.2f Mseg at %.2f Mvox/sec, %.2f Mseg/sec',countYseg,countYvox/yDur,...
+            countYseg/yDur))
+        startYtime = tic;
+        countYvox = 0;
+        countYseg = 0;
+        
+        
+        getReg = [  1                   1+1000;...
+                    ySteps(y)           ySteps(y)+yStep - 1;...
+                    zSteps(z)         zSteps(z)+zStep - 1];
+        
+        
+        %regSize = getReg(:,2)-getReg(:,1) + 1;
+        
+        
+        [rleimg, res]=vast.getsegimageRLE(miplevel,...
+            getReg(1,1),getReg(1,2), getReg(2,1),getReg(2,2),...
+            getReg(3,1),getReg(3,2),surfonlyflag);
+        secRLE = cat(2,secRLE,rleimg);
+        
+        vLast = 0;
+        for v = 1:length(rleimg)/2
+            runVal = rleimg(v*2-1);
+            runLength = rleimg(v*2);
+            vStop = vLast + runLength;
+            if runVal
+                newV = [repmat(runVal,[1 runLength])' [vLast+1:vStop]' ...
+                    repmat(getReg(2,1),[1 runLength])' ...
+                    repmat(getReg(3,1),[1 runLength])' ];
+                secV = cat(1,secV,newV);
+            end
+            vLast = vStop;
+        end %end all vals
+    end %end run y
+    
+    secV
+    allV = cat(1,allV,secV);
+    
+    
+     secRLEFileName = sprintf('secRLE_%05.0f.mat',getReg(3,1));
+     secVoxFileName = sprintf('secVox_%05.0f.mat',getReg(3,1));         
+     save(secVoxFileName,'secV');
+     save(secRLEFileName,'secRLE');
+end % end run z
+
+
+%{
+return
+
+            %%Get region
+           
+            if sum(regSize>0)==3 %if in seg bounding box
+                
+            Iv = zeros(regSize(1),regSize(2),regSize(3));
+            countYvox = countYvox + prod(regSize)/1000000;
+            
+            %%Test for data
+            tic
+            %disp('low res check')
+            getReg2 = getReg;
+            datSize2 = allBBox;
+            datSize2(1:2) = datSize2(1:2)/(2^checkMip);
+            datSize2 = round(datSize);
+            getReg2(1:2,1:2) = round(getReg2(1:2,1:2)/2^checkMip);
+            getReg2(1:2,1) = getReg2(1:2,1) - 2;
+            getReg2(1:2,2) = getReg2(1:2,2) + 2;
+            getReg2(getReg2(:,1)<0,1) = 0;
+            getReg2(getReg2(:,2)>datSize2,2) = datSize2(getReg2(:,2)>datSize2);
+            regSize2 = getReg2(:,2)-getReg2(:,1) + 1;
+            Iv2 =  zeros(regSize2(1),regSize2(2),regSize2(3));
+            [rleimg2, res]=vast.getsegimageRLE(checkMip,...
+                getReg2(1,1),getReg2(1,2), getReg2(2,1),getReg2(2,2),...
+                getReg2(3,1),getReg2(3,2),surfonlyflag);
+            
+            if writeLowRes
+                lastX = 0;
+                oIDs = double(rleimg2(1:2:end));
+                rls = double(rleimg2(2:2:end));
+                for r = 1:length(rls)
+                    runID = lastX+1:lastX+rls(r);
+                    
+                    if oIDs(r)>0
+                        Iv2(runID) = oIDs(r);
+                        countYseg = countYseg/length(runID)/1000000;
+                    end
+                    lastX = lastX + rls(r);
+                end
+                
+                %%write 2D images
+                iSums = squeeze(sum(sum(Iv2)));
+                writeIs = find(iSums);
+                for zi = 1:length(writeIs)
+                    writeI = writeIs(zi);
+                    imName = sprintf('tileLowRes_r%d_c%d_s%d.png',y,x,...
+                        getReg(3,1)-1 + writeI);
+                    imwrite(Iv2(:,:,writeI),[TPN2 imName])
+                end
+            end
+            %toc
+            
+            %%Get full resolution
+            if sum(iSums) %if low res found something
+                [rleimg, res]=vast.getsegimageRLE(miplevel,...
+                    getReg(1,1),getReg(1,2), getReg(2,1),getReg(2,2),...
+                    getReg(3,1),getReg(3,2),surfonlyflag);
+                
+                %%write run length into 3D image
+                lastX = 0;
+                oIDs = double(rleimg(1:2:end));
+                rls = double(rleimg(2:2:end));
+                for r = 1:length(rls)
+                    runID = lastX+1:lastX+rls(r);
+                    
+                    if oIDs(r)>0
+                        Iv(runID) = oIDs(r);
+                    end
+                    lastX = lastX + rls(r);
+                end
+                
+                %%write 2D images
+                iSums = squeeze(sum(sum(Iv)));
+                writeIs = find(iSums);
+                for zi = 1:length(writeIs)
+                    writeI = writeIs(zi);
+                    imName = sprintf('tile_r%d_c%d_s%d.png',y,x,...
+                        getReg(3,1)-1 + writeI);
+                    imwrite(Iv(:,:,writeI),[TPN imName])
+                end
+                
+            end %if low res found something
+            else % if in seg range
+                %disp('no segmentation within fetch range')
+            end
+        end
+    end
+end
+
+
+%}
+
+
+
+
+
+
+ %             %%Get whole image
+                %             tic
+                %             [img, res]=vast.getsegimageraw(miplevel,...
+                %                 getReg(1,1),getReg(1,2), getReg(2,1),getReg(2,2),...
+                %                 getReg(3,1),getReg(3,2));
+                %             Iv(:) = img;
+                %             toc

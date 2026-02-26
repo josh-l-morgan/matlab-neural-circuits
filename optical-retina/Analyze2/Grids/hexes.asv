@@ -1,0 +1,33 @@
+function[Grid]=hexes(
+
+
+fsize=200;
+Diam=10;
+
+field=zeros(fsize);
+
+c=0;
+for y = 0-Diam:Diam:fsize+Diam;
+    Shift=Diam/2*mod(c,2);
+    for x = 0-Diam:Diam:fsize+Diam;
+        c=c+1; 
+        Grid(c,1)=y; 
+        Grid(c,2)=x+Shift;
+    end
+end
+
+Col=rand(size(Grid,1),1)*255;
+
+
+for y = 1:fsize
+    for x=1:fsize
+        Pos=[y x];
+        Dist=dist(Grid,Pos);
+        Pick=find(Dist==min(Dist),1);
+        field(y,x)=Col(Pick);
+    end
+    y
+end
+
+colormap jet(255)
+image(field)

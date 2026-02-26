@@ -1,0 +1,330 @@
+%% loading everything
+
+medTis=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\medRes\Analysis\tis.mat');
+highTis=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Analysis\tis.mat');
+medTis=medTis.tis;
+highTis=highTis.tis;
+medFV='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\medRes\Analysis\fvLibrary\';
+highFV='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Analysis\fvLibrary\';
+mainFV='Y:\karlsRetina\CellNavLibrary_IxQ\Analysis\fvLibrary\';
+medObj=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\medRes\Merge\dsObj.mat');
+highObj=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Merge\dsObj.mat');
+medObj=medObj.dsObj;
+highObj=highObj.dsObj;
+
+loadAll=0;
+if loadAll
+    allSkels=cell(1,length(vgcCidList));
+    for i=1:length(vgcCidList)
+        curCid=vgcCidList(i);
+        skelFileName=['sm_cid' + string(curCid)+'.mat'];
+        curSkel=load([skelDir+skelFileName]);
+        allSkels{i}=curSkel;
+    end
+
+    for i=1:length(allSkels)
+        curSkel=allSkels{i};
+        curSWC=nep2swc(curSkel.sm.nep);
+        allSkels{i}.swc=curSWC;
+        
+    end
+end
+
+%% testing if the skels look okay.
+
+for i=6%1:length(allSkels)
+    curSkel=allSkels{i};
+    curSM=curSkel.sm;
+    curSWC=curSkel.swc;
+    curPred=curSWC.pred(curSWC.arbor2swcID)+1;
+    curPredInv=zeros(size(curPred));
+    curPredInv(curPred>0)=curSWC.swc2arborID(curPred(curPred>0));
+    curSM.pred=curPred;
+    allEdges=curSM.arbor.edges;
+    uniqueNodes=unique(allEdges(:));
+    nodeCounts=histcounts(allEdges,uniqueNodes);
+    tipIDs=find(nodeCounts==1);
+    forkIDs=find(nodeCounts>2);
+    distFromRoot=curSM.skel2skel.linDist(tipIDs,1);
+    [srtd srtIdx] = sort(distFromRoot,'descend');
+    tipIDsSrtd=tipIDs(srtIdx');
+    
+%     tipTest=[];
+%     curNode=1648;
+%     its=0;
+%     while curNode>0 & its<5000
+%         tipTest=[tipTest;curNode];
+%         curNode=curPred(curNode);
+%         its=its+1;
+%     end
+    
+    usedNodes=[];
+    usedEdges=[];
+    branchNodes=cell(length(tipIDsSrtd),1);
+    branchSize=zeros(length(tipIDsSrtd),1);
+    for j=1:length(tipIDsSrtd)
+        curTip=tipIDsSrtd(j);
+        curBranch=curTip;
+        curNode=curTip;
+        nextEdge=0;
+        stopBool=0;
+        counter=0;
+        while counter<5000 & curNode>0
+            prevEdge=nextEdge(1);
+            prevNode=curNode;
+            usedNodes=[usedNodes;curNode];
+            nextEdge=find(any(allEdges==curNode,2));
+            nextEdge=nextEdge(nextEdge~=prevEdge);
+            if isempty(nextEdge)
+                break
+            end
+            edgeNodes=allEdges(nextEdge(1),:);
+            curNode=edgeNodes(edgeNodes~=prevNode);
+            curBranch=[curBranch;curNode];
+            %if ismember(curNode,usedNodes)
+            %    break
+            %end
+            counter=counter+1;
+        end
+        branchNodes{j}=curBranch;
+        branchSize(j)=length(curBranch);
+    end
+        
+    if 1
+        figures{i}=figure();
+        figStruct=compareMorph(figures{i},curSM.cid,highFV);
+        title(curSM.cid)
+        hold on
+        for k=1:length(branchNodes)
+            curBranch=branchNodes{k};
+            branchPos=curSM.nep.pos(curBranch,:);
+            figStruct.skel(k)=plot3(branchPos(:,3),branchPos(:,1),branchPos(:,2),'c-','LineWidth',1);
+            %credge=allEdges(k,:);
+            %plot3(curSM.nep.pos(credge,1),curSM.nep.pos(credge,2),curSM.nep.pos(credge,3));
+            %drawnow();
+        end
+        figStruct.patches(1).FaceAlpha=0.1;
+        figStruct.patches(1).FaceColor=[.7 0 .7];
+        %figStruct.skel.LineWidth=3;
+    end
+end
+
+
+%% testing the bwskel function
+%curVox=getCidVox(2,1,highObj,highTis);
+%curVox=curVox{1};
+curVox=curVox(curVox(:,1)>1,:);
+bbox=[min(curVox(:,1)),max(curVox(:,1));min(curVox(:,2)),max(curVox(:,2));min(curVox(:,3)),max(curVox(:,3))];
+boxDims=bbox(:,2)-bbox(:,1)+1;
+miniVox=curVox-(bbox(:,1)'-1);
+volImg=zeros(boxDims(1),boxDims(2),boxDims(3),'logical');
+indList=sub2ind(size(volImg),miniVox(:,1),miniVox(:,2),miniVox(:,3));
+volImg(indList)=1;
+
+%% Let's explore this parameter space
+convolve=0;
+if convolve
+kernelSet={};
+hsize=9;sigma=1;
+h = fspecial3('gaussian',hsize,sigma);
+kernelSet{1}=h;
+h2=fspecial3('gaussian',5,1);
+k2=h2>0.005;
+k3=h2>0.01;
+kernelSet{2}=k2;
+kernelSet{3}=k3;
+blurrdImgs=cell(length(kernelSet),1);
+for w=1:length(kernelSet)
+    curKer=kernelSet{w};
+    blurrdImgs=convn(volImg,curKer,'same');
+end
+%testImg=double(volImg);
+volImgBlurg=convn(volImg,h,'same');
+volImgThrsh=volImgBlurg>0.1;
+end
+
+%% Let's try something simpler than blur
+
+% take 3 slices, if two out of three have a pixel, set the other to true
+volImgDil=volImg;
+dilator=5;
+for q=ceil(dilator/2):size(volImg,3)-floor(dilator/2)
+    wind=volImg(:,:,[q-floor(dilator/2):q+floor(dilator/2)]);
+    %windMid=volImg(:,:,q);
+    %windMode=mode(wind,3);
+    %windMid(windMode)=1;
+    volImgDil(:,:,q)=max(wind,[],3);
+end
+
+testVols={volImg,volImgDil};
+%% 
+if 0
+testFig=figure();
+hold on
+for j=size(volImg,3):-3:1
+    image=zeros(size(volImg,1),size(volImg,2),3);
+    image(:,:,[1 3])=image(:,:,[1 3])+volImg(:,:,j).*0.5;
+    image(:,:,[2 3])=image(:,:,[2 3])+volImgDil(:,:,j).*0.5;
+    %image(:,:,[1 2])=image(:,:,[1 2])+volImgThrsh(:,:,j).*0.5;
+    imshow(image);
+    drawnow();
+    pause(0.01);
+end
+testFig2=figure();
+hold on
+end
+
+testSkels={};
+testBPs={};
+testTips={};
+for u=1:length(testVols)
+    curVol=testVols{u};
+    curSk=bwskel(curVol);
+    testSkels{u}=curSk;
+    curSkBPs=bwmorph3(curSk,'branchpoints');
+    curSkTPs=bwmorph3(curSk,'endpoints');
+    testBPs{u}=curSkBPs;
+    testTips{u}=curSkTPs;
+end
+
+%figure();
+%hold on
+skelPos={};
+bpPos={};
+tipPos={};
+for o=1:length(testSkels)
+    curSk=testSkels{o};
+    curBP=testBPs{o};
+    curTip=testTips{o};
+    [x,y,z]=ind2sub(size(curSk),find(curSk>0));
+    [xBP,yBP,zBP]=ind2sub(size(curBP),find(curBP>0));
+    [xT,yT,zT]=ind2sub(size(curTip),find(curTip>0));
+    skelPos{o}=horzcat(x,y,z);
+    bpPos{o}=horzcat(xBP,yBP,zBP);
+    tipPos{o}=horzcat(xT,yT,zT);
+    %scatter3(x,y,z,2,'.');
+end
+
+%%
+
+titleList={"norm","dilated"};
+
+edgeLists={};
+distMats={};
+for o=1:length(skelPos)
+    curPos=skelPos{o};
+    curDistMat=pdist2(curPos,curPos);
+    distMats{o}=curDistMat;
+    bpLocs=bpPos{o};
+    tipLocs=tipPos{o};
+    %figure();
+    %title(titleList{o});
+    %hold on
+    edges=zeros(size(curDistMat,1),2);
+    cnt=1;
+    for p=1:size(curDistMat,1)
+        curNodePos=curPos(p,:);
+        curNodeDists=curDistMat(:,p);
+        [distsOrdrd,distOrd]=sort(curNodeDists,'ascend');
+        distOrd(1:10)
+        if ismember(curNodePos,tipLocs,'rows')
+            tipBool=1;
+            edges(cnt,:)=[p,distOrd(2)];
+            cnt=cnt+1;
+        elseif ismember(curNodePos,bpLocs,'rows')
+            bpBool=1;
+            edges(cnt,:)=[p,distOrd(2)];
+            edges(cnt+1,:)=[p,distOrd(3)];
+            cnt=cnt+2;
+        else
+            edges(cnt,:)=[p,distOrd(2)];
+            cnt=cnt+1;
+        end
+        
+    end
+    
+    %doubles=find(ismember(edges(:,[2 1]),edges,'rows'));
+    edgesSrtd=sort(edges,2);
+    edgesUnq=unique(edgesSrtd,'rows');
+    edgeLists{o}=edgesUnq;
+    
+    %% get forks n tips from edge list
+    uniqueNodes=unique(edgesUnq(:));
+        nodeCounts=histcounts(edgesUnq,uniqueNodes);
+        tipIDs=find(nodeCounts'==1);
+        forkIDs=find(nodeCounts>2);
+        
+    %% remove singleton tips
+    edgesUnqClean=edgesUnq;
+    for h=1:size(edgesUnq,1)
+        credge=edgesUnq(h,:);
+        if sum(ismember(credge,tipIDs))>0 & sum(ismember(credge,forkIDs))>0
+            edgesUnqClean(h,:)=[0 0];
+        end
+    end
+    edgesUnqClean=edgesUnqClean(~ismember(edgesUnqClean,[0 0],'rows'),:);
+    
+    %%
+    
+    testEdgeFig=figure();
+    hold on
+    curNode=1;
+    usedNodes=[];
+    for tipit=1:length(tipIDs)
+        curnode=tipIDs(tipit);
+        edgeList=find(ismember(curNode,edgesUnqClean));
+        partList=edgesUnqClean
+        credge=[curPos(edgesUnqClean(edgit,1),:);curPos(edgesUnqClean(edgit,2),:)];
+        plot3(credge(:,1)',credge(:,2)',credge(:,3)');
+        drawnow();
+        edgit=edgit+1;
+    end
+    
+        
+%         
+%         nearNodes=find(curNodeDists<2);
+%         nearNodes=nearNodes(nearNodes~=p);
+%         for r=1:length(nearNodes)
+%             cP=nearNodes(r);
+%             plot3([curPos(p,1) curPos(cP,1)],[curPos(p,2) curPos(cP,2)], ...
+%                 [curPos(p,3) curPos(cP,3)]);
+%         end
+%         drawnow()
+    
+end
+
+
+
+
+%sum(testSkels{1}(:))
+%bwsk=bwskel(volImg);
+%bwskThrsh=bwskel(volImgThrsh);
+
+%% go through and draw stuff. 
+
+
+
+
+%% 
+skelThrshSurf=isosurface(bwskThrsh);
+[x,y,z]=ind2sub(size(bwskThrsh),find(bwskThrsh>0));
+bwskThrshCoords=horzcat(x,y,z);
+figure(); scatter3(x,y,z);
+
+figure(); p=patch(skelThrshSurf); p.FaceAlpha=0.25; p.FaceColor=[1 0 1];
+
+branchPts=bwmorph3(bwskThrsh,'branchpoints');
+endPts=bwmorph3(bwskThrsh,'endpoints');
+
+for j=size(bwsk,3):-1:1
+    imshow(bwsk(:,:,j));
+    drawnow();
+    pause(0.01);
+end
+skelfv=struct();
+skelfv.Vertices=bvert;
+skelfv.Faces=bfac;
+skelpat=patch(skelfv);
+
+
+

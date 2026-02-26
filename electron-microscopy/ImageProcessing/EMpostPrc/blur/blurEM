@@ -1,0 +1,30 @@
+[TFN TPN] = GetMyFile;
+I = imread([TPN TFN]);
+
+Imed = medfilt2(I,[2,1]);
+filt3 = fspecial('average',[2 1]);
+Iave = imfilter(I,filt3);
+
+colormap gray(256)
+subplot(2,3,1)
+image(I)
+subplot(2,3,2)
+image(Imed)
+subplot(2,3,3)
+image(Iave)
+pause(.01)
+
+Imed = medfilt2(I,[3,1]);
+filt3 = fspecial('average',[3 1]);
+Iave = imfilter(I,filt3);
+
+colormap gray(256)
+subplot(2,3,4)
+image(I)
+subplot(2,3,5)
+image(Imed)
+subplot(2,3,6)
+image(Iave)
+pause(.01)
+
+

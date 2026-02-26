@@ -1,0 +1,47 @@
+clear all
+colormap gray(256)
+TPN = GetMyDir;
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name; 
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+        iNam{length(iNam)+1} = nam;
+        end
+    end
+end
+
+
+
+%% Start Reading
+for i = 1:length(iNam);
+    i
+
+    I = double(imread([TPN iNam{i}]));
+shiftDist = 20;
+cutI = I(1:end-shiftDist,:);
+clear subI
+for s = 1:shiftDist-1:shiftDist
+    subI(:,:,s) = abs(I(s+1:s+size(cutI,1),:)-cutI);
+    dif(1,s) = mean(subI(:));
+end
+difs(i,:) = dif;
+subplot(1,2,1)
+plot(dif/max(dif)),pause(.01)
+%plot((dif-dif(1))/max(dif-dif(1))),pause(.01)
+comp2to(i) = (dif(1))/(dif(end));
+
+ratI = (subI(:,:,1)+1)./(subI(:,:,2)+1);
+ratI = uint8(ratI * 100/median(ratI(:)));
+image(ratI)
+save([TPN 'difs.mat'],'difs')
+
+
+if ~exist([TPN '/rats']),mkdir([TPN '/rats']);end
+imwrite(ratI,[TPN 'rats/rat' iNam{i} '.tif'],'Compression','none')
+end
+
+

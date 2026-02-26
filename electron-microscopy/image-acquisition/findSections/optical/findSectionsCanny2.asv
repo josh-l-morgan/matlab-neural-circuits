@@ -1,0 +1,162 @@
+clear all
+tic
+colormap gray(255)
+[TFN TPN] = GetMyFile;
+
+
+
+%%  Get Image
+I = imread([TPN TFN]);
+image(I)
+I = I(:,650:750,:);
+[ys xs] = size(I);
+
+I = mean(I,3);
+I = max(I(:)) - I;
+
+gKern = gaus3d([5 5 1],3,[1 1 1]);
+cI = fastCon(I,gKern);
+dI = (I - cI);
+
+%% Vert
+vI = edge(I,'Canny',[.04 .05],2);
+image(fitH(vI))
+cvI = imclose(vI,strel('disk',10));
+image(fitH(cvI))
+[cvI cNum] = bwlabel(cvI==0,4);
+vProps = regionprops(cvI,'Orientation','MajorAxisLength',...
+    'MinorAxisLength','ConvexHull');
+clear minAx maxAx ori
+
+minAx = [vProps.MinorAxisLength];
+maxAx = [vProps.MajorAxisLength];
+ori = [vProps.Orientation];
+scatter(minAx,maxAx,'.')
+
+tape = find(((minAx>80) & (minAx<110) & ((maxAx./minAx)>4)));
+tpI = I * 0;
+for i = 1:length(tape)
+      cPoly = vProps(tape(i)).ConvexHull;
+    tpI(poly2mask(cPoly(:,1),cPoly(:,2),ys,xs)) = 1;
+end
+image(fitH(tpI)),pause(.1)
+
+%% Find section wells
+gKern = gaus3d([10 10 1],5,[1 1 1]);
+cI2 = fastCon(I,gKern);
+
+dI2 = max(cI2(:))-cI2;
+dI2 = imhmin(dI2,2);
+
+wI = watershed(dI2,8);
+image((wI==0)*1000 + dI2);
+
+%% Grab objects
+oI = I * 0;
+for i = 1:max(wI(:))
+    tI =  cI2;
+    tI(wI~= i) = 0;
+    maxT = max(tI(:));
+    minT = min(tI(tI>0));
+    pList = find(bwperim(tI));
+    seed = find(tI == maxT,1);
+    for t = maxT:-1:minT
+        [lI nl] = bwlabel(tI>=t);
+        if  ~isempty(find(lI(pList)==lI(seed)))
+            break
+        end
+        oI(lI==lI(seed)) = oI(lI==lI(seed))+1;
+    end
+end
+colI = uint8(cat(3,oI,oI,oI) * 50);
+colI(:,:,1) = dI * 50 +100;
+image(colI),pause(1)
+
+oI(tpI == 0) = 0;
+image(fitH(oI)*5)
+
+%%
+[lI oNum] = bwlabel(oI>1,8); %%label objects
+eI = I*0;
+image(fitH(eI>0))
+for o = 1: oNum
+o
+    [oy ox] = find(lI == o);
+    sI = dI(min(oy):max(oy),min(ox):max(ox));
+    sI(sI>0) = sI(sI>0) - min(sI(sI>0));
+    min(oy)
+    idO = sub2ind(size(sI),oy-min(oy)+1,ox-min(ox)+1);
+    esI = edge(sI,'Canny',[.001 .1],3);
+    lE = bwlabel(esI,8);
+    goodEdges = lE(idO);
+    goodEdges = unique(goodEdges(goodEdges>0));
+    badEdges = setdiff(1:max(lE(:)),goodEdges);
+    subplot(1,2,1)
+    image(fitH(sI))
+    subplot(1,2,2)
+    image(fitH(lE))
+    pause
+    for e = 1:length(badEdges)
+        lE(lE==badEdges(e))=0;
+    end
+    eI(min(oy):max(oy),min(ox):max(ox))= (lE>0) * o;
+
+end
+image(fitH(eI)),colormap colorcube(255),pause(.1)
+%% combine objects with edges
+
+eIa = eI * 0;
+eProps = regionprops(eI,'Orientation','Centroid','ConvexHull');
+for i = 1:length(eProps)
+    cPoly = eProps(i).ConvexHull;
+    eIa(poly2mask(cPoly(:,1),cPoly(:,2),ys,xs)) = 1;
+end
+image(eIa*1000),pause(.1)
+colI(:,:,3) = fitH(eIa);
+colI(:,:,2) = fitH(I);
+colI(:,:,1) = fitH(tpI>0);
+image(colI),pause(.1)
+
+[lI oNum] = bwlabel(eIa>0,4); %%label objects
+%% select sections
+
+rProps = regionprops(lI,cI2,'Area','EulerNumber','Orientation',...
+    'WeightedCentroid','MeanIntensity','MajorAxisLength',...
+    'MinorAxisLength','Perimeter','Extent','Extrema','ConvexHull',...
+    'PixelIdxList','BoundingBox');
+
+minAx = [rProps.MinorAxisLength];
+majAx = [rProps.MajorAxisLength];
+
+[IDX,C,sumd,D] = kmeans(minAx,2);
+
+scatter(minAx(IDX == 1),majAx(IDX == 1),'.','r');
+hold on
+scatter(minAx(IDX == 2), majAx(IDX == 2),'.','b');
+hold off
+
+%%Remove small
+useK = find(IDX == find(C == min(C)));
+for i = 1: length(useK)
+    lI(lI == useK(i)) = 0;
+end
+
+colI(:,:,3) = fitH(lI>0);
+image(colI),pause(.1)
+
+[lI oNum] = bwlabel(lI>0,4);
+rProps = regionprops(lI,'Centroid','ConvexHull');
+
+centI = I*0;
+for i = 1:length(rProps)
+    centI(round(rProps(i).Centroid(2)),round(rProps(i).Centroid(1))) = 1;
+end
+
+centI = imdilate(centI,strel('disk',3));
+colI(:,:,2) = centI*1000;
+
+image(colI),pause(.01)
+
+
+
+toc

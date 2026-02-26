@@ -1,0 +1,62 @@
+
+%% Get file names
+'Mapping Data Set'
+%{
+DataIndex.Folder
+DataIndex.Name
+DataIndex.Skel
+DataIndex.Dots
+DataIndex.Ratio
+%}
+clear all
+DPN=uigetdir; %get directory containing all images
+DPN=[DPN '\'];
+d=dir(DPN); %make directory listing
+c=0;
+
+for i=3:size(d,1), if d(i).isdir
+     if exist([DPN d(i).name '\data'])
+        c=c+1;
+        DataIndex(c).Folder=DPN;
+        DataIndex(c).File=d(i).name;
+        DataIndex(c).Skel=exist([DPN d(i).name '\data\AllSeg.mat']);
+        DataIndex(c).Dot=exist([DPN d(i).name '\data\BigFilled.mat']);
+        DataIndex(c).Ratio=exist([DPN d(i).name '\data\DotStats.mat']);
+        
+        DataIndex(c).Mask=exist([DPN d(i).name '\data\mDotToMaskDist.mat']);
+        DataIndex(c).Draw=exist([DPN d(i).name '\images\Combo.tif']);
+     else
+         d2=dir([DPN d(i).name]); 
+         DPN2=[DPN d(i).name '\'];
+         for j=3:size(d2,1) if d2(j).isdir
+            if exist([DPN2 d2(j).name '\data'])
+                c=c+1;        
+                DataIndex(c).Folder=[DPN2 d2(j).name];
+                DataIndex(c).File=d2(j).name;
+                DataIndex(c).Skel=exist([DPN2 d2(j).name '\data\AllSeg.mat']);
+                DataIndex(c).Dot=exist([DPN2 d2(j).name '\data\BigFilled.mat']);
+                DataIndex(c).Ratio=exist([DPN2 d2(j).name '\data\DotStats.mat']);
+                DataIndex(c).Mask=exist([DPN2 d2(j).name '\images\mDotToMaskDist.mat']);
+                DataIndex(c).Draw=exist([DPN2 d2(j).name '\images\Combo.tif']);
+            end %if second directory
+         end,end %run all folders
+     end %if nothing in first level
+        
+end, end %run every folder in directory
+
+%if ~exist('DataIndex'), mkdir('DataIndex'), end
+%save(['DataIndex\DataIndex.mat'],'DataIndex')
+ 
+DIcell=squeeze(struct2cell(DataIndex))';
+DIcell(2:size(DIcell,1)+1,:)=DIcell;
+DIcell(1,1)=cellstr(DPN);
+DIcell(1,2)=cellstr('hi');
+DIcell(1,3)=cellstr('Skeleton');
+DIcell(1,4)=cellstr('Dot');
+DIcell(1,5)=cellstr('Ratio');
+DIcell(1,6)=cellstr('Mask');
+DIcell(1,7)=cellstr('Draw');
+
+
+'Done'
+

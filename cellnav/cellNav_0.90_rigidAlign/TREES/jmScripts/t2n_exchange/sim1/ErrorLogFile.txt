@@ -1,0 +1,4 @@
+Cannot find executable python3 or python
+LoadLibrary("../../lib_mech/nrnmech.dll") failed with error 5
+dlopen failed - 
+

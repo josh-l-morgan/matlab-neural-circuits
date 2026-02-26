@@ -1,0 +1,83 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="702616491" file="Y:\Active\morganLab\MATLAB\BrainSectionViewer\bufoBrainMap_MatReader.prj" location="Y:\Active\morganLab\MATLAB\BrainSectionViewer" name="bufoBrainMap_MatReader" target="target.mlapps" target-name="Package App">
+    <param.appname>bufoBrainMap_MatReader</param.appname>
+    <param.authnamewatermark>Josh Morgan</param.authnamewatermark>
+    <param.email>jlmorgan@wustl.edu</param.email>
+    <param.company />
+    <param.icon />
+    <param.icons />
+    <param.summary />
+    <param.description />
+    <param.screenshot>C:\Users\jlmorgan\AppData\Local\Temp\tp8bc38d9d_a8a1_447b_b9e0_4f38333ba23b.png</param.screenshot>
+    <param.version>0.8</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.output>${PROJECT_ROOT}</param.output>
+    <param.guid>cbf70ae5-f895-4bdd-8881-15f7176281fe</param.guid>
+    <unset>
+      <param.company />
+      <param.icon />
+      <param.icons />
+      <param.summary />
+      <param.description />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\bufoBrainMap_MatReader.mlapp</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\alignMatSectionsFunc.m</file>
+      <file>${PROJECT_ROOT}\autoAlignMaps.mlapp</file>
+      <file>${PROJECT_ROOT}\bufoBrainMaps_Instructions.mlapp</file>
+      <file>${PROJECT_ROOT}\imagePair.m</file>
+      <file>${PROJECT_ROOT}\makeMosaic.mlapp</file>
+      <file>${PROJECT_ROOT}\registerBrainSections.m</file>
+      <file>${PROJECT_ROOT}\reorderSectionsMap.mlapp</file>
+      <file>${PROJECT_ROOT}\SortImages.mlapp</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="Y:\Active\morganLab\MATLAB" name="BrainSectionViewer" optional="false">Y:\Active\morganLab\MATLAB\BrainSectionViewer</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>D:\Programs\Matlab</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

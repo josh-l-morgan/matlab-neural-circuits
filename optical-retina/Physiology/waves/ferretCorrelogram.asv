@@ -1,0 +1,70 @@
+%% USER-DEFINED INPUT
+%input cellOne and cellTwo: spike Times of two cells in s
+nChannels = 2;
+firstSpikeCellOne = min(cellOne);
+firstSpikeCellTwo = min(cellTwo);
+corrStart = min(firstSpikeCellOne, firstSpikeCellTwo);
+
+lastSpikeCellOne = max(cellOne);
+lastSpikeCellTwo = max(cellTwo);
+corrStop = max(lastSpikeCellOne, lastSpikeCellTwo);
+
+prompt = {'bin size (ms)', '# bins per average', 'correlation lag (ms)',...
+    'length of serial correlogram'};
+title = 'Cross-correlation';
+nLines = 1;
+defAns = {'50', '100', '1000', '2000'};
+answer = inputdlg(prompt,title,nLines,defAns);
+
+binSize = str2double(answer{1})/1000; %changes units to seconds
+nBinsPerAverage = str2double(answer{2}); %# of bins per averaging window
+correlationLag = str2double(answer{3})/str2double(answer{4});
+maxLag = ceil(str2double(answer{4}))/(binSize*1000);
+
+%% SPIKETRAIN TO LOGIC
+if rem((corrStop-corrStart)/binSize,...
+        round((corrStop-corrStart)/binSize)) == 0
+    binTrain = corrStart:binSize:corrStop;
+    a=2;
+else
+    nBins = ceil( (corrStop-corrStart)/binSize );
+    corrStop = corrStart + nBins * binSize;
+    binTrain = corrStart:binSize:corrStop;
+    nBins = length(binTrain);
+    a=4;
+end
+
+rateTrain = zeros(nBins-1, 2);
+averageTrain = zeros(nBins-1, 2);
+
+rateTrain(:,1) = spiketorate (cellOne, binTrain, binSize);
+rateTrain(:,2) = spiketorate (cellTwo, binTrain, binSize);
+averageTrain(:,1) = slidingwindowaverage (nBinsPerAverage, rateTrain(:,1));
+averageTrain(:,2) = slidingwindowaverage (nBinsPerAverage, rateTrain(:,2));
+
+%%
+normalizedTrain = rateTrain - averageTrain;
+[C, lags] = xcorr(normalizedTrain, maxLag, 'unbiased');
+[M, N] = size(C);
+normCorr = zeros(M,N);
+V = var(normalizedTrain);
+timeLine = lags * binSize;
+peakOffset = zeros(N,1);
+for i = 1:N
+    [p q] = ind2sub([nChannels nChannels],i);
+    normCorr(:,i) = C(:,i)./sqrt(V(p)*V(q));
+    peakOffset(i) = timeLine(normCorr(:,i) == max(normCorr(:,i)));
+end
+corrCoeffAtZero = (normCorr(maxLag+1,:));
+corrCoeffAtLag = mean(normCorr([round(maxLag*correlationLag)...
+    maxLag + round(maxLag*correlationLag)],:));
+
+rawC =  xcorr(rateTrain,maxLag,'unbiased');
+rawCorrAtZero = rawC(maxLag+1,:);
+rawCorrAtLag = mean(rawC([maxLag - round(maxLag*correlationLag)...
+    maxLag + round(maxLag*correlationLag)],:));
+burstPreference =...
+    (rawCorrAtZero - rawCorrAtLag)./(rawCorrAtZero + rawCorrAtLag);
+
+summary =...
+    ([corrCoeffAtZero(2), mean(corrCoeffAtLag(2:3)), burstPreference(2)]) %#ok<NOPTS>

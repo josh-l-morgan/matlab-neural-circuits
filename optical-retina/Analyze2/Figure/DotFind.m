@@ -1,0 +1,91 @@
+clear all
+colormap gray(100)
+fsize=30;
+cm=0;
+reps=10;
+for rep = 1:reps
+
+field=zeros(fsize);
+
+field(1,1:2:fsize)=100;
+field(1:2:fsize,1)=100;
+
+image(field)
+
+%% Make rand
+Thresh=.5;
+Rfield=rand(fsize);
+image(Rfield*100)
+
+Ffield=imfilter(Rfield,fspecial('gaussian',10,3));
+Tfield=Ffield>Thresh;
+image(Tfield*100)
+
+Lfield=bwlabel(Tfield);
+for i = 1: max(Lfield(:))
+   Siz(i)=sum(sum(Lfield==i)); 
+end
+Targ=find(Siz==max(Siz),1);
+Ofield=Lfield==Targ;
+image(Ofield*100)
+
+
+
+%% 
+
+[Oy Ox] = find(Ofield);
+cent=mean([Oy Ox],1);
+Dist=sqrt((cent(1)-Oy).^2+(cent(2)-Ox).^2);
+Targ=find(Dist==max(Dist),1);
+
+Seed=[Oy(Targ) Ox(Targ)];
+
+%% 
+
+Iscale=10;
+Start=Seed;
+Use=ones(size(Oy,1),1);
+Use(Targ)=0;
+Skel=imresize(Ofield,Iscale)*0;
+Oshow=imresize(Ofield,Iscale,'nearest');
+while sum(Use)
+    Next=[];
+    for i = 1: size(Start,1)
+        Dist=sqrt((Start(i,1)-Oy).^2 + (Start(i,2)-Ox).^2);
+        Wave=Dist<2;
+        Wave=Wave & Use;
+        Use(Wave)=0;
+        Next=[Next; Oy(Wave) Ox(Wave)];
+    end
+    Start=Next;
+    
+    Wfield=zeros(fsize);
+    for n = 1:size(Next,1)
+        Wfield(Next(n,1),Next(n,2))=1;
+    end
+    
+    %% Plot means
+    Lwave=bwlabel(Wfield);
+    for w = 1: max(Lwave(:))
+       [wx wy] = find(Lwave==w);
+       mW=mean([wx wy],1);
+       Skel(fix(mW(1)*Iscale)+1,fix(mW(2)*Iscale)+1)=1;
+    end
+    Skel2=imfilter(Skel,fspecial('gaussian',10,5))*500;
+    
+    Wshow=imresize(Wfield,Iscale,'nearest');
+    Cshow=uint8(Oshow*100);
+    Cshow(:,:,2)=Wshow*100;
+    Cshow(:,:,3)=Skel2*100;
+    image(Cshow);pause(.1)
+    cm=cm+1;
+    %cMov(:,:,:,cm)=Cshow;
+end
+
+end
+
+% mMov=immovie(cMov)
+% movie(mMov)
+% movie2avi(mMov,'.\mMov8','keyframe',2,'fps',10,'quality',100,'compression','Indeo3')
+% 
+

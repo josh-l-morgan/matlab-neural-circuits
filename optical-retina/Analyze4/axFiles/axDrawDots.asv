@@ -1,0 +1,92 @@
+function[]=axDrawDots(TPN,DPN,xyum,zum)
+%% Apply Mask to Data
+%%Recieves mask in the form of 0=exterior, 1=dend (to which dots are
+%%related), 2=crap (from which sements are removed)
+
+% for running as script uncomment below
+
+% TPN = GetMyDir;
+% DPN=[TPN 'I\'];
+% xyum = 0.0412;
+% zum = 0.3;
+
+
+colormap gray(255)
+
+%Get directory name
+%DPN=GetMyDir
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+%% Load Dots and Dendrites
+load([TPN 'data\Dots.mat'])
+load([TPN 'skelDim'])
+yxum=xyum;
+skelRes = .1;
+DotPos=Dots.Pos;
+DotPos(:,1:2)=DotPos(:,1:2)*yxum/skelRes;
+DotPos(:,3)=DotPos(:,3)*zum/skelRes;
+
+
+%% Draw Dot and Dend
+'Drawing Dots'
+
+DDm=uint8(zeros(skelDim));
+
+
+%%Draw Dots
+for i=1:Dots.Num
+        DDm(round(DotPos(i,1))+1,round(DotPos(i,2))+1,round(DotPos(i,3))+1)=1;
+end
+
+
+colormap gray
+% image(max(DDm,[],3)*30)
+imwriteNp(TPN,DDm,'DDm')
+
+
+
+clear DotPos DDm p node in
+
+%% select Dots base on 
+clf
+p = [Dots.DFOfTopHalf' Dots.Contrast'];
+scatter(Dots.DFOfTopHalf, Dots.Contrast,'b')
+v = axis;
+v(2) = v(2) + v(2)/10;
+v(4) 
+node = ginput;
+node(size(node,1)+1,:) = node(1,:);
+in = inpoly(p,node);
+[DotSelect] = axDotSelect(TPN,Dots,in,zum);
+hold on
+scatter(DotSelect.DFOfTopHalf, DotSelect.Contrast,'g')
+
+%% repeat drawing for selected dots
+DotPos=DotSelect.Pos;
+DotPos(:,1:2)=DotPos(:,1:2)*yxum/skelRes;
+DotPos(:,3)=DotPos(:,3)*zum/skelRes;
+
+
+%% Draw Dot and Dend
+'Drawing Dots'
+
+DDs=uint8(zeros(skelDim));
+
+%%Draw Dots
+for i=1:DotSelect.Num
+        DDs(round(DotPos(i,1))+1,round(DotPos(i,2))+1,round(DotPos(i,3))+1)=1;
+end
+
+
+colormap gray
+% image(max(DDs,[],3)*30)
+imwriteNp(TPN,DDs,'DDs')
+
+
+
+clear Dots DotSelect DotPos DDs
+
+

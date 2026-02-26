@@ -1,0 +1,81 @@
+
+clear all
+load(['UseCells.mat'])
+
+NumCells=size(UseCells,1);
+for k = 1: NumCells
+   TPN=char(UseCells(k)); 
+   load([TPN 'CA.mat']) 
+   Territory=CA.Arbor(1).Territory;
+   
+   load([TPN 'Use.mat'])
+   DPos=Use.DPos;
+   
+   load([TPN 'data\AllSegCut.mat'])
+   Mids=mean(AllSegCut,3);
+   
+   
+   clear DepthDev
+   'Find dots over Area'
+   [y x] = find(Territory);
+   NumDots=zeros(size(y,1),1);
+   SDevDots=NumDots;
+   for i = 1: size(y,1)
+      Dist=sqrt((DPos(:,1)-y(i)).^2 + (DPos(:,2)-x(i)).^2);
+      Near=Dist<10;
+      Nears=DPos(Near,:);
+      NumDots(i)=size(Nears,1);
+      SDevsDots(i)=std(Nears(:,3));
+   end
+   
+   'Find mids over area'
+   NumMids=zeros(size(y,1),1);
+   SDevsMids=NumMids;
+   for i = 1: size(y,1)
+      Dist=sqrt((Mids(:,1)-y(i)).^2 + (Mids(:,2)-x(i)).^2);
+      Near=Dist<10;
+      Nears=Mids(Near,:);
+      NumMids(i)=size(Nears,1);
+      SDevsMids(i)=std(Nears(:,3));
+   end
+     
+   OKs=(NumDots>10) & (NumMids > 40);
+   DepthDev.DotsA=mean(SDevsDots(OKs));
+   DepthDev.DendA=mean(SDevsMids(OKs));
+   DepthDev;
+   
+   
+   
+   'Find Each Dot'
+   %Run from Dot perspective
+   NumDots=zeros(size(DPos,1),1);
+   DtoDots=NumDots;
+   for i = 1:size(DPos,1) 
+      Dist=sqrt((DPos(:,1)-DPos(i,1)).^2 + (DPos(:,2)-DPos(i,2)).^2);
+      Near=Dist<10;
+      Nears=DPos(Near,:);
+      NumDots(i)=size(Nears,1);
+      meanDepth=mean(Nears(:,3));
+      DtoDots(i)=abs(meanDepth-DPos(i,3));
+   end
+     
+   'Find Each Mid'
+      %Run from Dot perspective
+   NumMids=zeros(size(Mids,1),1);
+   DtoMids=NumMids;
+   for i = 1:size(Mids,1)
+      Dist=sqrt((Mids(:,1)-Mids(i,1)).^2 + (Mids(:,2)-Mids(i,2)).^2);
+      Near=Dist<10;
+      Nears=Mids(Near,:);
+      NumMids(i)=size(Nears,1);
+      meanDepth=mean(Mids(:,3));
+      DtoMids(i)=abs(meanDepth-Mids(i,3));
+   end
+
+
+   DepthDev.DtoDots=mean(DtoDots(NumDots>10));
+   DepthDev.DtoMids=mean(DtoMids(NumMids>40));
+   save([TPN 'data\DepthDev.mat'])
+   DepthDev    
+       
+end

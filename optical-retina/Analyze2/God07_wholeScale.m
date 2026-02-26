@@ -1,0 +1,354 @@
+clear all
+load('UseCells.mat')
+
+yxum=0.103;
+zum=0.3;
+
+c=0;
+
+clear Age mDtA mDdA mDDA Devs meanDDs HistDC
+
+
+NumCells=size(UseCells,1);
+Age=zeros(NumCells,1);
+mDtA=Age; mDdA=Age; mDDA=Age;
+NumNorm=Age; DevsDD=Age; meanDDs=Age;
+HistDC=zeros(NumCells,8);
+DtoDots=Age; ONs=Age; OFFs=Age; Others=Age; BIs=Age;
+Type=cell(NumCells,1);
+
+
+
+for k = 1:NumCells
+     TPN = char(UseCells(k,:)); 
+     
+    if exist([TPN 'CASc.mat'])
+        c=c+1;
+        
+        load([TPN 'Cell.mat'])        
+        
+        Name(c)={Cell.Name};
+        Age(c)=str2num(Cell.Age);
+        Type{c}=Cell.Type;
+        
+                  %% read Cell type and mark appropriate matrix
+    switch Cell.Type
+        case 'ON'
+            ONs(c)=1;
+        case 'OFF'
+            OFFs(c)=1;
+        case 'BI'
+            BIs(c)=1;
+        case 'Other'
+            Others(c)=1;
+        otherwise
+            Unknowns(c)=1;
+    end %End Cell type switch
+        
+        
+       
+        load([TPN 'CASc.mat'])
+        Area(c)=CA.Area;
+        mDtA(c)=CA.mDtA;
+        mDdA(c)=CA.mDdA;
+        mDDA(c)=CA.mDDA;    
+        
+       load([TPN 'BranchS.mat'])
+       UseBranch=Branch.Length<(Branch.Info.CutBranch+(Branch.Info.CutBranch/10));
+       NumNorm(c)=sum(Branch.DotCount(UseBranch)==1)/sum(UseBranch);
+       HistDC(c,:)=hist(Branch.DotCount(UseBranch),0:1:7)/sum(UseBranch);
+       DevsDD(c)=std(Branch.DD(UseBranch));
+       meanDDs(c)=mean(Branch.DD(UseBranch));
+       meanNonZeDDs(c)=mean(Branch.DD(UseBranch & Branch.DotCount>0));
+       
+       load([TPN 'Branch.mat'])
+       UseBranch=Branch.Length<(5+(5/10));
+       absHistDC(c,:)=hist(Branch.DotCount(UseBranch),0:1:7)/sum(UseBranch);
+       absMeanDCPos(c)=mean(Branch.DotCount(UseBranch & (Branch.DotCount>0)));
+       
+       
+       load([TPN 'data\DepthDevNoCBmedianSc.mat'])
+       DtoDots(c)=DepthDev.DtoDots;
+       DtoMids(c)=DepthDev.DtoMids;
+       HalfDots(c)=DepthDev.HalfDots;
+       HalfMids(c)=DepthDev.HalfMids;
+       clear DepthDev
+       
+       load([TPN 'GradASc'])
+       %load([TPN 'GradI'])
+       GradV(c)=Grad.Vect;
+       IDD(c)=Grad.IDD;
+       RDD(c)=Grad.RDD;
+       ODD(c)=Grad.ODD;
+       Rdot(c)=Grad.Idot/Grad.Odot;
+       Rdend(c)=Grad.Idend/Grad.Odend;
+       Idot(c)=Grad.Idot;
+       Odot(c)=Grad.Odot;
+       Idend(c)=Grad.Idend;
+       Odend(c)=Grad.Odend;
+       Outer(c)=Grad.Outer;
+       load([TPN 'GradA'])
+       dDD(c)=Grad.dDD;
+       dDot(c)=Grad.dDot;
+       dDend(c)=Grad.dDend;
+       I2O(c)=Grad.I2O;
+       
+       
+       Rad(c)=Grad.Outer;
+       
+       load([TPN 'Near'])
+       NearA(c,1)=Near.medA;
+       NearV(c,1)=Near.medV;
+             
+       clear Grad
+       
+       load([TPN 'UseSc.mat'])
+       DotNum(c)=size(Use.DPos,1);
+       TotLength(c)=sum(Use.Length);
+       
+       load([TPN 'Neighbors.mat'])
+       NNdpos(c)=Neighbors.med.DPos;
+       NNnn(c)=Neighbors.med.NN;
+       NNrand(c)=Neighbors.med.Rand;
+       NNepos(c)=Neighbors.med.EPos;
+       NNR(c)=NNnn(c)/NNrand(c);
+       
+       
+    end
+    k
+end
+ONs=ONs>0; OFFs=OFFs>0; BIs=BIs>0; Others=Others>0;
+Age(Age>30)=35;
+Mono=ONs | OFFs | (Age==5);
+
+
+%% Scale by Resolution
+load('Res.mat')
+OldRad=Rad;
+Rad=Rad.*Res(:,2)'/0.103;
+
+
+%% Raw Scale by area
+DdOA=TotLength./Area;
+DtOA=DotNum./Area;
+DD=DotNum./TotLength;
+
+PlotAges(Age(Mono),DdOA(Mono))
+PlotAges(Age(Mono),DtOA(Mono))
+PlotAges(Age(Mono),DD(Mono))
+
+
+%% Gradients
+PlotAges(Age(Mono),Rdend(Mono))
+PlotAges(Age(Mono),Rdot(Mono))
+PlotAges(Age(Mono),RDD(Mono))
+
+
+CompareAges(Age(Mono),DdOA(Mono),Age(BIs),DdOA(BIs)/2)
+
+%% Stratification
+CompareAges(Age(Mono),DtoMids(Mono),Age(Mono),DtoDots(Mono));
+PlotAges(Age(Mono),DtoMids(Mono)'-DtoDots(Mono))
+dTo=(DtoMids'-DtoDots)./(DtoMids'+DtoDots);
+PlotAges(Age(Mono),dTo(Mono))
+CompareAges(Age(Mono),HalfMids(Mono),Age(Mono),HalfDots(Mono));
+
+
+%% Plot Gradients
+dDDa=dDD./I2O;
+dDota=dDot./I2O;
+dDenda=dDend./I2O;
+PlotAges(Age,dDDa*100+1)
+PlotAges(Age(Mono),dDD(Mono)+1)
+CompareAges(Age(Mono),dDD(Mono)+1,Age(BIs),dDD(BIs)+1)
+
+
+
+
+%% Plot increase in density over area with age
+
+
+PlotAges(Age,mDtA);
+pause(.3)
+PlotAges(Age,mDdA);
+pause(.3)
+PlotAges(Age,mDDA);
+
+%jmboot(mDtA(Age==12),mDtA(Age==35))
+
+
+PlotAges(Age,meanDDs)
+PlotAges(Age,DevsDD)
+
+%%corrolate density with 
+scatter(mDdA(Age==7),mDDA(Age==7))
+scatter(mDdA(Age>30),mDDA(Age>30))
+
+%% Show Dots per length scaled
+for i = 1:size(HistDC,2),
+    i
+    PlotAges(Age,HistDC(:,i))
+    hold on
+end
+hold off
+
+
+%%Says it all given DD = Proportion with dots * density with dots
+PlotAges(Age,meanNonZeDDs)
+PlotAges(Age,sum(HistDC(:,2:8),2))
+
+CompareAges(Age(Mono),meanNonZeDDs(Mono),Age(BIs),meanNonZeDDs(BIs))
+CompareAges(Age(Mono),sum(HistDC(Mono,2:8),2),Age(BIs),sum(HistDC(BIs,2:8),2))
+
+PlotAges(Age,sum(HistDC(:,1),2))
+PlotAges(Age,absHistDC(:,1))
+%%Plot mean after removing zeros
+PlotAges(Age,absMeanDCPos)
+%%Plot Greater then 1 over 1
+Greater=sum(HistDC(:,3:8),2)./HistDC(:,2);
+PlotAges(Age,Greater)
+PlotAges(Age,HistDC(:,3))
+
+
+%% Stratification as standard deviation from local mean
+
+%  PlotAges(Age(Mono),DendA(Mono))
+%  PlotAges(Age(Mono),DotsA(Mono))
+ PlotAges(Age(Mono),DtoMids(Mono))
+ PlotAges(Age(Mono),DtoDots(Mono))
+ PlotAges(Age,DtoDots)
+ 
+ 
+ CompareAges(Age(Mono),DendA(Mono),Age(BIs),DendA(BIs))
+ CompareAges(Age(Mono),DotsA(Mono),Age(BIs),DotsA(BIs))
+ CompareAges(Age(Mono),DendA(Mono),Age(Mono),DotsA(Mono));
+ 
+ CompareAges(Age(Mono),DtoMids(Mono),Age(BIs),DtoMids(BIs))
+ CompareAges(Age(Mono),DtoDots(Mono),Age(BIs),DtoDots(BIs))
+ CompareAges(Age(Mono),DtoMids(Mono),Age(Mono),DtoDots(Mono));
+ 
+ %jmboot(DtoDots(Mono),DtoDots(BIs))
+ 
+%% Plot Gradients
+PlotAges(Age,GradV)
+PlotAges(Age,RDD)
+PlotAges(Age,IDD)
+PlotAges(Age,ODD)
+PlotAges(Age,Rdot)
+PlotAges(Age,Rdend)
+
+scatter(Age(OFFs),RDD(OFFs),'r')
+
+CompareAges(Age(OFFs),RDD(OFFs),Age(BIs ),RDD(BIs))
+
+%[P R]=jmboot(RDD(Mono),RDD(BIs))
+
+scatter(Rdend,RDD)
+scatter(Rdend(Age>10),RDD(Age>10))
+
+[R P]=corrcoef(Rdend,RDD)
+
+
+%% Radius
+PlotAges(Age,Rad)
+
+%% Nearest Neighbor
+PlotAges(Age,NearA)
+PlotAges(Age,NearV)
+PlotAges(Age(Mono),NearA(Mono))
+PlotAges(Age(Mono),NearV(Mono))
+
+PlotAges(Age,NNdpos)
+PlotAges(Age,NNnn)
+PlotAges(Age,NNrand)
+PlotAges(Age,NNepos)
+PlotAges(Age,NNnn./NNepos)
+PlotAges(Age,NNnn./NNrand)
+%ylim([0 1])
+
+
+%% Dot Number
+
+
+%% Make Table
+
+%%Table of mDdA mDtA DD   dDend dDot dDD   Age
+
+CellNum=size(mDdA,1);
+TabL=zeros(CellNum,7);
+TabL(:,1)=mDdA;
+TabL(:,2)=mDtA;
+TabL(:,3)=DD;
+TabL(:,4)=dDend;
+TabL(:,5)=dDot;
+TabL(:,6)=dDD;
+TabL(:,7)=Age;
+
+%%Find Ages
+if size(Age,2)>1; Age=Age';end %make Age a column
+Ages=[];
+for i = 1:size(Age,1)
+    if isempty(find(Ages==Age(i)))
+        Ages=[Ages;Age(i)];
+    end
+end
+Ages=sort(Ages);
+
+TabLs=[];
+for i = 1: size(Ages,1)
+   TabLs=[TabLs;TabL(Age==Ages(i),:)]; 
+end
+
+Vars=['D/A','P/A','D/P','D/A Grad','P/A Grad','D/P Grad'];
+
+TabLR=cell(CellNum+1,7);
+TabLR(1,:)={Vars};
+TabLR(2:CellNum+1,:)={TabLs};
+
+[M E]=PlotAge(Age(Mono),mDdA(Mono))
+[M E]=PlotAge(Age,Data)
+
+
+
+%% Make Table BIs
+
+%%Table of mDdA mDtA DD   dDend dDot dDD   Age
+
+CellNum=size(mDdA(BIs),1);
+TabL=cell(CellNum,8);
+TabL(:,1)=num2cell(mDdA(BIs));
+TabL(:,2)=num2cell(mDtA(BIs));
+TabL(:,3)=num2cell(DD(BIs));
+TabL(:,4)=num2cell(dDend(BIs));
+TabL(:,5)=num2cell(dDot(BIs));
+TabL(:,6)=num2cell(dDD(BIs));
+TabL(:,7)=num2cell(Age(BIs));
+TabL(:,8)=num2cell(Name(BIs));
+
+%%Find Ages
+if size(Age,2)>1; Age=Age';end %make Age a column
+Ages=[];
+for i = 1:size(Age,1)
+    if isempty(find(Ages==Age(i)))
+        Ages=[Ages;Age(i)];
+    end
+end
+Ages=sort(Ages);
+
+TabLs=[];
+for i = 1: size(Ages,1)
+   TabLs=[TabLs;TabL(Age(BIs)==Ages(i),:)]; 
+end
+
+Vars=['D/A','P/A','D/P','D/A Grad','P/A Grad','D/P Grad'];
+
+
+
+
+
+
+
+
+
+
+

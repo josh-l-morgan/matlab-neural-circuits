@@ -1,0 +1,5 @@
+function[Str] = num2strCell(Num)
+
+for i = length(Num)
+    Str{i}=num2str(Num)
+end

@@ -1,0 +1,12 @@
+
+TPN = 'D:\LGNs1\Segmentation\VAST\S4\joshm\export\export_16+05+10_microALin125\';
+
+textDir = dir([TPN '*.txt']);
+    TFN = textDir(1).name;
+    
+fileName = [TPN TFN];
+end
+
+
+obI.colStruc = readVastColors(fileName);
+obI.nameProps = getNameProps(obI.colStruc.names);

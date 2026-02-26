@@ -1,0 +1,86 @@
+function[nep] = edges2predFix(nep)
+%%generate list of upstream nodes relative to a seed point using an edge
+%% add group list and multiple seeds if skeleton is not fully connected
+%%list
+
+edges = nep.edges;
+seed = nep.seedNode;
+pos = nep.pos;
+
+fresh = ones(size(edges,1),1); % define edges as unused
+uN = unique(edges(:));
+pred = uN * 0;
+
+histN = hist(edges(:),uN);
+tips = uN(histN==1);
+
+starters = [seed; setdiff(tips,seed)];
+group = uN * 0;
+c = 0;
+loopHits = [];
+for s = 1:length(starters)
+    oldN = starters(s);
+    if ~group(oldN)
+        
+        c = c+1;
+        newSeeds(c) = oldN;
+        group(oldN) = c;
+        pred(oldN) = oldN;
+        
+        while ~isempty(oldN)
+            newN = [];
+            hits = [];
+            for n = 1:length(oldN)
+                is1 = (edges(:,1)== oldN(n)) & (fresh);
+                is2 = (edges(:,2) == oldN(n)) & (fresh);
+                fresh(is1) = 0;
+                fresh(is2) = 0;
+                hit = cat(1,edges(is1,2),edges(is2,1));
+                hits = cat(1,hits,hit);
+                newN = cat(1,newN,hit);
+                
+                prevPred = pred(hit);
+                if sum(prevPred)
+                   loopHits = [loopHits;hit];
+                end
+                
+                if 0
+                
+                colMap = jet(200);
+                prop = group+1;
+                distInd = round(prop * 200/max(prop(:)));
+                distInd(distInd<1) = 1;
+                distInd(distInd>200) = 200;
+                distCol = colMap(distInd,:);
+                try sP.delete;end
+                try sL.delete;end
+                sP = scatter3(pos(:,1),pos(:,2),pos(:,3),'.');
+                hold on
+                sL = scatter3(pos(loopHits,1),pos(loopHits,2),pos(loopHits,3),100,'o');
+                sP.CData = distCol;
+                drawnow
+                
+                
+                
+            end
+                
+                
+                
+                pred(hit) = oldN(n);
+                group(hit) = c;
+            end
+            oldN = newN;
+            
+            
+        end
+        
+        
+    end
+end
+loopHits = unique(loopHits);
+
+nep.pred = pred;
+nep.group = group;
+nep.seeds = newSeeds;
+nep.loopHits = loopHits;
+

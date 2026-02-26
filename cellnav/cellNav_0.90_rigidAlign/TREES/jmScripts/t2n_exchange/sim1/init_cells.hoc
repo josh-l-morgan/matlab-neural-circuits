@@ -1,0 +1,20 @@
+
+
+// ***** Load cell morphology templates and create artificial cells *****
+io = xopen("../../morphos/hocs/cell_cid2.hoc")
+cell = new cell_cid2()
+io = cellList.append(cell)
+io = xopen("../../morphos/hocs/cell_NetStim.hoc")
+cell = new cell_NetStim()
+cell.cell.interval = 15
+cell.cell.number = 1
+cell.cell.start = 5
+io = cellList.append(cell)
+cell = new cell_NetStim()
+cell.cell.interval = 15
+cell.cell.number = 1
+cell.cell.start = 5
+io = cellList.append(cell)
+objref cell
+
+

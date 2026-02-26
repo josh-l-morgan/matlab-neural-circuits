@@ -1,0 +1,212 @@
+clear all
+
+%%Get directory with image folders
+disp('getting folders')
+subFolders = findFolders;
+disp('got folders')
+%% Get root
+rootD = subFolders{1};
+%mkdir([rootD '\imageIndex'])
+
+%%Find image folders
+ImageFolders={}; CellFolders = {};
+ImageDir = ImageFolders;
+for i = 1:length(subFolders)
+    Name=subFolders{i};
+    slashes = find(Name == '\');
+    lastFold = Name(slashes(length(slashes))+1:length(Name));
+    cellFold = Name(1:slashes(length(slashes)));
+    if strcmp(lastFold(1:min(7,length(lastFold))),'bipMask')
+            ImageFolders = [ImageFolders ; [Name '\']];
+            CellFolders = [CellFolders ; cellFold];
+            ImageDir=[ImageDir ;{Name(1:length(Name)-length(lastFold))}];
+    end
+end
+
+%% run all images
+totSurf = 0; numAppo = 0;
+TotalImages=length(ImageFolders)
+celldat = {};
+mismatch = {}; % record mismatchd image stacks
+for allI = 1:TotalImages
+    sprintf('Matching bipolar %.0f of %.0f.',allI,TotalImages)
+    TPN = ImageFolders{allI};
+    rgcPN = [CellFolders{allI} 'rgcMask/'];
+   if exist(rgcPN,'dir')
+       
+        %% Read image in TPN
+        TPNd = dir(TPN); TPNd = TPNd(3:length(TPNd));
+        TiffNames={};
+        for i = 1: size(TPNd,1)
+            siz=length(TPNd(i).name);
+            if TPNd(i).name(siz-2:siz)== 'tif'
+                if TPNd(i).name(siz-8:siz-7)~='-R'
+                    TiffNames(length(TiffNames)+1,1)={TPNd(i).name};
+                end
+            end
+        end
+
+        clear I
+        for i = length(TiffNames):-1:1
+            I(:,:,i) = sum(imread([TPN TiffNames{i}]),3);
+        end
+        I = double(I);
+        [ys xs zs] = size(I);
+        maxI= sum(I,3)*30;
+        %image(maxI),pause(.01)
+        
+        %% Read images in rgcTPN
+        TPNd = dir(rgcPN); TPNd = TPNd(3:length(TPNd));
+        TiffNames={};
+        for i = 1: size(TPNd,1)
+            siz=length(TPNd(i).name);
+            if TPNd(i).name(siz-2:siz)== 'tif'
+                if TPNd(i).name(siz-8:siz-7)~='-R'
+                    TiffNames(length(TiffNames)+1,1)={TPNd(i).name};
+                end
+            end
+        end
+
+        clear rgc
+        for i = length(TiffNames):-1:1
+            rgc(:,:,i) = sum(imread([rgcPN TiffNames{i}]),3);
+        end
+        rgc = double(rgc);
+        [ys xs zs] = size(rgc);
+        maxRgc= sum(rgc,3)*30;
+        %image(maxRgc),pause(.01)
+        
+        if sum(~(size(rgc) == size(I)))
+            mismatch = {mismatch{:} TPN};
+        else
+        clear colI
+        colI(:,:,1) = maxI;
+        colI(:,:,3) = maxRgc;
+        colI(:,:,2) = sum(I .* rgc,3) * 1000;
+
+
+
+        %% analyze overlap
+        
+        rgcS = smooth3(rgc,'box',[3,3,1]);%,'gaussian',[5 5 3]);
+        rgcP = bwperim(rgcS>.3,26);
+        %% find number of overlaps
+        [overlap aNs] = bwlabeln(I & rgcP);
+        %image(max(overlap,[],3)*10),pause(.1)
+        
+        
+        %% appomorph
+        minAppSize = 50;  % define minimum apposition size
+        realApp = I * 0;
+        clear appSize
+        for o = 1: aNs
+           appPos = find(overlap == o);
+            appSize(o) = length(appPos); 
+           if appSize(o) > minAppSize
+            realApp(appPos) = 1;
+           end
+        end
+        sumAppI = sum(realApp,3);
+        image(uint8(colI)),pause(1)
+        colI(:,:,2) = sumAppI * 150/double(max([1 min(sumAppI(sumAppI>0))]));
+        image(uint8(colI)),pause(1)
+        imwrite(uint8(colI),[CellFolders{allI} 'appo.tif'],'compression','none');
+        allImages{allI} = colI;
+        
+        
+        totSurf = sum(realApp(:));
+        if exist('appSize','var')
+            numAppo = sum(appSize>minAppSize);
+        else
+            numAppo = 0;
+        end
+        
+        celldat(allI,:) = {ImageFolders{allI}, totSurf, numAppo};
+        pause(.01)
+       end
+    end %if there is an RGC mask
+end
+
+
+
+%% Sort Data
+
+[num txt dat] = xlsread('\\Wongraid2\wonglab\JoshDaniel\FixedCon.xls','TomA');
+%File	experiment date	Age	Retina	RGC	Bipolar	ID	description	Masked	to CB	CB rad	to center	center rad	bip class	rgc class	rgc depth	syn 	skeleton	use	notes											
+colStrings = dat(1,:);
+colFile = find(strcmp('File',colStrings));
+colRet = find(strcmp('Retina',colStrings));
+colRGC = find(strcmp('RGC',colStrings));
+colBipolar = find(strcmp('Bipolar',colStrings));
+colID = find(strcmp('ID',colStrings));
+colList = [colFile colRet colRGC colBipolar colID];
+
+
+cellPos = zeros(size(celldat,1),1);
+for cD = 1: size(celldat,1)
+    if ~isempty(celldat{cD,1})
+    clear namF
+    %% break up name
+    nam= celldat{cD,1}
+    slashes = find(nam=='\');
+    L = length(slashes);    
+    namF{4} = nam(slashes(L-2)+1:slashes(L-1)-1);
+    namF{3} = nam(slashes(L-3)+1:slashes(L-2)-1);
+    namF{2} = nam(slashes(L-4)+1:slashes(L-3)-1);
+    namF{1} = lower(nam(slashes(L-5)+1:slashes(L-4)-1));
+    namID = nam(slashes(L-1)+1:length(nam)-1);
+    
+    dash = find(namID =='_',1);
+    if ~isempty(dash)
+        namF{5} = lower(char(namID(dash+1:length(namID))));
+    end
+    for nf = 2:4
+        n = lower(namF{nf});
+        dash = find(n == '_',1);
+        if isempty(dash)
+            namF{nf} = n;
+        else
+            namF{nf} = n(1:find(n=='_',1)-1);
+        end
+    end
+    
+    %% search for name
+    level = 1; i = 1;
+    while i < size(dat,1)     
+        compTo = lower(dat{i,colList(level)});
+        compTo = num2str(compTo);
+%         namF{level}
+%         compTo
+%         pause
+        if strcmp(compTo,namF{level})
+            level = level+1
+            if level>length(namF)
+                cellPos(cD) = i;
+                break
+            end
+        else
+            i = i + 1;
+        end
+    end
+    
+    end
+end
+
+celldat{~cellPos,1}
+
+%%Make list
+for i = 1: length(cellPos)
+    if cellPos(i)
+        sortedDat(cellPos(i),:) = celldat(i,:);
+    end
+end
+
+%% Write Images
+
+imwrite(uint8(colI),[CellFolders{allI} 'appo.tif'],'compression','none');
+        allImages{allI} = colI;
+
+
+
+
+

@@ -1,0 +1,28 @@
+function[rated, fails,thresh] = findThresh(mosA,qualVals)
+%% Utilize user input
+
+rat = find(qualVals);
+cols = ['r' 'g' 'b' 'c' 'm' 'k'];
+ratVals = qualVals(rat);
+if ~isempty(ratVals)
+for i = 1:size(mosA,4)
+
+   sampMos = mosA(:,:,:,i); 
+   mosVals = sampMos(rat);
+   %scatter(ratVals,mosVals,cols(i))
+   hold on
+   thresh(i) = max(mosVals(ratVals<=2));
+    
+end
+hold off
+else
+    thresh = [0 0 0 ];
+end
+for s = 1:size(mosA,3)
+
+    [faily failx] = find(mosA(:,:,s,1)<= thresh(1));
+    fails{s} = [faily failx];
+    [ratedy ratedx] = find(qualVals(:,:,s)>0);
+    rated{s} = [ratedy ratedx];
+end
+

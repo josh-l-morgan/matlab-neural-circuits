@@ -1,0 +1,349 @@
+function param=pipeline_computerigidmatrices(param)
+%Computes absolute and relative rigid transformation matrices for all slices
+%For use with the pipeline
+%By Daniel Berger for MIT-BCS Seung, June 5th 2009
+
+lparam=param.computerigidmatrices;
+
+if (param.nrofrows==1)&&(param.nrofcolumns==1)
+%   if (lparam.checkwithinslicetilealignment==1) || (param.checkbetweenslicetilealignment==1) 
+%     %This only works if there are at least 2 rows and 2 columns
+%     disp('WARNING: Tile alignment verification is not possible if there is only one tile per slice.');
+%   end;
+  
+  if lparam.userelative==1 %use relative rotation and translation estimates
+    reltransx=param.refinerelrot.transxarr2;
+    reltransy=param.refinerelrot.transyarr2;
+    relrot=-param.refinerelrot.rotarr2;
+  else %use absolute rotation and translation estimates
+    reltransx=param.abstransbetweenslices.transx;
+    reltransy=param.abstransbetweenslices.transy;
+    relrot=-param.absrotang;
+    %differentiate absolute angles
+    relrot=relrot(2:end)-relrot(1:end-1); relrot=[0; relrot];
+  end;
+
+  absrigidmatrix=zeros(param.nrofslices,3,3);
+  relrigidmatrix=zeros(param.nrofslices,3,3);
+  %compute rigid-transformation-matrices for all tiles
+  crmatrix=[[1 0 0];[0 1 0];[0 0 1]];
+  for slice=1:1:param.nrofslices
+    rot=relrot(slice)*pi/180;
+    tx=reltransx(slice)+1; ty=reltransy(slice)+1; %!!!!!!! +1 added!
+    %tx2=cos(rot)*tx-sin(rot)*ty; ty2=sin(rot)*tx+cos(rot)*ty; %!!!
+    rmatrix=[[cos(rot) -sin(rot) tx]; [sin(rot) cos(rot) ty]; [0 0 1]]; %!!!
+    relrigidmatrix(slice,:,:)=rmatrix;
+    %crmatrix=rmatrix*crmatrix;
+    crmatrix=crmatrix*rmatrix;
+    absrigidmatrix(slice,:,:)=crmatrix;
+  end;
+  
+  param.rigid.relrot=zeros(size(relrot,1),1,1); 
+  param.rigid.relrot(:,1,1)=relrot;
+  param.rigid.reltransx=zeros(size(reltransx,1),1,1); 
+  param.rigid.reltransx(:,1,1)=reltransx;
+  param.rigid.reltransy=zeros(size(reltransy,1),1,1); 
+  param.rigid.reltransy(:,1,1)=reltransy;
+  param.rigid.relrigidmatrix=zeros(size(relrigidmatrix,1),1,1,3,3); 
+  param.rigid.relrigidmatrix(:,1,1,:,:)=relrigidmatrix;
+  param.rigid.absrigidmatrix=zeros(size(absrigidmatrix,1),1,1,3,3); 
+  param.rigid.absrigidmatrix(:,1,1,:,:)=absrigidmatrix;
+else
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %more than one row/column
+  %This uses methods taken from buildrigidalignmentgrid.m for robustness in case of nonoverlapping tiles
+  if lparam.userelative==1 %use relative rotation and translation estimates
+    reltransx=param.refinerelrot.transxarr2;
+    reltransy=param.refinerelrot.transyarr2;
+    relrot=-param.refinerelrot.rotarr2;
+  else %use absolute rotation and translation estimates
+    reltransx=param.abstransbetweenslices.transx;
+    reltransy=param.abstransbetweenslices.transy;
+    relrot=-param.absrotang;
+    %differentiate absolute angles
+    %relrot=relrot(2:end)-relrot(1:end-1); relrot=[0; relrot];
+    relrot=relrot(2:end,:,:)-relrot(1:end-1,:,:);
+    relrot=[zeros(1,size(relrot,2),size(relrot,3)); relrot];
+  end;
+  
+  %equalize relrot over tiles in each slice
+  for slice=1:1:param.nrofslices
+    relrot(slice,:,:)=mean(mean(squeeze(relrot(slice,:,:))));
+  end;
+  
+  absrigidmatrix=zeros(param.nrofslices,param.nrofrows,param.nrofcolumns,3,3);
+  relrigidmatrix=zeros(param.nrofslices,param.nrofrows,param.nrofcolumns,3,3);
+  %compute rigid-transformation-matrices for all tiles
+
+  %First, compute all relative rigid matrices
+  %%%%% relrigidmatrix is with respect to the same tile in the previous slice!!!
+  for row=1:1:param.nrofrows
+    for column=1:1:param.nrofcolumns 
+      for slice=1:1:param.nrofslices
+        rot=relrot(slice,row,column)*pi/180;
+        tx=reltransx(slice,row,column)+1; ty=reltransy(slice,row,column)+1; %!!!!!!! +1 added!
+        %tx2=cos(rot)*tx-sin(rot)*ty; ty2=sin(rot)*tx+cos(rot)*ty;
+        rmatrix=[[cos(rot) -sin(rot) tx]; [sin(rot) cos(rot) ty]; [0 0 1]]; %!!!
+        relrigidmatrix(slice,row,column,:,:)=rmatrix;
+      end;
+    end;
+  end;
+  
+  %Next, compute absolute rigid matrices for row-1 column-1 stack
+  crmatrix=[[1 0 0];[0 1 0];[0 0 1]];
+  for slice=1:1:param.nrofslices
+    rmatrix=squeeze(relrigidmatrix(slice,1,1,:,:)); 
+    crmatrix=crmatrix*rmatrix;
+    absrigidmatrix(slice,1,1,:,:)=crmatrix;
+  end;
+  
+  %Second, compute first row and first column in all slices
+  %First slice: No previous-slice predictions
+  slice=1;
+  if (param.nrofrows>1)
+    %First column
+    crmatrix=squeeze(absrigidmatrix(slice,1,1,:,:));
+    for row=2:1:param.nrofrows
+      tx=param.abstransneighbors.transx_down(slice,row-1,1);
+      ty=param.abstransneighbors.transy_down(slice,row-1,1);
+      tmatrix=[[1 0 tx];[0 1 ty];[0 0 1]];
+      crmatrix=crmatrix*tmatrix; %tmatrix*crmatrix;
+      absrigidmatrix(slice,row,1,:,:)=crmatrix;
+    end;
+  end;
+  if (param.nrofcolumns>1)
+    %First row
+    crmatrix=squeeze(absrigidmatrix(slice,1,1,:,:));
+    for column=2:1:param.nrofcolumns
+      tx=param.abstransneighbors.transx_right(slice,1,column-1);
+      ty=param.abstransneighbors.transy_right(slice,1,column-1);
+      tmatrix=[[1 0 tx];[0 1 ty];[0 0 1]];
+      crmatrix=crmatrix*tmatrix; %tmatrix*crmatrix;
+      absrigidmatrix(slice,1,column,:,:)=crmatrix;
+    end;
+  end;
+
+  %Second and further slices: use also alignment with previous slice
+  if param.nrofslices>1
+    for slice=2:1:param.nrofslices
+      if slice==305
+        disp('Slice 305...');
+      end;
+      
+      if (param.nrofrows>1)
+        %First column
+        crmatrix1=squeeze(absrigidmatrix(slice,1,1,:,:));
+        for row=2:1:param.nrofrows
+          tx=param.abstransneighbors.transx_down(slice,row-1,1);
+          ty=param.abstransneighbors.transy_down(slice,row-1,1);
+          tmatrix=[[1 0 tx];[0 1 ty];[0 0 1]];
+          crmatrix1=crmatrix1*tmatrix; %tmatrix*crmatrix;
+          crmatrix2=squeeze(absrigidmatrix(slice-1,row,1,:,:)); 
+          rmatrix=squeeze(relrigidmatrix(slice,row,1,:,:)); 
+          crmatrix2=crmatrix2*rmatrix;
+          d=getavgtransdist([1 param.scaledsize(2) param.scaledsize(2) 1],[1 1 param.scaledsize(1) param.scaledsize(1)],crmatrix1,crmatrix2);
+          if (d>lparam.breakthreshold)
+            txt=sprintf('BREAK at slice %d, row %d, column %d',slice,row,1);
+            disp(txt);
+            absrigidmatrix(slice,row,1,:,:)=crmatrix2;
+          else
+            absrigidmatrix(slice,row,1,:,:)=crmatrix1; %(crmatrix1+crmatrix2)/2;
+          end;
+        end;
+      end;
+      
+      if (param.nrofcolumns>1)
+        %First row
+        crmatrix1=squeeze(absrigidmatrix(slice,1,1,:,:));
+        for column=2:1:param.nrofcolumns
+          tx=param.abstransneighbors.transx_right(slice,1,column-1);
+          ty=param.abstransneighbors.transy_right(slice,1,column-1);
+          tmatrix=[[1 0 tx];[0 1 ty];[0 0 1]];
+          crmatrix1=crmatrix1*tmatrix; %tmatrix*crmatrix;
+          crmatrix2=squeeze(absrigidmatrix(slice-1,1,column,:,:)); 
+          rmatrix=squeeze(relrigidmatrix(slice,1,column,:,:)); 
+          crmatrix2=crmatrix2*rmatrix;
+          d=getavgtransdist([1 param.scaledsize(2) param.scaledsize(2) 1],[1 1 param.scaledsize(1) param.scaledsize(1)],crmatrix1,crmatrix2);
+          if (d>lparam.breakthreshold)
+            txt=sprintf('BREAK at slice %d, row %d, column %d',slice,1,column);
+            disp(txt);
+            absrigidmatrix(slice,1,column,:,:)=crmatrix2;
+          else
+            absrigidmatrix(slice,1,column,:,:)=crmatrix1; %(crmatrix1+crmatrix2)/2;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  %Third, compute all remaining tile positions from left and upper tile
+  if (param.nrofrows>1)&&(param.nrofcolumns>1)
+    
+    %First slice: no previous-slice predictions available
+    slice=1;
+    for row=2:1:param.nrofrows
+      for column=2:1:param.nrofcolumns
+        %prediction from upper
+        crmatrix1=squeeze(absrigidmatrix(slice,row-1,column,:,:));
+        tx1=param.abstransneighbors.transx_down(slice,row-1,column);
+        ty1=param.abstransneighbors.transy_down(slice,row-1,column);
+        tmatrix1=[[1 0 tx1];[0 1 ty1];[0 0 1]];
+        crmatrix1=crmatrix1*tmatrix1; %tmatrix1*crmatrix1;
+        
+        %prediction from left
+        crmatrix2=squeeze(absrigidmatrix(slice,row,column-1,:,:));
+        tx2=param.abstransneighbors.transx_right(slice,row,column-1);
+        ty2=param.abstransneighbors.transy_right(slice,row,column-1);
+        tmatrix2=[[1 0 tx2];[0 1 ty2];[0 0 1]];
+        crmatrix2=crmatrix2*tmatrix2; %tmatrix2*crmatrix2;
+        
+        absrigidmatrix(slice,row,column,:,:)=(crmatrix1+crmatrix2)/2;
+      end;
+    end;
+    
+    
+    %Slices 2 and following: also use previous-slice predictions
+    if (param.nrofslices>1)
+      for slice=2:1:param.nrofslices
+        for row=2:1:param.nrofrows
+          for column=2:1:param.nrofcolumns
+            %prediction from upper
+            crmatrix1=squeeze(absrigidmatrix(slice,row-1,column,:,:));
+            tx1=param.abstransneighbors.transx_down(slice,row-1,column);
+            ty1=param.abstransneighbors.transy_down(slice,row-1,column);
+            tmatrix1=[[1 0 tx1];[0 1 ty1];[0 0 1]];
+            crmatrix1=crmatrix1*tmatrix1; %tmatrix1*crmatrix1;
+            %prediction from left
+            crmatrix2=squeeze(absrigidmatrix(slice,row,column-1,:,:));
+            tx2=param.abstransneighbors.transx_right(slice,row,column-1);
+            ty2=param.abstransneighbors.transy_right(slice,row,column-1);
+            tmatrix2=[[1 0 tx2];[0 1 ty2];[0 0 1]];
+            crmatrix2=crmatrix2*tmatrix2; %tmatrix2*crmatrix2;
+            
+            %predict from previous slice
+            crmatrix3=squeeze(absrigidmatrix(slice-1,row,column,:,:)); 
+            rmatrix=squeeze(relrigidmatrix(slice,row,column,:,:)); 
+            crmatrix3=crmatrix3*rmatrix;
+            d12=getavgtransdist([1 param.scaledsize(2) param.scaledsize(2) 1],[1 1 param.scaledsize(1) param.scaledsize(1)],crmatrix1,crmatrix2);
+            d13=getavgtransdist([1 param.scaledsize(2) param.scaledsize(2) 1],[1 1 param.scaledsize(1) param.scaledsize(1)],crmatrix1,crmatrix3);
+            d23=getavgtransdist([1 param.scaledsize(2) param.scaledsize(2) 1],[1 1 param.scaledsize(1) param.scaledsize(1)],crmatrix2,crmatrix3);
+            
+            if (d12>lparam.breakthreshold)||(d13>lparam.breakthreshold)||(d23>lparam.breakthreshold)
+              txt=sprintf('BREAK at slice %d, row %d, column %d',slice,row,column);
+              disp(txt);
+              absrigidmatrix(slice,row,column,:,:)=crmatrix3;
+            else
+              absrigidmatrix(slice,row,column,:,:)=(crmatrix1+crmatrix2)/2;
+            end;
+            
+            %absrigidmatrix(slice,row,column,:,:)=(crmatrix1+crmatrix2)/2;
+          end;
+        end;
+      end;
+    end;
+  end;
+  
+%   %Check all tiles WITHIN-SLICE if requested
+%   if lparam.checkwithinslicetilealignment==1
+%     if (param.nrofrows>1)&&(param.nrofcolumns>1)
+%       for slice=1:1:param.nrofslices
+%         for row=1:1:param.nrofrows
+%           for column=1:1:param.nrofcolumns
+%             pmtxavail=zeros(4,1);
+%             pmtx=zeros(4,3,3);
+%             if (row>1)
+%               %prediction from upper
+%               crmatrix1=squeeze(absrigidmatrix(slice,row-1,column,:,:));
+%               tx1=param.abstransneighbors.transx_down(slice,row-1,column);
+%               ty1=param.abstransneighbors.transy_down(slice,row-1,column);
+%               tmatrix1=[[1 0 tx1];[0 1 ty1];[0 0 1]];
+%               pmtx(1,:,:)=crmatrix1*tmatrix1; %tmatrix1*crmatrix1;
+%               pmtxavail(1)=1;
+%             end;
+%             
+%             if (column>1)
+%               %prediction from left
+%               crmatrix2=squeeze(absrigidmatrix(slice,row,column-1,:,:));
+%               tx2=param.abstransneighbors.transx_right(slice,row,column-1);
+%               ty2=param.abstransneighbors.transy_right(slice,row,column-1);
+%               tmatrix2=[[1 0 tx2];[0 1 ty2];[0 0 1]];
+%               pmtx(2,:,:)=crmatrix2*tmatrix2; %tmatrix2*crmatrix2;
+%               pmtxavail(2)=1;
+%             end;
+%             
+%             if (row<param.nrofrows)
+%               %prediction from lower
+%               crmatrix3=squeeze(absrigidmatrix(slice,row+1,column,:,:));
+%               tx3=param.abstransneighbors.transx_down(slice,row,column);
+%               ty3=param.abstransneighbors.transy_down(slice,row,column);
+%               tmatrix3=[[1 0 -tx3];[0 1 -ty3];[0 0 1]];
+%               pmtx(3,:,:)=crmatrix3*tmatrix3; %tmatrix1*crmatrix1;
+%               pmtxavail(3)=1;
+%             end;
+%             
+%             if (column<param.nrofcolumns)
+%               %prediction from right
+%               crmatrix4=squeeze(absrigidmatrix(slice,row,column+1,:,:));
+%               tx4=param.abstransneighbors.transx_right(slice,row,column);
+%               ty4=param.abstransneighbors.transy_right(slice,row,column);
+%               tmatrix4=[[1 0 -tx4];[0 1 -ty4];[0 0 1]];
+%               pmtx(4,:,:)=crmatrix4*tmatrix4; %tmatrix2*crmatrix2;
+%               pmtxavail(4)=1;
+%             end;
+%             
+%             %Compute variance of the available predictions
+%             %There are always at least two predictions
+%             nrofpredictions=sum(pmtxavail);
+%             xcoord=zeros(4,4);
+%             ycoord=zeros(4,4);
+%             for v=1:1:4
+%               if pmtxavail(pred)
+%                 %Compute target coordinates for the four corners of the image for each available prediction
+%                 cornerx=[1 param.scaledsize(2) param.scaledsize(2) 1];
+%                 cornery=[1 1 param.scaledsize(1) param.scaledsize(1)];
+%                 for c=1:1:4
+%                   vec=[cornerx(c) cornery(c) 1]';
+%                   tvec=squeeze(pmtx(v,:,:))*vec;
+%                   xcoord(c,v)=tvec(1);
+%                   ycoord(c,v)=tvec(2);
+%                 end;
+%               end;
+%             end;
+%             
+%             cmeanx=zeros(4,1);
+%             cmeany=zeros(4,1);
+%             cstd=zeros(4,1);
+%             for c=1:1:4 %for each of the corners, compute point prediction variance
+%               if pmtxavail(c)
+%                 cmeanx(c)=mean(xcoord(c,:)); 
+%                 cmeany(c)=mean(ycoord(c,:)); 
+%                 xcoord(c,:)=xcoord(c,:)-cmeanx(c);
+%                 ycoord(c,:)=ycoord(c,:)-cmeany(c);
+%                 d=0;
+%                 for v=1:1:4 %for all four predicted vectors
+%                   d=d+xcoord(c,v)*xcoord(c,v)+ycoord(c,v)*ycoord(c,v);
+%                 end;
+%                 cstd(c)= sqrt(d);
+%               end;
+%             end;
+%             
+%             if mean(cstd)>lparam.withinslicethreshold %There is something wrong with this tile.
+%               %Flag this tile to be re-computed. Possibly store estimates and re-compute once the across-slice estimates are also known?
+%               %absrigidmatrix(slice,row,column,:,:)=(crmatrix1+crmatrix2)/2;
+%             end;
+%           end;
+%         end;
+%       end;
+%     else
+%       disp('WARNING: Within-slice tile alignment check is only possible for #rows, #columns >2');
+%     end;
+%   end;
+  
+  param.rigid.relrot=relrot; 
+  param.rigid.reltransx=reltransx;
+  param.rigid.reltransy=reltransy;
+  param.rigid.relrigidmatrix=relrigidmatrix; 
+  param.rigid.absrigidmatrix=absrigidmatrix;
+end;
+  
+

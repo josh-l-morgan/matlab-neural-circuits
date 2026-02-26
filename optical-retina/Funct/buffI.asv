@@ -1,0 +1,11 @@
+function[newI] = buffI(I,buf)
+
+[ys xs zs] = size(I);
+
+
+if buf >0
+    newI = zeros(xs+2*buf, ys+2*buf,zs+2*buf);
+    newI(buf+1:buf+ys,buf+1:buf+xs,buf+1:buf+zs) = I;
+else
+    newI = I(1-buf:ys+buf,1-buf:xs+buf,1-buf:zs+buf);
+end

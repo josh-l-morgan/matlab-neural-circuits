@@ -1,0 +1,78 @@
+load('UseCells.mat')
+load('Res.mat')
+for k = 1:size(UseCells,1)
+    clear Use
+    TPN = char(UseCells(k)); 
+    if exist([TPN 'find\SG.mat'])
+        load([TPN 'Dots.mat'])
+        load([TPN 'find\SG.mat'])
+        load([TPN 'data\AllSegCut.mat'])
+        
+        
+        load([TPN 'Cell.mat'])
+        cName=['P' Cell.Age '_' Cell.Type '_' Cell.Name '_' num2str(k)]
+        Use.cName=cName;
+        clear Cell cName
+        
+        %% Enter Scaling for resolution
+        Use.Res=Res(k,2);
+                
+        
+        OK=SG.passF;
+        DPos=Dots.Pos(OK,:);
+        DPos(:,1:2)=DPos(:,1:2)*Use.Res; DPos(:,3)=DPos(:,3)*.3;
+        Cent=Dots.Im.CBpos;
+        Cent=Cent*Use.Res;
+        Use.DPos=DPos;
+        Use.Cent=Cent;
+        
+
+        %%Extract Dend positions 
+        AllSegCut(:,2)=AllSegCut(:,2)*Use.Res/0.103; %!!!!!!!!!!!!Scale to res
+        Mids=mean(AllSegCut,3);
+        Length=sqrt((AllSegCut(:,1,1)-AllSegCut(:,1,2)).^2 ...
+           + (AllSegCut(:,2,1)-AllSegCut(:,2,2)).^2 ...
+           + (AllSegCut(:,3,1)-AllSegCut(:,3,2)).^2);
+        
+       Use.Mids=Mids;
+       Use.Length=Length;
+       
+      
+       
+        for i = 1:size(DPos,1)
+            Ndist=dist(Mids,DPos(i,:)); %find dist from dot to all nodes
+            Near=min(Ndist); %find shortest distance
+            Nearest=find(Ndist==Near,1); %get node at that distance
+            NN(i,:)=Mids(Nearest,:); %assign that node to NearestNode list for dots
+            DotToNN(i,:)=Near; %record that distance for posterity  
+        end
+
+        Use.NN=NN;
+        clear NN OK DPos Cent Dots SG
+        clear Mids Length AllSgeCut
+       
+       %%Extract Depth restrictions
+        load([TPN 'data\Results.mat'])
+        clear Top Bottom
+        for i = 1: size(Results.Arbor,2)
+            Top(i)=Results.Arbor(i).Top;
+            Bottom(i)=Results.Arbor(i).Bottom;
+        end
+        clear Results
+        
+        Use.Top=Top;
+        Use.Bottom=Bottom;
+        clear Top Bottom
+
+       
+       
+        
+       save([TPN 'UseSc.mat'],'Use') 
+        
+        
+        
+        
+        
+        
+    end
+end

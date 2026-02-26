@@ -1,0 +1,23 @@
+function[sNode] = paired(nPairs,node)
+%%find all nodes connected to node by a paired list
+
+%% 
+% node = 2;
+% nPairs  = [ 1 2; 2 3; 4 5; 3 10;10 30; 30 4]
+sNode = node;
+
+for i = 1:10
+    startLength = length(sNode);
+    tNode = [];
+for s = 1:length(sNode)
+    [p n] = find(nPairs == sNode(s));
+
+    t = ~(n-1)+1;
+    tNode = [tNode; nPairs(sub2ind(size(nPairs),p,t))];
+end
+sNode = [sNode;tNode];
+sNode = unique(sNode)
+stopLength = length(sNode);
+if startLength == stopLength, break, end
+
+end

@@ -1,0 +1,163 @@
+%% Find clustering
+%Concider both absolute and dendritic distances. 
+'start'
+
+%clear all
+%%Image Variables
+xyum=.103;
+zum=.3;
+aspect=zum/xyum;% ratio of z to xy dimentions
+
+
+%% Get Folder and Load Critical Data
+if exist('.\temp\Last.mat')
+     load(['.\temp\Last.mat'])
+     if exist(Last)
+        TPN=uigetdir(Last)
+     else
+         TPN=uigetdir
+     end
+else
+    TPN=uigetdir
+end
+
+Last=TPN;
+if Last>0
+save('.\temp\Last.mat','Last')
+end
+
+%% load segments
+'loading data'
+
+load([TPN '\data\D.mat']) %Load dendrite mask
+%sumD=sum(D,3);
+%maskD=sumD>0;
+%ID=maskD;
+
+[Dy Dx Dz]=find3(D); % vectorize by find 3
+Dy=Dy*xyum; Dx=Dx*xyum; Dz=Dz*zum; %scale to microns
+Dv=[Dy Dx Dz]; clear Dy Dx Dz % Concatinate D find results into vector
+
+clear D
+
+load([TPN '\data\AllSeg.mat'])
+Mids=mean(AllSeg,3);  %find midpoints
+for i=1:size(Mids,1)  %get segment lengths
+   Length(i)=dist(AllSeg(i,:,1),AllSeg(i,:,2)); 
+end
+Nodes=[AllSeg(:,:,1) ; AllSeg(:,:,2) ; Mids]; %list all nodes (tips and midpoints)
+load([TPN '\data\DotStats.mat'])
+Dots=DotStats(:,:,3);
+
+
+
+DBins=[1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,200];
+%DBins=[5,20];
+
+%% run all mid points
+'Running Segments'
+for i = 1: size(Mids,1)  
+    DotDist=dist(Dots,Mids(i,:));
+    MidDist=dist(Mids,Mids(i,:));
+    %VolDist=dist(Dv,Mids(i,:));
+  
+        
+    %% Run all Bins
+    for b = 1:size(DBins,2)
+        LocalDots(i,b)=sum(DotDist<=DBins(b));
+        LocalLength(i,b)=sum(Length(MidDist<=DBins(b)));
+        %LocalVol(i,b)=sum(VolDist<=DBins(b))*(xyum *xyum*zum);
+    end
+    if mod(i,100)==0, PercentDone=i/size(Mids,1)*100,end
+end
+
+
+%% Calculate Volumes for each Bin
+VolumeOn=0;
+if VolumeOn == 1
+
+    for i = 1: size(Mids,1)  
+        VolDist=dist(Dv,Mids(i,:));        
+        %% Run all Bins
+        for b = 1:size(DBins,2)
+            LocalVol(i,b)=sum(VolDist<=DBins(b))*(xyum *xyum*zum);
+        end
+        if mod(i,100)==0, PercentDone=i/size(Mids,1)*100,end
+    end
+
+end %if Volume on
+
+
+%% Display
+for i = 1: size(Mids,1)
+    for b = 1 : size(DBins,2)
+        fieldLD(round(Mids(i,1))+1,round(Mids(i,2))+1,b)=LocalDots(i);
+        fieldDD(round(Mids(i,1))+1,round(Mids(i,2))+1,b)=LocalDots(i,b)/LocalLength(i,b);
+    end        
+end
+
+%%Draw Mask
+for i=1:size(Dv,1)
+    ID(round(Dv(i,1))+1,round(Dv(i,2))+1)=1;
+end
+
+%%Draw dialtion
+clear fieldR
+for b=1:size(DBins,2)
+    cy=size(ID,1);
+    cx=size(ID,2);
+    for y=1:cy
+        for x=1:cx
+                if sqrt((y-cy/2)^2+(x-cx/2)^2)<=DBins(b)
+                    fieldR(y,x,b)=1;
+                end
+        end
+    end
+end
+
+%% Play movie
+field = zeros(size(ID,1)+10,size(ID,2)+10,3);
+field=uint8(field);
+field(1:size(ID,1),1:size(ID,2),2)=ID*20;
+image(field),pause(.01)
+
+
+while 1==1
+for b = 1:size(DBins,2)
+    maxDD=max(max(fieldDD(:,:,b)));
+    frame=fieldDD(:,:,b);
+    meanDD=mean(mean(frame(frame>0)));
+    scaleDD=200;
+    field(1:size(fieldDD,1),1:size(fieldDD,2),1)=uint8(double(fieldDD(:,:,b))*scaleDD);
+    %field(1:size(fieldDD,1),1:size(fieldDD,2),3)=uint8(abs((double(fieldDD(:,:,b))*scaleDD)-255));
+    %heck=field(:,:,3);
+    %heck(field(:,:,1)==0)=0;
+    %field(:,:,3)=heck;
+    %field(1:size(fieldR,1),1:size(fieldR,2),3)=fieldR(:,:,b)*20;
+    subplot(6,6,[1:5,7:11,13:17,19:23,25:29])
+    image(field)
+    subplot(6,6,31:34)
+    Diam=([1:size(field,2)]<=DBins(b))*1000;
+    Diam(:,:,2)=Diam*255;     Diam(:,:,3)=Diam(:,:,1)*255;
+    image(uint8(Diam))
+    subplot(6,12,[12,24,36,48])
+    Inten=zeros(255,1,3);
+    Inten(:,1,1)=255:-1:1;
+    image(uint8(Inten))
+    ylabel(10)
+    
+    
+    DBins(b)
+    pause
+end
+end
+
+
+
+
+'finished'
+%%Notes
+%{
+Could segment each bin
+%}
+

@@ -1,0 +1,25 @@
+% runAnalysis
+% requires the following folders in TPN: Area, Bi, C4, C4B and Territories
+
+%% GET DIRECTORY OF CELL
+TPN = GetMyDir;
+yxum=0.103;
+zum=0.3;
+
+%% GENERATE USE
+[Use] = MakeUse2007(TPN, yxum, zum); %#ok<NASGU>
+DotsDD2007(TPN, yxum, zum);
+[Use] = MakeUse2007(TPN, yxum, zum);
+
+%% GENERATE CA FOR AREA
+[CA] = CAsampleUseNN2007(TPN);
+
+%% DRAW OUTPUT
+CAsampleCollectN2007(TPN);
+
+%% GENERATE DEPTHDEV
+[DepthDev] = StratNoCBmedian2007(TPN);
+
+%% GENERATE GRAD
+[Grad] = GradientA2007(TPN);
+

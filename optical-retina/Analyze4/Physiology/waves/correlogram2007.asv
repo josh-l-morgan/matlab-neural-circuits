@@ -1,0 +1,106 @@
+%% LOADING FILE
+clear; clc;
+[fileName pathName] = uigetfile('*.txt','Select TXT_ file');
+sp = nexread2006([pathName fileName]);
+clear fileName pathName
+[fileName pathName] = uiputfile('*.xls','Save .xls file as');
+sp.channels
+
+%% USER DEFINED INPUT
+prompt = {'start of cross-correlation (s)', 'end of cross-correlation (s)',...
+    'bin size (ms)', '# bins per average', 'correlation lag (ms)',...
+    'length of serial correlogram', 'index of channels to compare([])'};
+title = 'Cross-correlation';
+nLines = 1;
+defAns = {'', '', '50', '100', '1000', '5000',''};
+answer = inputdlg(prompt,title,nLines,defAns);
+
+corrStart = str2double(answer{1});
+corrStop = str2double(answer{2});
+binSize = str2double(answer{3})/1000; %changes units to seconds
+nBinsPerAverage = str2double(answer{4}); %# of bins per averaging window
+correlationLag = str2double(answer{5})/str2double(answer{6});
+maxLag = ceil(str2double(answer{6}))/(binSize*1000);
+channelsToCompare = str2num(answer{7});%#ok<ST2NM>
+nChannels = length(channelsToCompare);
+channels = sp.channels(channelsToCompare);
+%% SPIKETRAIN TO LOGIC
+if rem((corrStop-corrStart)/binSize,...
+        round((corrStop-corrStart)/binSize)) == 0
+    binTrain = corrStart:binSize:corrStop;
+    nBins = length(binTrain);
+else
+    nBins = ceil( (corrStop-corrStart)/binSize );
+    corrStop = corrStart + nBins * binSize;
+    binTrain = corrStart:binSize:corrStop;
+end
+
+rateTrain = zeros(nBins-1, nChannels);
+averageTrain = zeros(nBins-1, nChannels);
+tic
+for i = 1:length(channelsToCompare)
+    rateTrain(:,i) = spiketorate (sp.data(:,channelsToCompare(i)),...
+        binTrain, binSize);
+    averageTrain(:,i) = ...
+        slidingwindowaverage (nBinsPerAverage, rateTrain(:,i));
+end
+toc
+clear sp*
+
+
+%% XCORR
+normalizedTrain = rateTrain - averageTrain;
+[C, lags] = xcorr(normalizedTrain, maxLag, 'unbiased');
+[M, N] = size(C);
+normCorr = zeros(M,N);
+V = var(normalizedTrain);
+timeLine = lags * binSize;
+peakOffset = zeros(N,1);
+for i = 1:N
+    [p q] = ind2sub([nChannels nChannels],i);
+    normCorr(:,i) = C(:,i)./sqrt(V(p)*V(q));
+    peakOffset(i) = timeLine(normCorr(:,i) == max(normCorr(:,i)));
+end
+corrCoeffAtZero = (normCorr(maxLag+1,:));
+corrCoeffAtLag = mean(normCorr([round(maxLag*correlationLag)...
+     maxLag + round(maxLag*correlationLag)],:));
+
+rawC =  xcorr(rateTrain,maxLag,'unbiased');
+rawCorrAtZero = rawC(maxLag+1,:);
+rawCorrAtLag = mean(rawC([maxLag - round(maxLag*correlationLag)...
+      maxLag + round(maxLag*correlationLag)],:));
+burstPreference =...
+    (rawCorrAtZero - rawCorrAtLag)./(rawCorrAtZero + rawCorrAtLag);
+
+%% OUTPUT
+for i = 1:nChannels
+    for j = 1:nChannels - i
+        if i==1
+            cellA(j) = {char(channels(i))}; %#ok<AGROW>
+            cellB(j) = {char(channels(i+j))}; %#ok<AGROW>
+            cZero(j) = corrCoeffAtZero(i+j); %#ok<AGROW>
+            cLag(j) = corrCoeffAtLag(i+j); %#ok<AGROW>
+            BPI(j) = burstPreference(i+j); %#ok<AGROW>
+%             deltaT(j) = peakOffset(i+j);%#ok<AGROW>
+%             corrTrace(j,:) = normCorr(:,i+j);%#ok<AGROW>
+        else
+            if j==1
+                lastEntry = length(cellA);
+            else
+            end
+            cellA(lastEntry + j) = {char(channels(i))}; %#ok<AGROW>
+            cellB(lastEntry + j) = {char(channels(i+j))}; %#ok<AGROW>
+            cZero(lastEntry + j) = corrCoeffAtZero((i-1)*nChannels+i+j);  %#ok<AGROW>
+            cLag(lastEntry + j) = corrCoeffAtLag((i-1)*nChannels+i+j);  %#ok<AGROW>
+            BPI(lastEntry + j) = burstPreference((i-1)*nChannels+i+j); %#ok<AGROW>
+%             deltaT(lastEntry + j) = peakOffset((i-1)*nChannels+i+j); %#ok<AGROW>
+%             corrTrace(lastEntry + j,:) = normCorr(:,(i-1)*nChannels+i+j);%#ok<AGROW>
+        end
+    end
+end
+% export = [cellA' cellB' num2cell(cZero') num2cell(cLag')...
+%     num2cell(BPI') num2cell(deltaT')];
+export = [cellA' cellB' num2cell(cZero') num2cell(cLag') num2cell(BPI')];
+
+% export = [cellA' cellB' num2cell(corrTrace)];
+xlswrite([pathName fileName], export)

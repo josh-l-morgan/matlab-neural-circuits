@@ -1,0 +1,43 @@
+function[]=anaDF(TPN,DPN)
+
+
+%% Get File
+%DPN=GetMyDir
+
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+load([TPN 'Dots.mat'])
+
+
+for i = 1 :Dots.Num
+       
+   Cent=Dots.Pos(i,:);
+   Vox=Dots.Vox(i).Pos;   
+   Dist = dist(Vox,Cent);
+   MeanD= max(1,mean(Dist));
+   DistN=Dist/MeanD;
+   CentN=Cent/MeanD;
+   VoxN=Vox/MeanD;
+   
+   MedN = median(DistN,1);
+   ExtN = max(DistN)/MedN;
+   
+   if size(Vox,1)>1, %if more then one voxel
+       [Co, Sc,latent]=princomp(VoxN);
+       Dots.Round.Var(i,:)=latent;
+       Dots.Round.Long=latent(1)/max(.1,latent(2));
+       Dots.Round.Oblong=max(abs(Sc(:,1)))/max(1,abs(max(Sc(:,2))));
+       Dots.Round.SumVar=sum(latent);
+   else
+       Dots.Round.Var(i,:)=[0;0;0];
+       Dots.Round.Long=0;
+       Dots.Round.SumVar=0;
+       Dots.Round.Oblong=1;
+   end
+     
+
+end
+

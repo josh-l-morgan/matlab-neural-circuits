@@ -1,0 +1,39 @@
+%% this makes some nice histograms showing the depths of the synapses
+binEdges=[0:0.02:1];
+binCents=binEdges(2:end)-(binEdges(2)-binEdges(1))/2;
+results=struct();
+
+targTypes={'4ow','5ti','37','6sw','63','all'};
+
+for i=1:length(targTypes)
+    curTargType=targTypes{i};
+    curSynIDs=getClassConn({'amc'},{'vgc'},{'rgc'},curTargType,curTis)';
+    results(i).synIDs=curSynIDs;
+    results(i).targType=curTargType;
+    curSynPos=curTis.syn.pos(curSynIDs,:);
+    [~,~,curSynDeps]=getIPLdepth(curSynPos(:,3),curSynPos(:,1),curSynPos(:,2),[],[]);
+    results(i).synPos=curSynPos;
+    results(i).synDep=curSynDeps;
+end
+
+histFig=figure();
+hold on
+for i=1:length(targTypes)
+    curResults=results(i);
+    curHisDat=histcounts(curResults.synDep,binEdges);
+    curarea=area(binCents,curHisDat);
+    curarea.FaceAlpha=0.2;
+    areaz{i}=curarea;
+end
+
+allSyns=getClassConn({'amc'},{'vgc'},{'amc'},{'all'},curTis)';
+allSynPos=curTis.syn.pos(allSyns,:);
+[~,~,allDeps]=getIPLdepth(allSynPos(:,3),allSynPos(:,1),allSynPos(:,2),[],[]);
+allHisDat=histcounts(allDeps,binEdges);
+allarea=area(binCents,allHisDat);
+allarea.FaceAlpha=0.1;
+
+leglabs={targTypes{:} 'amc outputs'};
+legend(leglabs);
+
+

@@ -1,0 +1,188 @@
+
+
+look = 5;
+steps = 10;
+
+
+
+%%Get directory with image folders
+disp('getting folders')
+subFolders = findFolders;
+disp('got folders')
+%% Get root
+rootD = subFolders{1};
+%mkdir([rootD '\imageIndex'])
+
+%%Find bipMask folders
+ImageFolders={}; CellFolders = {};
+ImageDir = ImageFolders;
+for i = 1:length(subFolders)
+    Name=subFolders{i};
+    slashes = find(Name == '\');
+    lastFold = Name(slashes(length(slashes))+1:length(Name));
+    cellFold = Name(1:slashes(length(slashes)));
+    if strcmp(lastFold(1:min(7,length(lastFold))),'bipMask')
+        ImageFolders = [ImageFolders ; [Name '\']];
+        CellFolders = [CellFolders ; cellFold];
+        ImageDir=[ImageDir ;{Name(1:length(Name)-length(lastFold))}];
+    end
+end
+
+load('\\Wongraid2\wonglab\JoshDaniel\foundI.mat');
+
+%% read I
+for allI = 42%1: length(foundI);
+    TPN = [foundI{allI} '\'];
+    dTPN = dir(TPN); dTPN = dTPN(3:length(dTPN));
+    clear I
+    for i = length(dTPN):-1:1
+        nam = dTPN(i).name;
+        if length(nam) > 4
+            if strcmp(nam(length(nam)-3:length(nam)),'.tif')
+                I(:,:,i,:) = imread([TPN nam]);
+            end
+        end
+    end
+    Imax = squeeze(max(I,[],3));
+    image(Imax), pause(.01)
+
+    %% filter I
+    bRaw = I(:,:,:,1);
+    bF = bRaw;
+    H = fspecial('gaussian',look*2,look);
+    
+    %% Make sphere
+    filtD = 5;
+    surDim = filtD * 2 + 1;
+    Sphere = ones(surDim,surDim,surDim);
+    [sury surx surz] = ind2sub([surDim surDim surDim], find(Sphere));
+    dists = dist([sury surx ((surz - filtD - 1) * 3) ],[filtD+1 filtD+1 0]);
+    distsI = max(dists(:)) - dists;
+    distsI = distsI./sum(distsI);
+    Sphere(:) = distsI;
+    backG= Sphere(1,filtD,filtD+1);
+    Sphere = Sphere - backG;
+    Sphere(Sphere<0) = 0;
+    Sphere = Sphere * 1/sum(Sphere(:));
+    
+    [uY uX uZ] = ind2sub(size(Sphere),find(Sphere));
+    maxZ = max(uZ);
+    Sphere = Sphere(:,:,1:maxZ);
+    Sphere = Sphere(:,:,surDim-maxZ+1:size(Sphere,3))
+    image(max(Sphere,[],3)*200000)
+    image(squeeze(max(Sphere,[],2))* 200000)
+    
+%     for i = 1: size(bRaw,3)
+%         bF(:,:,i) = imfilter(bRaw(:,:,i),H,'same');
+%         bF(:,:,i) = imfilter(bF(:,:,i),H,'same');
+%     end
+    tic
+    for r = 1: 3 
+        bF = convn(bF,Sphere,'same');
+    end
+        toc
+    bF = buffI(bF,look);
+    image(max(bF,[],3)*.4),pause(.01)
+    image(squeeze(max(bF,[],2)))
+    %% read Mask
+    bipFolder = ImageFolders{allI};
+    slashes = find(bipFolder == '\');
+    subName = bipFolder(slashes(length(slashes)-1):slashes(length(slashes)));
+    dashes = find(subName=='_',1,'last');
+    if isempty(dashes)
+        bName = '';
+    else
+        bName = subName(dashes+1:length(subName)-1);
+    end
+
+    bipDir = dir(ImageFolders{allI}); bipDir = bipDir(3:length(bipDir));
+
+    TiffNames={};
+    for b = 1: size(bipDir,1)
+        siz=length(bipDir(b).name);
+        if bipDir(b).name(siz-2:siz)== 'tif'
+            if bipDir(b).name(siz-8:siz-7)~='-R'
+                TiffNames(length(TiffNames)+1,1)={bipDir(b).name};
+            end
+        end
+    end
+
+    clear bipMask
+    for b = length(TiffNames):-1:1
+        bipMask(:,:,b) = sum(imread([ImageFolders{allI} TiffNames{b}]),3);
+    end
+    bipMask = smooth3(bipMask,'box',[5,5,1]);%,'gaussian',[5 5 3]);
+    bipMask = bwperim(bipMask>.3,26);
+    bipMask = buffI(bipMask,look);
+    %I = double(I);
+    maxBipMask= squeeze(sum(bipMask,3));
+    image(maxBipMask*10),pause(.01)
+
+
+    %% Climb
+    voxList = find(bipMask);
+    [ys xs zs] = size(bipMask); siz = [ys xs zs];
+    idBip = zeros(ys,xs,zs);
+    
+    colorBip = zeros(ys, xs,3,zs);
+    %% Make surround
+    surDim = look * 2 + 1;
+    [sury surx surz] = ind2sub([surDim surDim surDim], find(ones(surDim,surDim,surDim)));
+    dists = dist([sury surx surz],[look+1 look+1 look+1]);
+    sury = sury(dists<=look)-look - 1 ;
+    surx = surx(dists<=look)-look - 1;
+    surz = surz(dists<=look)-look - 1;
+    totV = length(voxList);
+    for v = totV:-1:1  %run all voxes
+        if ~mod(v,1000),percentDone = v/totV * 100, end
+        [y x z] = ind2sub(siz, voxList(v));
+        ny = y; nx = x; nz = z;
+        for m = 1: steps
+            neary = sury + ny; nearx = surx + nx; nearz = surz + nz;
+            nearInd = sub2ind(siz,neary,nearx,nearz);
+            vals = bF(nearInd);
+            allMax = find(vals == max(vals),1);
+            useMax=allMax(fix(rand*length(allMax))+1);
+            [ny nx nz] = ind2sub(siz,nearInd(useMax));
+%                             showBip = maxBipMask;
+%                             showBip(ny, nx) = 1000;
+%                             image(showBip*3),pause(.01)
+
+        end
+
+        colorBip(y, x, :,z) = [ny nx nz];
+    end
+
+    image(uint8(max(permute(colorBip,[4 2 3 1]),[],4))),pause(.01)
+    
+    %Iwrite([upOne 'colors2\col'],uint8(colorBip))
+    allY = squeeze(colorBip(:,:,1,:)); allX=squeeze(colorBip(:,:,2,:));
+    allZ = squeeze(colorBip(:,:,3,:));
+    allInd = sub2ind(siz,allY(voxList),allX(voxList),allZ(voxList));
+    uniqueInd = unique(allInd);
+    idBip = zeros(ys, xs,zs);
+    for u = 1: length(uniqueInd)
+        idBip(voxList(allInd==uniqueInd(u)))= rand*254+1;
+    end
+    idBip = buffI(idBip,-look);
+    image(squeeze(max(idBip,[],3))),pause(.01)
+    colormap colorcube(256)
+    Iwrite([CellFolders{allI} 'IDs' bName],uint16(idBip))
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

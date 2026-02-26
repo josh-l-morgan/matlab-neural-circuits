@@ -1,0 +1,12 @@
+%function[out]=skel3(in);
+
+D = ones(70,70,50); % object background
+D(25:50,25:50,25:35) = 0; % Tetrahedre definition (simple object)
+%D(35:40,25:40,30:60)=0; % 
+Dst = bwdist(D,'chessboard'); % Distance Transform (Euclidean) ref. p.6
+DstPos = Dst>0;
+H = repmat(1/26,[3 3 3]); H(2,2,2)=0; % mask 
+DFlt = imfilter(Dst,H); % filtered distance, ref. p.8 Note: 3d mean flt not available in matlab
+tp=0.52 % Thinness parameter control tp ref. p.8 
+% An high (a low) tp value results in a thinner (thick) skeletron
+DSk = DFlt<(Dst-tp); % Skeleton , ref. p.9 

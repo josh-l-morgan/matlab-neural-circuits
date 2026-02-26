@@ -1,0 +1,18 @@
+function[datParsed] = readGoogleDat(datSheet,GID)
+
+
+datRaw = GetGoogleSpreadsheet2(datSheet,GID);
+
+load('MPN.mat')
+
+
+for c = 1:size(datRaw,2)
+    for r = 1:size(datRaw,1)
+        
+        str = datRaw{r,c};
+        if ~isempty(str)
+            sprintf('%d,%d = %s',r,c,str)
+            pause
+        end
+    end
+end

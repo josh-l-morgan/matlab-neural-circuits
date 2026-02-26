@@ -1,0 +1,348 @@
+%% Read data
+clear all
+colormap gray(256)
+TPN = GetMyDir
+'reading data'
+TPNd = dir(TPN); TPNd = TPNd(3:length(TPNd));
+TiffNames={};
+for i = 1: size(TPNd,1)
+    siz=length(TPNd(i).name);
+    if TPNd(i).name(siz-2:siz)== 'tif'
+        if TPNd(i).name(siz-8:siz-7)~='-R'
+            TiffNames(length(TiffNames)+1,1)={TPNd(i).name};
+        end
+    end
+end
+
+for i = length(TiffNames):-1:1
+    I(:,:,i) = imread([TPN TiffNames{i}]);
+end
+
+[yi xi zi] = ind2sub(size(I),find(I>0));
+subI = [min(yi) max(yi);min(xi) max(xi);min(zi) max(zi)];
+I = double(I(subI(1,1):subI(1,2),subI(2,1):subI(2,2),...
+    subI(3,1):subI(3,2)));
+image(sum(I,3))
+
+D = I>0;
+[ys xs zs] = size(D);
+[Dys Dxs Dzs] = ind2sub(size(D),find(D>0));
+D= D(min(Dys):max(Dys),min(Dxs):max(Dxs),min(Dzs):max(Dzs));
+[ys xs zs] = size(D);
+
+
+%% Find shaft (currently not removing shaft)
+'find shaft'
+sumD = sum(D,3);
+subplot(2,2,1)
+image(sumD * 255/max(sumD(sumD>0)))
+% [maxYs maxXs] = find(sumD == max(sumD(:)));
+% 
+% cdRad = 30;
+% shaft = [mean(maxYs) mean(maxXs)];
+% cutDisk = fspecial('disk',cdRad);
+% [nSy nSx] = ind2sub(size(cutDisk),find(cutDisk>0));
+% nearShaft = sub2ind([ys xs],round(nSy + shaft(1)-cdRad), round(nSx + shaft(2)-cdRad));
+% for z = 1:size(D,3)
+%    Dplane = D(:,:,z);
+%    Dplane(nearShaft) = 0;
+%    Dc(:,:,z) = Dplane;
+% end
+% sumDc = sum(Dc,3)
+% subplot(2,2,2)
+% image(sumDc * 255/max(sumDc(sumDc>0)))
+% % shift orthogonally
+% 'shift to princomp'
+% 
+% [Yp Xp Zp] = ind2sub([ys xs zs], find(D>0));
+% [coef, score, latent] = princomp([Yp Xp Zp]);
+% 
+% score(:,1) = score(:,1) - min(score(:,1)) + 1;
+% score(:,2) = score(:,2) - min(score(:,2)) + 1;
+% score(:,3) = score(:,3) - min(score(:,3)) + 1;
+% 
+% nY = fix(max(score(:,1)))+1;
+% nX = fix(max(score(:,2)))+1;
+% nZ = fix(max(score(:,3)))+1;
+% 
+% P = zeros(nY, nX, nZ);
+% score = round(score);
+% newInd = sub2ind([nY nX nZ],score(:,1),score(:,2),score(:,3));
+% P(newInd) = 1;
+% 
+% for i = 1: size(score,1)
+%    P(score(i,1),score(i,2),score(i,3)) = 1; 
+% end
+% xD = squeeze(sum(D,1));
+% yD = squeeze(sum(D,2));
+% xP = squeeze(sum(P,1));
+% yP = squeeze(sum(P,2));
+% subplot(2,2,1),image(xD * 100/median(xD(xD>0)));
+% subplot(2,2,2),image(yD * 100/median(yD(yD>0)));
+% subplot(2,2,3),image(xP * 100/median(xP(xP>0)));
+% subplot(2,2,4),image(yP * 100/median(yP(yP>0)));
+% pause(.01)
+%% Render mask
+ P = D;
+'render cell'
+subplot(1,1,1)
+p = patch(isosurface(P,.1));
+%isonormals(xs,ys,zs,D,p)
+set(p,'FaceColor','red','EdgeColor','none');
+daspect([1/.06 1/.06 1/.2])
+view(3); axis tight
+camlight 
+lighting gouraud
+pause(.01)
+%% Characterize morphology
+%% Depth profile
+dP = squeeze(sum(sum(P,1),2));
+bar(dP)
+whm = find(dP>=(max(dP)/2));
+tempDP = dP;
+tempDP(whm) = 0;
+hold on
+bar(tempDP,'b')
+hold off
+
+topA = min(whm):size(P,3);
+
+%% Polygone
+M = P;
+sumTop = sum(M(:,:,topA),3);
+image(sumTop * 100/median(sumTop(sumTop>0)));
+
+
+[y x] = find(sumTop>0);
+numArea = length(x);
+k = convhull(y,x);
+scatter(y,x,'.')
+hold on
+plot(y(k),x(k),'r-')
+hold off
+polyArea = polyarea(y(k),x(k)) ;
+
+%% Load Skeleton
+
+load([TPN 'data/AllSeg.mat'])
+scaleSeg = AllSeg;
+scaleSeg(:,1,:) = scaleSeg(:,1,:)/0.06 + min(y);
+scaleSeg(:,2,:) = scaleSeg(:,2,:)/0.06 + min(x);
+scaleSeg(:,3,:) = scaleSeg(:,3,:)/0.2;
+hold on
+for i = 1:size(scaleSeg,1)
+    plot([scaleSeg(i,1,1) scaleSeg(i,1,2)],[scaleSeg(i,2,1) scaleSeg(i,2,2)],'g')
+end
+hold off
+
+xyLengths = sqrt((scaleSeg(:,1,1)-scaleSeg(:,1,2)).^2+(scaleSeg(:,2,1)-scaleSeg(:,2,2)).^2);
+totLength = sum(xyLengths);
+
+pause(.01) 
+   
+
+
+%% find buotns by watershed
+gKern = gaus3d([7 7 3],3,[1 1 3]);
+gKern = gKern/sum(gKern(:));
+cI = fastCon(I,gKern);
+cI = cI>.5;
+% for i = 1:size(I,3)
+%     image((cI(:,:,i)) * 1000); pause
+% end
+
+
+tic
+dI =bwdistsc(cI==0,[.06 .06 .2]);
+toc
+
+% for i = 1:size(dI,3)
+%     image((dI(:,:,i)*300)),pause(.1)
+% end
+%% fft convolve
+
+%%Make gaussian kernal
+gKern = gaus3d([15 15 5],2,[1 1 3]);
+% 
+% for i = 1:size(gKern,3)
+%    image(fitH(gKern,i)),pause; 
+% end
+
+cI = fastCon(dI,gKern);
+%cI = dI;
+% for i = 1:size(cI,3)
+%     i
+%     subplot(2,1,1)
+%     image(dI(:,:,i)*300)
+%     subplot(2,1,2)
+%     image(fitH(cI,i)),pause(.1)
+% end
+
+%% watershed
+dI2 = max(cI(:))-cI;
+%dI2 = dI2 * 100/median(dI2(dI2>0));
+dI2(~I) = -Inf;
+%dI2 = imhmin(dI2,.1); %
+%dI2(dI2<-10) = -10;
+tic
+wI = watershed(dI2,26);
+toc
+numWI = max(wI(:));
+subplot(1,1,1)
+% for i = 1:size(wI,3)
+%     imshow(label2rgb(wI(:,:,i),'jet','w')),pause
+% end
+for i = 1:size(gapI,3)
+    subplot(2,1,1)
+    image(wI(:,:,i)*300)
+    subplot(2,1,2)
+    image(I(:,:,i)* 50 )%+ gapI(:,:,i)*1000),
+    pause
+end
+
+% for i = 1:max(wI(:))
+%     image(squeeze(sum(wI==i,2))*20),pause(.01)
+% end
+%% Analyze subregions
+rProps = regionprops(wI,cI,'WeightedCentroid',...
+    'PixelIdxList','PixelValues','MaxIntensity','Area');
+rP = wI * 0;
+for i = 1:length(rProps)
+   num(i) = rProps(i).Area * prod([.06 .06 .2]);
+   maxD(i) = rProps(i).MaxIntensity;
+   eqVol(i) = 4/3 * pi * maxD(i)^3;
+   roundPart(i) = eqVol(i)/num(i);
+   rP(rProps(i).PixelIdxList) = roundPart(i)* 255; 
+   cents2(i,:) = rProps(i).WeightedCentroid;
+end
+cents(:,1) = cents2(:,2);
+cents(:,2) = cents2(:,1);
+cents(:,3) = cents2(:,3);
+% for i = 1:size(rP,3)
+%    image(rP(:,:,i)),pause
+% end
+
+%% Connect Watershed
+tic
+clear nears
+gapI = I & ~wI;
+
+near = [1 0 0;-1 0 0; 0 1 0 ; 0 -1 0; 0 0 1; 0 0 -1];
+[ny nx nz] = ind2sub([3 3 3],find(ones(3,3,3)));
+near = [ny-2 nx-2 nz-2];
+wI2 = wI;
+wI2(I & (wI2 ==1)) = 0;
+% for r = 1:6
+%     r
+% pI = bwperim(wI2 ==1,26);
+% 
+% pI(:,:,1) = 0; pI(:,:,zs) = 0;
+% pI(:,1,:) = 0; pI(:,xs,:) = 0;
+% pI(1,:,:) = 0; pI(ys,:,:) = 0;
+% wI2(pI) = 0;
+% image(sum(wI2==0,3)*20),pause(.1)
+% end
+
+for r = 1:16
+gaps = find(I & ~wI2);
+showI2 = wI2;
+c = 0;
+colPairs = {};
+for i = 1:length(gaps)
+   [y x z] = ind2sub(size(wI2),gaps(i));
+   nears(:,1) = near(:,1) + y;
+   nears(:,2) = near(:,2) + x;
+   nears(:,3) = near(:,3) + z;
+   nears = wall(nears,size(wI2));
+   nearby = wI2(sub2ind(size(wI2),nears(:,1),nears(:,2),nears(:,3)));
+   things = unique(nearby(nearby>1));
+   if length(things) == 1
+        wI2(y,x,z) = things;
+        showI2(y,x,z) = things*20;
+   end
+   if length(things) >1
+      c = c+1;
+       colPairs{c,1} = things;
+       pairPos(c) = gaps(i);
+   end
+end % search all gaps
+end % repeat spreading
+for i = 1:size(gapI,3)
+    image(showI2(:,:,i)),pause(.1)
+end
+gapI = I & ~wI2;
+toc
+for i = 1:size(gapI,3)
+    subplot(2,1,1)
+    image(wI(:,:,i)*30)
+    subplot(2,1,2)
+    image((wI2(:,:,i)>1)* 50 )%+ gapI(:,:,i)*1000),
+    pause
+end
+
+%% make skeleton
+%%Grab pairs out of potential triples, quads
+pairList = [];
+listPos = [];
+rdUp = 10^length(num2str(numWI));
+for i = 1:length(colPairs)
+    pairing = sort(colPairs{i});
+    allComs = combntns(pairing,2);
+    for p = 1: size(allComs,1)
+        pairID = allComs(p,1) * rdUp + allComs(p,2); 
+        pairList(length(pairList)+1) = pairID;
+        listPos(length(listPos)+1) = pairPos(i);
+    end
+end
+
+%%All unique Pairs
+uPairs = unique(pairList);
+
+%%Find positions of joints
+for i = 1:length(uPairs)
+    [jPy jPx jPz] = ind2sub(size(wI),listPos(pairList == uPairs(i)));
+    jointPos(i,:) = [mean(jPy) mean(jPx) mean(jPz)];
+    jointMem(i,:) = [fix(uPairs(i)/rdUp) mod(uPairs(i),rdUp)];
+end
+
+%% PlotSkel
+sumwI = sum(wI>1,3);
+image(sumwI)
+[ploty plotx] = ind2sub(size(sumwI),find(sumwI>0));
+scatter(plotx,ploty,'.','b')
+hold on
+for i = 1:size(jointMem,1)
+    
+    scatter(jointPos(i,2),jointPos(i,1),'r')
+    plot([cents(jointMem(i,1),2) jointPos(i,2)],...
+        [cents(jointMem(i,1),1) jointPos(i,1)],'r');
+    plot([jointPos(i,2) cents(jointMem(i,2),2)],...
+        [jointPos(i,1) cents(jointMem(i,2),1)],'r');
+    
+    
+%     plot([cents(jointMem(i,2)) jointPos(jointMem(i,2))] ,...
+%         [cents(jointMem(i,1)) jointPos(jointMem(i,1))] ,'g','LineWidth',5)
+%     
+end
+hold off
+
+
+%%  Collect data
+%{
+maskArea
+polyArea
+maskVol
+%}
+%% Render mask
+% for i = 1: max(wI(:))
+% 'render cell'
+% subplot(1,1,1)
+% p = patch(isosurface(wI == i,.1));
+% %isonormals(xs,ys,zs,D,p)
+% set(p,'FaceColor','red','EdgeColor','none');
+% daspect([1/.06 1/.06 1/.2])
+% view(3); axis tight
+% camlight 
+% lighting gouraud
+% pause
+% end

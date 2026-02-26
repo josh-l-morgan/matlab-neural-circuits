@@ -1,0 +1,71 @@
+%%Create mosaics using simple distance as probability
+
+fsize=100;
+field=zeros(fsize);
+Num=50;
+gx=rand(Num,1)*fsize;
+gy=rand(Num,1)*fsize;
+Dmap=zeros(fsize,fsize,Num);
+
+for y = 1: fsize
+    for x = 1:fsize
+
+        Dist=sqrt((gy-y).^2+(gx-x).^2);
+        Dmap(y,x,:)=Dist;
+        Prob=1./((Dist/fsize).^2);
+        Prob=Prob/sum(Prob);
+        Pick=rand;
+        psum=0;
+        for i = 1:Num
+            psum=psum+Prob(i);
+            if psum>Pick
+                Targ=i; %pick cell
+                break
+            else
+                Targ=Num;
+            end
+        end
+        field(y,x)=Targ; %color field
+        
+    end
+    PercentDoneDrawing=y/fsize *100
+end
+
+colormap hsv(256)
+image(field*(256/Num)),pause(.01)
+
+%% Bin 
+
+for i = 1:Num  
+    for r =1:fsize/2;
+       Mask=Dmap(:,:,i)>(r-5) & Dmap(:,:,i)<(r+5);
+       Self(r)=sum(field(Mask)==i);
+       All(r)=sum(Mask(:));
+    end
+    Dens(i,:)=Self./All;
+    
+end
+
+
+%% Normalize Dens
+
+for i = 1:Num
+    dNorm(i)=min(find(Dens(i,:)<.2));
+    nDens=interp(Dens(i,:),10);
+    nDens=imresize(nDens,10/dNorm(i));
+    plot(nDens); pause(.01)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+

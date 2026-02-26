@@ -1,0 +1,266 @@
+highTis=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Analysis\fvLibrary\tis.mat');
+highTis=highTis.tis;
+highFV='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Analysis\fvLibrary\';
+highObj=load('Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\Final\Merge\dsObj.mat');
+highObj=highObj.dsObj;
+
+curTis=highTis;
+alPre=cid2type(curTis.syn.edges(:,2),curTis);
+alPost=cid2type(curTis.syn.edges(:,1),curTis);
+binEdges=[0:.04:1];
+binCents=binEdges(2:end)-(binEdges(2)-binEdges(1))/2;
+cols=[[0 1 1];[1 0 1];[1 .5 0];[1 1 0]];
+randCols=rand(16,3);
+cols=vertcat(cols,randCols);
+balph=0.3;
+cidList=[3051 2002 3119];
+typeList=["5ti","4ow","37"];
+typeListChar=convertStringsToChars(typeList);
+allDat={};
+figz={};
+gobz={};
+subplotz={};
+for curCellIt=1:length(cidList)
+curDat=struct();
+curCid=cidList(curCellIt);
+curDat(1).desc=strcat("OFF bpc to ",typeList(curCellIt));
+curDat(2).desc=strcat("ON bpc to ",typeList(curCellIt));
+curDat(3).desc=strcat("unknown bpc to ",typeList(curCellIt));
+curDat(4).desc=strcat("VG3 to ",typeList(curCellIt));
+curDat(5).desc=strcat("sOFF bpc to ",typeList(curCellIt));
+
+curDat(1).allSynIDs=getClassConn({'bpc','bpc','bpc','bpc'},{'bc3a','bc3b','bc4','bcoff'},{'rgc'},typeListChar(curCellIt),curTis)';
+curDat(2).allSynIDs=getClassConn({'bpc','bpc','bpc','bpc','bpc'},{'bc5i','bc5o','bc5t','bc6','bcon','xbc'},{'rgc'},typeListChar(curCellIt),curTis)';
+curDat(3).allSynIDs=getClassConn({'bpc'},{'none'},{'rgc'},typeListChar(curCellIt),curTis);
+curDat(4).allSynIDs=getClassConn({'amc'},{'vgc'},{'rgc'},typeListChar(curCellIt),curTis)';
+curDat(5).allSynIDs=getClassConn({'bpc'},{'bc2'},{'rgc'},typeListChar(curCellIt),curTis)';
+
+w3Inputs=find(curTis.syn.edges(:,1)==curCid);
+bpc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==7);
+offbpc2w3=intersect(curDat(1).allSynIDs,w3Inputs);
+onbpc2w3=intersect(curDat(2).allSynIDs,w3Inputs);
+unkbpc2w3=setdiff(bpc2w3,vertcat(offbpc2w3,onbpc2w3));
+vgc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==8&alPre{3}'==1);
+soffbpc2w3=intersect(curDat(5).allSynIDs,w3Inputs);
+
+w3inputTypes=alPre{4}(w3Inputs)';
+w3inputTypTab=tabulate(w3inputTypes);
+
+curDat(1).synIDs=intersect(curDat(1).allSynIDs,w3Inputs);
+curDat(2).synIDs=intersect(curDat(2).allSynIDs,w3Inputs);
+curDat(3).synIDs=setdiff(bpc2w3,vertcat(offbpc2w3,onbpc2w3));
+curDat(4).synIDs=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==8&alPre{3}'==1);
+curDat(5).synIDs=intersect(curDat(5).allSynIDs,w3Inputs);
+
+for i=1:length(curDat)
+curDat(i).synPos=curTis.syn.pos(curDat(i).synIDs,:);
+[~,~,curDat(i).synDep]=getIPLdepth(curDat(i).synPos(:,3),curDat(i).synPos(:,1),curDat(i).synPos(:,2),[],[]);
+curDat(i).histDat=histcounts(curDat(i).synDep,binEdges);
+end
+%% make figure
+figz{curCellIt}=figure('Position',[0 0 800 400]);
+title(curCid);
+%tl1=tiledlayout('flow');
+%% plot morph
+morphPlot=subplot('Position',[.1 .1 .6 .8]);
+%morphAx=axes();
+%morphAx.Clipping='off';
+%morphAx.Visible='off';
+%nexttile([3 5]);
+markerTypes={'o','o','o','o','o'};
+for i=1:length(curDat)
+    scat{i}=scatter3(curDat(i).synPos(:,3),curDat(i).synPos(:,1),curDat(i).synPos(:,2),50,cols(i,:),markerTypes{i},'filled');
+    hold on
+end
+scat{3}.MarkerEdgeColor=cols(3,:);
+gobj=compareMorph(morphPlot,[curCid],highFV,'INL');
+hold on
+
+gobj.patches.FaceColor=[.5 .5 .5];
+gobj.patches.FaceAlpha=0.25;
+
+morphPlot.Clipping='off';
+morphPlot.Visible='off';
+morphPlot.Color='none';
+view(93,-90)
+morphPlot.XLim=[ 7.5412   35.7729 ];
+morphPlot.YLim=[99.0311  147.8840];
+morphPlot.ZLim=[134.8855  163.4665];
+legend({'OFF bpc inputs','ON bpc inputs','unknown bpc inputs','VG3 inputs','sus OFF bpc inputs'});
+
+%% plot bars
+histPlot=subplot('Position',[.75 .1 .15 .8]);
+hold on
+lineStyles={'--','-','none','-.'};
+areas(1)=area(1:length(curDat(1).histDat),curDat(1).histDat,'FaceColor',cols(1,:),'EdgeColor',cols(1,:),'FaceAlpha',balph,'LineStyle',lineStyles{1});
+areas(2)=area(1:length(curDat(1).histDat),curDat(2).histDat,'FaceColor',cols(2,:),'EdgeColor',cols(2,:),'FaceAlpha',balph,'LineStyle',lineStyles{2});
+areas(3)=area(1:length(curDat(1).histDat),curDat(3).histDat,'FaceColor',cols(3,:),'EdgeColor',cols(3,:),'FaceAlpha',balph,'LineStyle',lineStyles{3});
+areas(4)=area(1:length(curDat(1).histDat),curDat(4).histDat,'FaceColor',cols(3,:),'EdgeColor',cols(4,:),'FaceAlpha',balph,'LineStyle',lineStyles{4});
+
+
+view(90,90);
+%rotate(areas(1),[1 1 0],90);
+%plot(curDat(2).histDat,1:length(curDat(1).histDat),'Color',cols(2,:),'LineWidth',2);
+%plot(curDat(3).histDat,1:length(curDat(1).histDat),'Color',cols(3,:),'LineWidth',2);
+% for i=1:length(curDat)
+% bars(i)=barh(binCents,curDat(i).histDat,'FaceColor',cols(i,:));
+% end
+
+barsh=bar(vertcat(curDat(1).histDat,curDat(2).histDat,curDat(3).histDat,curDat(4).histDat)');
+barsh(1).FaceColor=cols(1,:);
+barsh(2).FaceColor=cols(2,:);
+barsh(3).FaceColor=cols(3,:);
+barsh(4).FaceColor=cols(4,:);
+[barsh(:).BarWidth]=deal(1);
+
+
+%histax=gca;
+%set(histPlot,'YDir','reverse');
+set(histPlot,'XAxisLocation','top');
+histPlot.XTick=[0:0.1:1].*length(binEdges);
+histPlot.XTickLabel=[0:0.1:1];
+xlabel('IPL Depth');
+ylabel('syn #');
+
+subplotz{curCellIt}={morphPlot,histPlot};
+gobz{curCellIt}=gobj;
+
+w3Inputs=find(curTis.syn.edges(:,1)==curCid);
+bpc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==7);
+offbpc2w3=intersect(curDat(1).synIDs,w3Inputs);
+onbpc2w3=intersect(curDat(2).synIDs,w3Inputs);
+unkbpc2w3=setdiff(bpc2w3,vertcat(offbpc2w3,onbpc2w3));
+soffbpc2w3=intersect(curDat(5).synIDs,w3Inputs);
+vgc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==8&alPre{3}'==1);
+fprintf('cid%.0f: %.0f off, %.0f sus off, %.0f on, %.0f unk, %.0f vgc\n', ...
+    curCid,size(offbpc2w3,1),size(soffbpc2w3,1),size(onbpc2w3,1), ...
+    size(unkbpc2w3,1),size(vgc2w3,1))
+
+
+
+%camroll(-90)
+end
+
+%% what about the bipolar inputs from unknown bpcs?
+
+
+%% check out which of the 6sw should have a bpc reconstruction
+vgc26swInds=getClassConn({'amc'},{'vgc'},{'rgc'},{'6sw'},curTis);
+targCids=curTis.syn.edges(vgc26swInds,1);
+targTab=tabulate(targCids);
+[~,targOrd]=sort(targTab(:,2),'descend');
+targTabSrtd=targTab(targOrd,:);
+
+% get the bad synapses
+badSyn=find(curTis.syn.edges(:,2)==1021);
+badSynEdge=curTis.syn.edges(badSyn,:);
+badSynPos=curTis.syn.pos(badSyn,:);
+vastPos=badSynPos([1 2 3],:).*[250 250 25];
+
+
+
+
+%% figuring out the sustained vs transient
+HCcolmap=load('HCcolmap.mat');
+HCcolmap=HCcolmap.HCcolmap;
+HCcolmap=HCcolmap./255;
+
+w3inputTypes=alPre{4}(w3Inputs)';
+w3inputTypTab=tabulate(w3inputTypes);
+bc2Cids=type2cid({'bpc'},{'bc2'},curTis);
+bc3Cids=type2cid({'bpc','bpc'},{'bc3a','bc3b'},curTis);
+bc4Cids=type2cid({'bpc'},{'bc4'},curTis);
+params=struct();
+params.customMap=HCcolmap([2:2:end],:);
+params.ymax=15000;
+params.noLeg=1;
+params.noLab=0;
+newFig=figure();
+params.figNam=newFig;
+params.colormapping='typ';
+params.binEdges=[0:0.02:.5];
+alCidType=cid2type(curTis.cells.cids,curTis);
+uncertainTypeList=[0,13,14,15,16,17,18,19,21,22];
+uncertainBPC=curTis.cells.cids(find(alCidType{1}==7&ismember(alCidType{3},uncertainTypeList)))';
+cellVox=getCidVox(uncertainBPC,1,highObj,curTis);
+cellSizes=cellfun(@length,cellVox)';
+cellSizeCutoff=500;
+bigUncertainBPC=uncertainBPC(cellSizes>cellSizeCutoff);
+fullList=num2cell(bigUncertainBPC);
+fullList={fullList{:},vertcat(bc2Cids{:}),vertcat(bc3Cids{:})}';
+[~,params2]=showHist(fullList,params);
+
+%% different tack
+toffBPC=vertcat(vertcat(bc3Cids{:}));
+sparseToffBpcs=toffBPC(1:3:end);
+bigUncBpcFVs=getFV(bigUncertainBPC,highFV);
+figA=figure();
+axA=axes();
+gobJ=compareMorph(axA,sparseToffBpcs,highFV,'INL');
+view(102,-90);
+figA.Position=[1060 300 800 600];
+axA.XLim=[-11.0944   71.6239];
+axA.YLim=[112.8337  148.1385];
+axA.ZLim=[130.0613  166.8253];
+length(bigUncertainBPC)
+for i=1:length(bigUncertainBPC)
+    curFV=bigUncBpcFVs{i};
+    curFV.vertices=curFV.vertices(:,[3 1 2]);
+    %figure(figA);
+    %axA.Visible='on';
+    %axA.Title.String=bigUncertainBPC(i);
+    %title(bigUncertainBPC(i))
+    %text(figA.Position(1)-figA.Position(3)/2,figA.Position(2)+figA.Position(4)-50,num2str(bigUncertainBPC(i)));
+    titTex=text(50,mean(axA.YLim),mean(axA.ZLim),num2str(bigUncertainBPC(i)));
+    titTex.FontSize=24;
+    tempPatch=patch(curFV);
+tempPatch.FaceColor=[1 0 1];
+tempPatch.EdgeColor='none';
+tempPatch.FaceAlpha=0.1;
+%drawnow();
+pause();
+delete(tempPatch);
+delete(titTex);
+end
+
+%% It still looks like there are a lot of OFF synapses up in the sus zone.
+
+% w3Inputs=find(curTis.syn.edges(:,1)==curCid);
+% bpc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==7);
+% offbpc2w3=intersect(curDat(1).allSynIDs,w3Inputs);
+% onbpc2w3=intersect(curDat(2).allSynIDs,w3Inputs);
+% unkbpc2w3=setdiff(bpc2w3,vertcat(offbpc2w3,onbpc2w3));
+% vgc2w3=find(curTis.syn.edges(:,1)==curCid&alPre{1}'==8&alPre{3}'==1);
+% soffbpc2w3=intersect(curDat(5).allSynIDs,w3Inputs);
+
+badSpots=[[38981, 34430, 675]; ...
+    [36592, 34806, 572]; ...
+    
+
+testProps=curTis.syn.synProp;
+%testNams=cellfun(getfield,testProps);
+allNams=cellfun(@getfield,testProps,repmat({'name'},size(testProps)),'UniformOutput',false)';
+testNams=allNams(offbpc2w3);
+testEdges=curTis.syn.edges(offbpc2w3,:);
+testPos=curTis.syn.pos(offbpc2w3,:);
+[~,testOrd]=sort(testPos(:,3),'descend');
+preBpc=testEdges(testOrd,2);
+preBpcTypes=cid2type(preBpc,curTis);
+preBpcTab=horzcat(num2cell(preBpc),preBpcTypes{4}');
+
+
+unkCidList=[6876 1111 3639 6879 2309 3637 6881 2318 3638 1195];
+mor=compareMorph([],unkCidList,highFV,'INL');
+
+fv=getFV(3051,highFV);
+fv=fv{1};
+fv.vertices=fv.vertices(:,[3 1 2]);
+curFV=fv;
+tempPatch=patch(curFV);
+tempPatch.FaceColor=[1 0 1];
+tempPatch.EdgeColor='none';
+tempPatch.FaceAlpha=0.1;
+
+scatter3(testPos(:,3),testPos(:,1),testPos(:,2),50,'co','filled')
+
+

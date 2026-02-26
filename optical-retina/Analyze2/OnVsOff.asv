@@ -1,0 +1,38 @@
+%% Compare ON vs OFF
+
+'Get Cells'
+load(['UseCells.mat'])\
+[Age ONs OFFs BIs Others]=GetCellInfo(UseCells);
+GetBIs=find(BIs);
+BIAge=Age(BIs);
+'Cells Gotten'
+
+
+for k = 1:size(UseCells,1)
+   TPN=char(UseCells(k));
+   load([TPN 'Use.mat'])
+   aNum(k)=size(Use.Top,2);
+    
+end
+
+
+
+%% How am I supposed to concentrate with nothing to distract me?
+
+for k = 1:size(GetBIs,1)
+    k
+    TPN=char(UseCells(GetBIs(k)))
+    load([TPN 'Use.mat'])
+    load([TPN 'CA.mat'])
+    
+    CellZ=Use.Cent(3)
+    Top=Use.Top
+    Bottom=Use.Bottom
+    if abs(CellZ-mean(Top))>abs(CellZ-mean(Bottom));
+        Flip=1; else Flip=0; 
+    end
+    Fr(k)=Flip;
+    
+    pause
+    
+end

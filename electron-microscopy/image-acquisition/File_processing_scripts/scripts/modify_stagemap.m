@@ -1,0 +1,314 @@
+%modify_stagemap.m
+%A script to modify parameters of a stage map
+%By Daniel Berger, April 2010
+
+%inputstagemap='thousand_w21_autostagemap_autocorrected_ov2.xml'; 
+%outputstagemap=[inputstagemap(1:end-4) '_updated.xml'];
+inputstagemap=('c:/SEM_Users/Commons/Stagemaps/wafer8_stage_map_fully_corrected.xml');
+outputstagemap=[inputstagemap(1:end-7) '_updated.xml'];
+
+setbrightness=0; %If this flag is 1, the brightness setting of all slices will be updated
+  newbrightness=81.0;
+
+settilt=1; %If this flag is 1, the tilt setting of all slices will be updated
+  newtilt=0;
+  
+  
+setcontrast=0;   %If this flag is 1, the contrast setting of all slices will be updated
+  newcontrast=48.0341873168945;
+  
+setWD=0;         %If this flag is 1, the working distance is updated for all slices
+  newworkingdistance=0.00747803272679448;
+  
+setstig=0;       %If this flag is 1, the X and Y stigmation setting of all slices will be updated
+  newstigx=0.5;
+  newstigy=0.0;
+
+moveoffset=0;    %If this flag is set to 1, each position will be moved in x/y by the offset given. Takes rotations into account.
+  offset_dx=0; %in microns
+  offset_dy=13; %in microns
+
+newstagerot=116;   
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+% Load XML files
+txt=sprintf('Loading ORIGINAL stage map %s ...',inputstagemap); disp(txt);
+[tree1, rootname1, dom1]= xml_read(inputstagemap);
+
+numpoints=tree1.NumPoints;
+
+xcoords=zeros(numpoints,3);
+ycoords=zeros(numpoints,3);
+tiltcoords=zeros(numpoints,3);
+stagerots=zeros(numpoints,3);
+beamrots=zeros(numpoints,3);
+beam_wd=zeros(numpoints,3);
+beam_stigx=zeros(numpoints,2);
+beam_stigy=zeros(numpoints,2);
+detector_b=zeros(numpoints,2);
+detector_c=zeros(numpoints,2);
+
+% Read out Coordinates
+for p=1:1:tree1.NumPoints
+  tag=sprintf('Ref%i',p);
+  command=sprintf('x=tree1.%s.Stage.X;',tag); eval(command);
+  command=sprintf('y=tree1.%s.Stage.Y;',tag); eval(command);
+  command=sprintf('tilt=tree1.%s.Stage.Tilt;',tag); eval(command);
+  command=sprintf('stagerot=tree1.%s.Stage.Rot;',tag); eval(command);
+  command=sprintf('beamrot=tree1.%s.Beam.ScanRot;',tag); eval(command);
+  xcoords(p,1)=x; ycoords(p,1)=y; stagerots(p,1)=stagerot; beamrots(p,1)=beamrot;
+  command=sprintf('beam_wd(p,1)=tree1.%s.Beam.WD;',tag); eval(command);
+  command=sprintf('beam_stigx(p,1)=tree1.%s.Beam.StigX;',tag); eval(command);
+  command=sprintf('beam_stigy(p,1)=tree1.%s.Beam.StigY;',tag); eval(command);
+  command=sprintf('detector_b(p,1)=tree1.%s.Detector.B;',tag); eval(command);
+  command=sprintf('detector_c(p,1)=tree1.%s.Detector.C;',tag); eval(command);
+end;
+
+figure(3);
+subplot(2,3,1);
+  plot(beamrots(:,1)); hold on; plot(beamrots(:,2),'r'); plot(beamrots(:,1),'bo'); plot(beamrots(:,2),'rx'); hold off; grid on;
+  title('Beam Rotations');
+subplot(2,3,2);
+  plot(beam_wd(:,1)); hold on; plot(beam_wd(:,2),'r'); plot(beam_wd(:,1),'bo'); plot(beam_wd(:,2),'rx'); hold off; grid on;
+  title('Beam WD');
+subplot(2,3,3);
+  plot(beam_stigx(:,1)); hold on; plot(beam_stigx(:,2),'r'); plot(beam_stigx(:,1),'bo'); plot(beam_stigx(:,2),'rx'); hold off; grid on;
+  title('Beam StigX');
+subplot(2,3,4);
+  plot(beam_stigy(:,1)); hold on; plot(beam_stigy(:,2),'r'); plot(beam_stigy(:,1),'bo'); plot(beam_stigy(:,2),'rx'); hold off; grid on;
+  title('Beam StigY');
+subplot(2,3,5);
+  plot(detector_b(:,1)); hold on; plot(detector_b(:,2),'r'); plot(detector_b(:,1),'bo'); plot(detector_b(:,2),'rx'); hold off; grid on;
+  title('Detector B (Brightness)');
+subplot(2,3,6);
+  plot(detector_c(:,1)); hold on; plot(detector_c(:,2),'r'); plot(detector_c(:,1),'bo'); plot(detector_c(:,2),'rx'); hold off; grid on;
+  title('Detector C (Contrast)');
+
+figure(4);
+  plot(stagerots(:,1)); hold on; plot(stagerots(:,2),'r'); plot(stagerots(:,2),'rx'); hold off; grid on;
+  title('Stage Rotations');
+  
+%Check for duplicated slices in original stage map
+duplicationthreshold=1000; %Count slice as duplicated if two points are closer than 1mm
+for s=1:1:numpoints
+  if s<numpoints
+    for t=s+1:1:numpoints
+      d=sqrt((xcoords(s,1)-xcoords(t,1))*(xcoords(s,1)-xcoords(t,1))+(ycoords(s,1)-ycoords(t,1))*(ycoords(s,1)-ycoords(t,1)));
+      if d<duplicationthreshold
+        tag=sprintf('Ref%i',s); command=sprintf('slicename1=tree1.%s.Name;',tag); eval(command);
+        tag=sprintf('Ref%i',t); command=sprintf('slicename2=tree1.%s.Name;',tag); eval(command);
+        txt=sprintf('DUPLICATION WARNING: Slices %s and %s are only %f microns apart!',slicename1, slicename2, d); disp(txt);
+      end;
+    end;
+  end;
+end;
+
+
+
+% %Read source and target locations
+% cdpx=[xcoords(diffpos,1) xcoords(diffpos,2)];
+% cdpy=[ycoords(diffpos,1) ycoords(diffpos,2)];
+% 
+% figure(1);
+% plot(cdpx(:,1),cdpy(:,1),'*');
+% hold on;
+% plot(cdpx(:,2),cdpy(:,2),'r*');
+% hold off;
+% grid on;
+% axis square;
+% 
+% px1=cdpx(:,1); py1=cdpy(:,1); px2=cdpx(:,2); py2=cdpy(:,2);
+% sxcoords=xcoords(:,1); sycoords=ycoords(:,1);
+% 
+% imagepos=[py1 px1];
+% stagepos=[py2 px2];
+% 
+% figure(13);
+% subplot(1,2,1);
+% plot(imagepos(:,1),imagepos(:,2),'g.');
+% hold on;
+% plot(imagepos(1,1),imagepos(1,2),'r*');
+% plot(imagepos(end,1),imagepos(end,2),'b*');
+% axis equal;
+% grid on;
+% hold off;
+% title('Positions in photo');
+% subplot(1,2,2);
+% plot(stagepos(:,1),stagepos(:,2),'g.');
+% hold on;
+% plot(stagepos(1,1),stagepos(1,2),'r*');
+% plot(stagepos(end,1),stagepos(end,2),'b*');
+% axis equal;
+% grid on;
+% hold off;
+% title('Positions of stage');
+% 
+% %%%%%%%%%% COMPUTING TRANSFORMATION IMAGE -> STAGE
+% tform=cp2tform(stagepos,imagepos,'projective'); %'affine');
+% T=tform.tdata.Tinv;
+% T=T';
+% 
+% 
+% txcoords=zeros(size(sxcoords,1),1);
+% tycoords=zeros(size(sycoords,1),1);
+% 
+% for p=1:1:size(sxcoords,1)
+%   dpos=T*[sycoords(p,1) sxcoords(p,1) 1]';
+%   %tycoords(p)=dpos(1); txcoords(p)=dpos(2); %for affine
+%   tycoords(p)=dpos(1)/dpos(3); txcoords(p)=dpos(2)/dpos(3); %for projective
+% end;
+% 
+% figure(2);
+% plot(sxcoords,sycoords,'*');
+% hold on;
+% % for i=1:1:size(txv,2)
+% %   %plot(txcoords,tycoords,'r*');
+% %   plot(squeeze(txv(:,i)),squeeze(tyv(:,i)),'r.');
+% % end;
+% plot(xcoords(find(diffpos),2),ycoords(find(diffpos),2),'go');
+% %plot(mtxv,mtyv,'r*');
+% plot(txcoords,tycoords,'r*');
+% hold off;
+% grid on;
+% axis equal;
+
+%meanrot=mean(av)*180/pi;
+% [scalex, scaley, shearx, rotang, transx, transy]=getfromaffinematrix(T);
+% meanrot=rotang*180/pi;
+% txt=sprintf('Relative wafer rotation: %f degrees.',meanrot); disp(txt);
+
+if (setbrightness==1)
+  txt=sprintf('Setting brightness of all slices to %f...',newbrightness); disp(txt);
+%   avgb=mean(detector_b(diffpos,2)); %average brightness of updated slices
+%   figure(3); subplot(2,3,5);
+%   hold on; plot([0 numpoints],[avgb avgb],'k'); hold off;
+end;
+
+if (setcontrast==1)
+  txt=sprintf('Setting contrast of all slices to %f...',newcontrast); disp(txt);
+%   avgc=mean(detector_c(diffpos,2)); %average contrast of updated slices
+%   figure(3); subplot(2,3,6);
+%   hold on; plot([0 numpoints],[avgc avgc],'k'); hold off;
+end;
+
+if (setWD==1)
+  txt=sprintf('Setting working distance of all slices to %f...',newworkingdistance); disp(txt);
+%   chwd1=beam_wd(diffpos,1);
+%   chwd2=beam_wd(diffpos,2);
+%   figure(5);
+%   for i=1:1:size(px1,1)
+%     %plot3([px1(i) px1(i)],[py1(i) py1(i)],[min(chwd1) chwd1(i)]);
+%     %plot3([px2(i) px2(i)],[py2(i) py2(i)],[min(chwd2) chwd2(i)],'r');
+%     plot3(px2(i),py2(i),chwd2(i)-chwd1(i),'g*');
+%     hold on;
+%   end;
+%   grid on;
+%   hold off;
+%   title('Plane fit to estimate new working distances');
+%   xlabel('X location (microns)');
+%   ylabel('Y location (microns)');
+%   zlabel('Working Distance value');
+%   
+%   %Fit plane to WD differences by using PCA
+%   X=[px2 py2 chwd2-chwd1];
+%   [coeff,score,roots] = princomp(X);
+%   basis = coeff(:,1:2); normal = coeff(:,3);
+%   
+%   [n,p] = size(X);
+%   meanX = mean(X,1);
+%   Xfit = repmat(meanX,n,1) + score(:,1:2)*coeff(:,1:2)';
+%   residuals = X - Xfit;
+%   hold on;
+%   for i=1:1:size(Xfit,1)
+%     plot3([px2(i) Xfit(i,1)],[py2(i) Xfit(i,2)],[chwd2(i)-chwd1(i) Xfit(i,3)],'r');
+%     plot3(Xfit(i,1),Xfit(i,2),Xfit(i,3),'r*');
+%   end;
+%   
+%   [xgrid,ygrid] = meshgrid(linspace(min(X(:,1)),max(X(:,1)),5), linspace(min(X(:,2)),max(X(:,2)),5));
+%   zgrid = (1/normal(3)) .* (meanX*normal - (xgrid.*normal(1) + ygrid.*normal(2)));
+%   h = mesh(xgrid,ygrid,zgrid,'EdgeColor',[0 0 0],'FaceAlpha',0);
+%   
+%   for i=1:1:numpoints
+%     x=xcoords(i,1); y=ycoords(i,1);
+%     z=(1/normal(3)) .* (meanX*normal - (x*normal(1) + y*normal(2)));
+%     beam_wd(i,3)=beam_wd(i,1)+z;
+%     if diffpos(i)==0 %only for unmodified stage positions
+%       plot3(x,y,z,'ro');
+%     end;
+%   end;
+%   hold off;
+%   
+%   figure(6);
+%   plot(beam_wd(:,1),'k');
+%   hold on;
+%   plot(beam_wd(:,1),'k.');
+%   plot(beam_wd(:,3),'r');
+%   plot(beam_wd(:,3),'r.');
+%   plot(find(diffpos),beam_wd(diffpos,2),'go');
+%   hold off;
+%   grid on;
+%   xlabel('Stage position no.');
+%   ylabel('Working distance');
+%   title('Plane fit based working distance re-estimation');
+end;
+
+if (setstig==1)
+txt=sprintf('Setting stigmation of all slices to X=%f and Y=%d...',newstigx,newstigy); disp(txt);
+%disp('Setting X and Y stigmation of all slices to average manually updated contrast...');
+%   avgstigx=mean(beam_stigx(diffpos,2)); %average X stigmation of updated slices
+%   avgstigy=mean(beam_stigy(diffpos,2)); %average X stigmation of updated slices
+%   figure(3); 
+%   subplot(2,3,3); hold on; plot([0 numpoints],[avgstigx avgstigx],'k'); hold off;
+%   subplot(2,3,4); hold on; plot([0 numpoints],[avgstigy avgstigy],'k'); hold off;
+end;
+
+if (moveoffset==1)
+  txt=sprintf('Moving the position of all slices will by an offset of (%f,%f) micrometers...',offset_dx,offset_dy); disp(txt);
+end;
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Put new positions back to stage map
+
+for p=1:1:tree1.NumPoints
+  tag=sprintf('Ref%i',p);
+  x=xcoords(p); y=ycoords(p);
+  if (moveoffset==1) %perform additional constant offset translation movement
+    beamrot=beamrots(p,1);  %<<<<<<<<<<<<<--- FIX THIS!
+    cosrot=cos(beamrot*pi/180);
+    sinrot=sin(beamrot*pi/180);
+    rdx=offset_dx*cosrot-offset_dy*sinrot;
+    rdy=offset_dx*sinrot+offset_dy*cosrot;
+    x=x+rdx; y=y+rdy;
+  end;
+  
+  command=sprintf('tree1.%s.Stage.Rot=newstagerot;',tag); eval(command);
+  %command=sprintf('tree1.%s.Stage.Tilt=tilt;',tag); eval(command);
+  command=sprintf('tree1.%s.Stage.X=x;',tag); eval(command);
+  command=sprintf('tree1.%s.Stage.Y=y;',tag); eval(command);
+%   if (beamrots(p,1)==beamrots(p,2)) %Only apply wafer rotation to slices which have not been manually adjusted
+%     command=sprintf('tree2.%s.Beam.ScanRot=beamrots(p,1)-meanrot;',tag); eval(command);
+%   end;
+  if (setbrightness==1)
+    command=sprintf('tree1.%s.Detector.B=newbrightness;',tag); eval(command);
+  end;
+  if (settilt==1)
+    command=sprintf('tree1.%s.Stage.Tilt=newtilt;',tag); eval(command);
+  end;
+  if (setcontrast==1)
+    command=sprintf('tree1.%s.Detector.C=newcontrast;',tag); eval(command);
+  end;
+  if (setWD==1)
+    command=sprintf('tree1.%s.Beam.WD=newworkingdistance;',tag); eval(command);
+  end;
+  if (setstig==1)
+    command=sprintf('tree1.%s.Beam.StigX=newstigx;',tag); eval(command);
+    command=sprintf('tree1.%s.Beam.StigY=newstigy;',tag); eval(command);
+  end;
+end;
+
+% Write XML File
+txt=sprintf('Writing updated stage map to %s ...',outputstagemap); disp(txt);
+xml_write(outputstagemap,tree1,rootname1);

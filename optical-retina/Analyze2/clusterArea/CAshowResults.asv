@@ -1,0 +1,99 @@
+clear all
+
+KPN=GetMyDir
+Kdir=dir(KPN);
+Kdir=Kdir(3:size(Kdir,1));
+yxum=0.103;
+zum=0.3;
+
+c=0;
+
+for k = 1:size(Kdir,1)
+     TPN = [KPN '\' Kdir(k).name '\']; 
+    if exist([TPN 'CA.mat'])
+        c=c+1;
+        load([TPN 'CA.mat'])
+        load([TPN 'Cell.mat'])
+        
+        Age(c)=str2num(Cell.Age);
+        mDtA(c)=CA.mDtA;
+        mDdA(c)=CA.mDdA;
+        mDDA(c)=CA.mDDA;    
+        
+        
+    end
+    k
+end
+
+scatter(Age,mDtA)
+scatter(Age,mDdA)
+scatter(Age,mDDA)
+
+
+%% Plot increase with age
+mDtA=mDtA*.5
+%scatter(Age,mDtA)
+
+
+%%Find standard Error as StandardDeviation / sqrt(n)
+E(1)=std(mDtA(Age==5))/sqrt(sum(Age==5));
+E(2)=std(mDtA(Age==7))/sqrt(sum(Age==7));
+E(3)=std(mDtA(Age==12))/sqrt(sum(Age==12));
+E(4)=std(mDtA(Age>30))/sqrt(sum(Age>30));
+
+
+errorbar([5 7 12 35],[mean(mDtA(Age==5)) mean(mDtA(Age==7)) ...
+    mean(mDtA(Age==12)) mean(mDtA(Age>30))],E,'r')
+hold on
+
+%%mDdA
+%scatter(Age,mDdA)
+
+
+%%Find standard Error as StandardDeviation / sqrt(n)
+E(1)=std(mDdA(Age==5))/sqrt(sum(Age==5));
+E(2)=std(mDdA(Age==7))/sqrt(sum(Age==7));
+E(3)=std(mDdA(Age==12))/sqrt(sum(Age==12));
+E(4)=std(mDdA(Age>30))/sqrt(sum(Age>30));
+
+
+errorbar([5 7 12 35],[mean(mDdA(Age==5)) mean(mDdA(Age==7)) ...
+    mean(mDdA(Age==12)) mean(mDdA(Age>30))],E,'g')
+
+
+%%mDDA
+%scatter(Age,mDDA)
+%%Find standard Error as StandardDeviation / sqrt(n)
+E(1)=std(mDDA(Age==5))/sqrt(sum(Age==5));
+E(2)=std(mDDA(Age==7))/sqrt(sum(Age==7));
+E(3)=std(mDDA(Age==12))/sqrt(sum(Age==12));
+E(4)=std(mDDA(Age>30))/sqrt(sum(Age>30));
+
+
+errorbar([5 7 12 35],[mean(mDDA(Age==5)) mean(mDDA(Age==7)) ...
+    mean(mDDA(Age==12)) mean(mDDA(Age>30))],E,'b')
+
+
+
+
+
+hold off
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

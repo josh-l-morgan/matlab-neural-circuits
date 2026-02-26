@@ -1,0 +1,178 @@
+
+%%Find Presynaptic Territories in the form of a 3D stack of 2D territories.
+%%Receive input I as grascale 3D stack of presyn channel
+
+TPN = GetMyDir;
+
+
+%% Get user info
+'getting image info', pause(.1)
+prompt = {'Enter Threshold (or A for Auto, M for manual)','2D MedFilt size',...
+    'Size of kernel for removing isolated masked voxels',...
+    'Proportion of voxels need to survive kernel',...
+    'Size of Dilation disk','Size of Erosion disk','Post Dilation Size: '};
+title = 'Type of image';
+nLines = 1;
+
+Info= inputdlg(prompt,title,nLines,{'M','3','5','.5','50','50','10'}); pause(.01)
+
+ThreshIn=Info{1};
+for i = 2 : length(Info)
+    Info{i} = str2num(Info{i});
+end
+
+MedSize=Info{2}; % Size of preliminary 2D median filter
+ksize=Info{3}; %kernal size for filtering for noise from first Threshold
+Bulky=Info{4}; % precent pixels in kernal passing thresh needed to survive.
+DilateSize=Info{5}; % size of disk used for closing operation
+ErodeSize=Info{6};
+PostDilateSize=Info{7};
+
+load([TPN 'Colo.mat'])
+I = uint8(Colo); clear Colo;
+
+
+%% Median Filter
+'median filtering'
+for i = 1: size(I,3)
+    I(:,:,i)=medfilt2(I(:,:,i),[MedSize MedSize]);
+end
+Imed=max(I,[],3);
+
+%% Threshold
+
+col=Imed*3;
+col(:,:,2)=Imed*7;
+
+if ~isempty(str2num(ThreshIn))  %if not number for threshold
+    Thresh = str2num(ThreshIn);
+else
+    [Thresh EM] = graythresh(I);
+    Thresh=(100*Thresh)
+    if ThreshIn ~='A'  % if not auto, get manual
+        col(:,:,3)=max(I>=Thresh,[],3)*1000;
+        image(col),pause(1)
+        testThresh=Thresh;
+        while testThresh ~= 'Q'
+            testThresh=input('enter threshold.  Enter Q when finished:  ','s');
+            if testThresh=='Q',break,end
+            if ~isempty(str2num(testThresh))
+                Thresh=str2num(testThresh);
+                 col(:,:,3)=max(I>=Thresh,[],3)*1000;
+                    image(col),pause(1)
+            end
+        end
+    end
+end
+
+I = I>=Thresh;
+
+It=max(I,[],3);
+
+col=Imed*3;
+col(:,:,2)=Imed *7;
+col(:,:,3)=It*1000;
+image(col),pause(1)
+
+%% Remove small
+kern=zeros(ksize+ksize-1,ksize+ksize-1);
+[y x] = find(kern==0);
+d=dist([y x],[ksize ksize]);
+id=sub2ind(size(kern),y,x);
+kern(id(d<=(ksize-1)))=1;
+image(kern*1000)
+
+'convolving'
+I = uint8(I);
+for i = 1:size(I,3)
+    I(:,:,i)=imfilter(I(:,:,i),kern);
+    FilteringPercentDone=i/size(I,3)*100
+end
+I=I>(sum(kern(:))*Bulky);
+Icon=max(I,[],3);
+col(:,:,3)=Icon*1000;
+image(col),pause(1)
+
+%% Perform closing operation
+
+SEd=strel('disk',DilateSize);
+SEe=strel('disk',ErodeSize);
+for i = 1:size(I,3)
+    I(:,:,i)=imdilate(I(:,:,i),SEd);
+    I(:,:,i)=imerode(I(:,:,i),SEe);
+    ClosingPercentDone=i/size(I,3)*100
+end
+
+if PostDilateSize>0
+SEpostD=strel('disk',PostDilateSize);
+for i = 1:size(I,3)
+    I(:,:,i)=imdilate(I(:,:,i),SEpostD);
+    PostDilatePercentDone=i/size(I,3)*100
+end
+end
+
+Iclose=sum(I,3);
+
+col(:,:,3)=Iclose*50;
+image(col), pause(1)
+
+%% Filter dend and puncta with territory. 
+load([TPN 'Use.mat'])
+load([TPN 'ImageInfo.mat'])
+xyum=ImageInfo{4};  zum=ImageInfo{5};
+
+colormap gray(256)
+[ys xs zs] = size(I);
+
+DPos=Use.NN;
+DPos(:,1:2)=DPos(:,1:2)/xyum; DPos(:,3)=DPos(:,3)/zum;
+DPos=round(DPos);
+Dind=sub2ind(size(I),DPos(:,1),DPos(:,2),DPos(:,3));
+TransDots=I(Dind);
+
+Mids=Use.Mids;
+Mids(:,1:2)=Mids(:,1:2)/xyum; Mids(:,3)=Mids(:,3)/zum;
+Mids=round(Mids);
+Mind=sub2ind(size(I),Mids(:,1),Mids(:,2),Mids(:,3));
+TransMids=I(Mind);
+
+TransLength=sum(Use.Length(TransMids))
+WTLength=sum(Use.Length(~TransMids))
+TransNum=sum(TransDots)
+WTNum=sum(~TransDots)
+TransPD=TransNum/TransLength
+WTPD=WTNum/WTLength
+
+
+%% Find Distance to Transgen
+
+
+%% Draw identified
+Temp=I* 0;
+Temp(Mind)=100;
+Enlarge=strel('disk',5);
+for i = 1: size(Temp,3)
+      Temp(:,:,i)=imdilate(Temp(:,:,i),Enlarge);
+end
+Show=sum(Temp,3);
+
+Temp=I* 0;
+Temp(Dind)=200;
+Enlarge=strel('disk',5);
+for i = 1: size(Temp,3)
+      Temp(:,:,i)=imdilate(Temp(:,:,i),Enlarge);
+end
+Show(:,:,2)=sum(Temp,3);
+
+Show(:,:,3)=col(:,:,3);
+Show=uint8(Show);
+
+image(Show),pause(.1)
+
+
+
+
+
+
+
+

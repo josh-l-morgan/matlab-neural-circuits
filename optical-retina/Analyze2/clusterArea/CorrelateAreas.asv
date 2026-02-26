@@ -1,0 +1,46 @@
+
+
+
+clear all
+load(['UseCells.mat'])
+
+NumCells=size(UseCells,1);
+for k = 1: NumCells
+   TPN=char(UseCells(k)); 
+   
+   load([TPN 'CA.mat'])
+%    DotPix=[];
+%    DendPix=[];
+%    DDPix=[];
+%    Ter=[];
+%    for a= 2:size(CA.Arbor,2)
+%        DotPix=cat(1,DotPix,CA.Arbor(a).DotDist(:));
+%        DendPix=cat(1,DendPix,CA.Arbor(a).DendDist(:));
+%        Ter=cat(1,Ter,CA.Arbor(a).Territory(:));
+%        
+%    end
+   
+   DotPix=CA.Arbor(1).DotDist;
+   DendPix = CA.Arbor(1).DendDist;
+   Ter=CA.Arbor(1).Territory;
+
+   clear Show
+   Show(:,:,1)= DendPix * 100/median(DendPix(Ter>0));
+   Show(:,:,2)=DotPix*100/median(DendPix(Ter>0));
+   Show(:,:,3)=~Ter*100;
+   Show=uint8(Show);
+   image(Show),pause(.01)
+   
+
+   %% Draw overlay
+            load([TPN 'Cell.mat'])
+            cName=['P' Cell.Age '_' Cell.Type '_' Cell.Name '.tif']
+            Name=['\\128.208.64.36\wonglab\Josh\Analyzed\Output2\' 'Images\D2P\' cName];     
+            imwrite(Show,Name,'Compression','none')
+
+      
+        
+   
+  
+   
+end

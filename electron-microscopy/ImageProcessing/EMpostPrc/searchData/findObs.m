@@ -1,0 +1,90 @@
+colormap gray(255)
+Istak = Istak;
+Istak = Istak * 255/max(Istak(:));
+maxIS = max(Istak(:));
+% for i = 1:size(Istak,3)
+%     image(Istak(:,:,i)* 250/maxIS),pause(.04)
+% end
+
+%%  threshold
+% 
+% for s = 1: size(Istak,3)
+%    subplot(2,1,1)
+%    image(Istak(:,:,s));
+%    subplot(2,1,2)
+%     
+%     image((Istak(:,:,s)>50)*1000),pause
+% end
+% 
+
+%% Search
+pos = [];
+for s = 1: size(Istak,3)
+    s
+    I = Istak(20 : end - 20,20 : end - 20,s);
+    I(I<0) = 0 ;
+    subplot(2,1,1)
+    image(I),pause(.04)
+
+
+    mI = imhmin(255-I,30);
+    wI = watershed(mI,4);
+    subplot(2,1,2)
+    %image(mI)
+    %image(wI)
+
+    numWats = max(wI(:));
+    vI = wI * 0;
+    for i = 1:numWats
+        vI(wI == i) = min(mI(wI == i));
+
+    end
+    %image(vI)
+
+    %%
+    peaks = I * 0;
+    for i = 1:numWats
+        ids = find(wI == i);
+        vals = I(ids);
+        getit = vals>=(max(vals)*.1);
+        peaks(ids(getit))=vals(getit);
+    end
+    %image(peaks),pause(.01)
+
+    [bwI nLab] = bwlabel(peaks);
+
+
+    stats = regionprops(bwI,I,'WeightedCentroid',...
+        'Solidity','PixelIdxList','MajorAxisLength',...
+        'MinorAxisLength','MeanIntensity');
+
+    MinorAxisLength = [stats(:).MinorAxisLength];
+    MajorAxisLength = [stats(:).MajorAxisLength];
+    Solidity = [stats(:).Solidity];
+    MeanIntensity = [stats(:).MeanIntensity];
+    WC = [stats(:).WeightedCentroid];
+    WC1 = WC(mod(1:length(WC),2)>0)';
+    WC2 = WC(mod([1:length(WC)]+1,2)>0)';
+    wCent = [WC1 WC2 ones(length(stats),1) * s ];
+
+
+    useStat = MeanIntensity .* Solidity;
+    useReg = find(useStat>50);
+
+
+
+    showVal = bwI * 0;
+    for i = 1: nLab
+        ids = find(bwI == i);
+        showVal(bwI == i) = useStat(i);
+
+    end
+    image(showVal * 255/max(showVal(:))),pause(.01)
+
+    pos = cat(1,pos, wCent(useReg,:));
+    
+
+end
+%TPN = GetMyDir;
+%imwriteNp(TPN,Istak,'Istak')
+

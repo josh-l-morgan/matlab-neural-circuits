@@ -1,0 +1,18 @@
+
+
+sectionsCounted = 13;
+timeCounted = 7 * 60 + 0; 
+
+totalSections = 8000;
+sectionsDone = 270;
+
+secondsLeft = (totalSections - sectionsDone) / sectionsCounted * timeCounted;
+daysLeft = secondsLeft/60/60/24
+
+
+
+currentTime = clock;
+currentDays = datenum(currentTime)
+finishDay = currentDays + daysLeft;
+
+[ 'Should finish on ' datestr(finishDay)]

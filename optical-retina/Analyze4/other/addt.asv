@@ -1,0 +1,9 @@
+Num=1000;
+c=zeros(Num,1);
+c(2)=1;
+for i = 3: Num
+    c(i)=c(i-1)+c(i-2);    
+end
+r=[c ;0]./[0;c];
+r=r(2:length(r)-1);
+plot(r),pause(.1)

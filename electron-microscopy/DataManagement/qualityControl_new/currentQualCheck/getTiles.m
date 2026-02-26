@@ -1,0 +1,37 @@
+function[inams,itime] = getTiles(TPN)
+
+dTPN = dir(TPN); dTPN = dTPN(3:end);
+inams = {}; itime = [];
+%% get tifs
+for i = 1:length(dTPN);
+    nam = dTPN(i).name;
+    if length(nam)>3
+        if strcmp(nam(end-3:end),'.tif') | strcmp(nam(end-3:end),'.bmp') | strcmp(nam(end-3:end),'.png') 
+            if strcmp(nam(1:4),'Tile')
+            inams = [inams nam];
+            itime = [itime; datevec(dTPN(i).date)];
+            end
+        end
+    end
+end
+
+% %% sort tifs
+% if ~isempty(inams)
+% for i = 1:length(inams)
+%     nam = inams{i};
+%     nnams(i) = length(inams);  % set to last by default
+%     for p = 1:length(nam)-4;
+%         snam = nam(end - 3 - p:end -4);
+%         nnam = str2num(snam);
+%         if isempty(nnam)
+%             break
+%         end
+%         nnams(i) = nnam;
+%     end
+% end
+% 
+% [sorted idx] = sort(nnams);
+% inams = inams(idx);
+
+inams = inams';
+end

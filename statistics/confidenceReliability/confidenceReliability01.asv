@@ -1,0 +1,143 @@
+
+if 0
+fig = figure;
+end
+
+if 0 %% Run simulation
+
+nRange = unique(round(2.^[1:.1:10]));
+plotRange = sqrt(nRange);
+reps = 100000;
+
+
+aPrioriPrecision = 1.96./sqrt(nRange);
+
+cis = zeros(length(nRange),reps,2);
+
+for nI = 1:length(nRange);
+    disp(sprintf('running n %d of %d',nI,length(nRange)))
+    n = nRange(nI);
+    simRes = randn(n,reps);
+
+    for r = 1:reps
+
+        g = randn(n,1);
+        [a b c] = ttest(g);
+        cis(nI,r,1:2) = c;
+
+    end
+
+end
+
+
+ciRange = cis(:,:,2)-cis(:,:,1);
+
+hits = (cis(:,:,1)<0) & (cis(:,:,2)>0);
+minDist = min(abs(cis),[],3);
+
+hitRat = mean(hits,2);
+missBy = minDist;
+missBy(hits) = 0;
+
+aveMissBy = sum(missBy,2)./sum(~hits,2);
+clear lowMissBy highMissBy
+for i = 1:size(missBy)
+    missByN = missBy(i,:);
+    missByNm = missByN(missByN>0);
+    sortMissBy = sort(missByNm,'ascend');
+    lowMissBy(i) = sortMissBy(floor(length(sortMissBy)*0.025));
+    highMissBy(i) = sortMissBy(ceil(length(sortMissBy)*0.95));
+
+end
+
+
+sortCiRange = sort(ciRange,2,'ascend');
+lowCiRange = sortCiRange(:,floor(reps*.025));
+highCiRange = sortCiRange(:,floor(reps*.975));
+aveCiRange = mean(ciRange,2);
+
+%% Report
+
+
+clf(fig);
+tickVals = 2.^[1:10];
+tickRange = sqrt(tickVals);
+
+s4a = subplot(4,4,1,'parent',fig);
+
+gx = [-3:.01:3];
+gy = exp(1).^(-gx.^2./2);
+plot(s4a,gx,gy,'k')
+
+s1 = subplot(4,1,2:3,'parent',fig);
+s1.XTick = tickRange;
+s1.XTickLabel = tickVals;
+s1.YLabel.String = 'Precision';
+s1.NextPlot = 'add';
+
+plot(s1,plotRange,aPrioriPrecision * 2,'r')
+plot(s1,plotRange,lowCiRange,'color',[.5 .5 .5])
+plot(s1,plotRange,aveCiRange,'k')
+plot(s1,plotRange,highCiRange,'color',[.5 .5 .5])
+s1.YLim = [0 10];
+s1.XLim = [min(tickRange) max(tickRange)];
+
+
+s2 = subplot(4,4,2:4,'parent',fig);
+s2.NextPlot = 'add';
+plot(s2,plotRange,hitRat,'k')
+s2.XTick = tickRange;
+s2.XTickLabel = tickVals;
+s2.YLabel.String = 'Fraction containing mean';
+s2.XLim = [min(tickRange) max(tickRange)];
+s2.YLim = [.9 1];
+
+
+s3 = subplot(4,1,4,'parent',fig);
+s3.NextPlot = 'add';
+%plot(s3,plotRange,lowMissBy,'color',[.5 .5 .5])
+plot(s3,plotRange,highMissBy,'color',[.5 .5 .5])
+plot(s3,plotRange,aveMissBy,'k')
+s3.XTick = tickRange;
+s3.XTickLabel = tickVals;
+s3.YLabel.String = 'Average error when out of bounds';
+s3.XLim = [min(tickRange) max(tickRange)];
+
+else % make demo scatters
+    
+    
+    
+    clf
+    ax = gca;
+    ax.NextPlot = 'add';
+    ns = [4 8 16 32 64];
+
+
+    pnum = length(ns);
+    for p = 1:pnum
+
+         plot([p-.1 p+.1],[c(1) c(1)],'color',[0 0 0],'linewidth',3)
+        plot([p-.1 p+.1],[c(2) c(2)],'color',[0 0 0],'linewidth',3)
+        plot([p p],[c(1) c(2)],'color',[0 0 0],'linewidth',3)
+
+        g = randn(ns(p),1);
+        [a b c] = ttest(g);
+        sw(p) = swarmchart(ax,g*0+p,g,'MarkerEdgeColor','none','markerfacecolor',[.2 .2 1]);
+        sw(p).XJitter = 'density';
+        sw(p).XJitterWidth = .3;
+
+
+      
+
+    end
+
+
+
+
+
+end
+
+
+
+
+

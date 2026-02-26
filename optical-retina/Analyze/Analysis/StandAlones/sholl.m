@@ -1,0 +1,204 @@
+%% finds distribution of dots in xy relative to central point
+colormap gray
+'Starting analysis of Dots and Dendrites'
+clear all
+subplot(1,1,1)
+
+%% Get Path to Big Centroid
+'Browse to find BigCentroid.mat'
+[BCFN,DPN]=uigetfile('DialogTitle','Which BigCentroid do you want to use?');
+%Get directory name
+f=find(DPN=='\');
+Cname=DPN(f(size(f,2)-2)+1:f(size(f,2)-1)-1)
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+if isdir('./historyS')==0, mkdir('./historyS'); end %create directory to store steps
+save(['./historyS' TPN(f3:f2-1)],'TPN') %record path in history folder
+
+
+%% Vectorize Dot Data
+'Vectorizing Dot Data'
+xyum=.103;
+zum=.3;
+
+if exist([DPN 'BC.mat'],'file') % Have dots been vectorized?
+    load([DPN 'BC.mat']) 
+else % vectorize dots
+    clear BCy BCx BCz BC
+    if exist('BigCentroid','var')==0, load([DPN BCFN]); end %load Big Centroid
+    [BCy BCx BCz]=find3(BigCentroid>1);
+    clear BigCentroid
+
+    BCy=BCy*xyum; BCx=BCx*xyum; BCz=BCz*zum;
+    BC(:,1)=BCy; BC(:,2)=BCx; BC(:,3)=BCz;
+
+    save([DPN 'BC.mat'],'BC')
+end %if BC doesnt exist    
+    TotalDots=size(BC,1);
+    save([DPN 'TotalDots.mat'],'TotalDots')
+
+
+%% Assign Dend properties
+'Finding Dendrite Segment Properties'
+
+%%Load Segments
+if exist('AllSeg','var')==0, load([DPN 'AllSeg.mat']); end
+
+%%Find Segment Lengths
+SegLength=sqrt((AllSeg(:,1,1)-AllSeg(:,1,2)).^2 +(AllSeg(:,2,1)-AllSeg(:,2,2)).^2 +(AllSeg(:,3,1)-AllSeg(:,3,2)).^2);
+save([DPN 'SegLength.mat'],'SegLength')
+TotalLength=sum(SegLength);
+save([DPN 'TotalLength.mat'],'TotalLength')
+AverageDensity=TotalDots/TotalLength;
+save([DPN 'AverageDensity'], 'AverageDensity')
+
+%%Find Segment Midpoints
+SegMP=(AllSeg(:,:,1)+AllSeg(:,:,2))/2;
+
+%% Find cell body center
+load([TPN 'temp\Imax.mat'])
+load([DPN 'Threshold.mat'])
+Ithresh=Imax>Thresh;
+image(Ithresh*300),pause(.01)
+[ys,xs,zs]=size(Imax);
+
+SE=strel('disk',3)
+for i=1:100
+    Ithresh=imerode(Ithresh,SE);
+    [a,b]=bwlabel(Ithresh); 
+    if b==1, break, end
+end %run i
+image(Ithresh*300)
+[y x]=find(Ithresh);
+ym=mean(y); xm=mean(x);
+
+CB=[ym xm];  %Cell body yx position
+CB=CB*xyum;  %Scale Cell body center to microns
+
+%% Find arbor center
+for i=1:3; Acent(i)=sum(SegMP(:,i) .* SegLength)/TotalLength; end
+
+
+%% Bin with dist from center
+'Binning Data with xy'  %concider depth restrictions
+
+xyBin=5;
+cent=CB; %Define central reference point
+
+%%make list of pixel distances
+c=0;
+pd=zeros(xs*ys,1);
+for x=1:xs, for y=1:ys
+    c=c+1; pd(c)=sqrt((y-cent(1)/xyum)^2 + (x-cent(2)/xyum)^2);
+end, PercentDone=c/size(pd,1)*100, end
+pd=pd*xyum; %change pixels to microns
+
+SegDist=sqrt((SegMP(:,1)-cent(1)).^2+(SegMP(:,2)-cent(2)).^2);
+BCDist=sqrt((BC(:,1)-cent(1)).^2+(BC(:,2)-cent(2)).^2);
+xyDend=0; xyDot=0;
+for i = 0:1:max(SegDist) %run all bins
+   sarea(i+1)=((sum(pd>i & pd<(i+xyBin)))*xyum^2);
+   xyDend(i+1)=sum(SegLength(SegDist>i & SegDist<(i+xyBin)));
+   xyDot(i+1)=sum(BCDist>i & BCDist<(i+xyBin));
+end  
+xyDotDend=xyDot./xyDend; %make density with distance 
+xyDend=xyDend./sarea;
+xyDot=xyDot./sarea;
+    
+    
+ 
+
+subplot(3,2,1)
+plot(xyDend,'r')
+subplot(3,2,3)
+plot(xyDot,'g')
+
+subplot(3,2,5)
+plot(xyDotDend)
+pause(.01)
+
+pause(2)
+
+
+if isdir([TPN 'images'])==0, mkdir([TPN 'images']); end %create directory to store steps
+
+
+
+%% Enter Data to Structured Array
+%{
+load('./Dat.mat')
+for i= 1:size(Dat,2)
+    if strcmp(Cname,Dat(i).name); targ=i; break
+    else targ=size(Dat,2)+1; end
+end
+
+%Get information
+Dat(targ).type=input('What is the Cell type?  ', 's')
+Dat(targ).age=input('What is the Cell age? ')
+Dat(targ).notes=input('Enter notes here ==> ', 's')
+
+
+Dat(targ).name=Cname;
+Dat(targ).ImageInfo.xyum=xyum;
+Dat(targ).ImageInfo.zum=zum;
+Dat(targ).CellStats.TotalLength=TotalLength;
+Dat(targ).CellStats.TotalDots=TotalDots;
+Dat(targ).CellStats.AverageDensity=AverageDensity;
+Dat(targ).CellStats.DotsBinDepth=DotBD;
+Dat(targ).CellStats.DendBinDepth=DendBD;
+Dat(targ).CellStats.DotPerDendDepth=DotPerDendDepth;
+Dat(targ).CellStats.AverageingBinWidthInMicrons=bin2*zum;
+for i=1:size(P,1)
+    Dat(targ).Arbor(i).PeakFind=PeakFind;
+    Dat(targ).Arbor(i).BoarderFind=BoarderFind;
+    Dat(targ).Arbor(i).Length=ALength(i);
+    Dat(targ).Arbor(i).Dots=ADots(i);
+    Dat(targ).Arbor(i).DotDend=ADotDend(i);
+    Dat(targ).Arbor(i).Top=left(i)*zum;
+    Dat(targ).Arbor(i).Peak=P(i)*zum;
+    Dat(targ).Arbor(i).Bottom=right(i)*zum;
+end
+
+save('./Dat.mat','Dat')
+
+
+%% Draw Dot and Dend
+
+'Drawing Dots and Dendrites'
+
+Sc=(1/xyum)/2;
+DD=uint8(zeros(round(max(max(AllSeg(:,1,:)))*Sc),round(max(max(AllSeg(:,2,:)))),round(max(max(AllSeg(:,3,:)))*Sc)));
+
+
+%%Draw Segments
+SkelRes=.1;
+for i=1:size(AllSeg,1)
+    Dist=sqrt((AllSeg(i,1,1)-AllSeg(i,1,2))^2 + (AllSeg(i,2,1)-AllSeg(i,2,2))^2 + (AllSeg(i,3,1)-AllSeg(i,3,2))^2); %find distance
+    Length(i)=Dist;
+      devs=max(1,round(Dist/SkelRes)); %Find number of subdivisions
+    for d=1:devs+1
+        sy=AllSeg(i,1,1)+((AllSeg(i,1,2)-AllSeg(i,1,1))/devs)*(d-1);
+        sx=AllSeg(i,2,1)+((AllSeg(i,2,2)-AllSeg(i,2,1))/devs)*(d-1);
+        sz=AllSeg(i,3,1)+((AllSeg(i,3,2)-AllSeg(i,3,1))/devs)*(d-1);
+        DD(round(sy*Sc)+1,round(sx*Sc)+1,round(sz*Sc)+1)=1; %draw Skel
+    end
+end
+clear Dist
+
+%%DrawNodes
+for i=1:size(AllSeg,1)
+    DD(round(AllSeg(i,1,1)*Sc)+1,round(AllSeg(i,2,1)*Sc)+1,round(AllSeg(i,3,1)*Sc)+1)=2;
+    DD(round(AllSeg(i,1,2)*Sc)+1,round(AllSeg(i,2,2)*Sc)+1,round(AllSeg(i,3,2)*Sc)+1)=2;
+end
+
+%%Draw Dots
+for i=1:size(BC,1)
+    DD(round(BC(i,1)*Sc)+1,round(BC(i,2)*Sc)+1,round(BC(i,3)*Sc)+1)=3;
+end
+
+imwriteNp(TPN,DD,'DD')
+
+
+%}
+'Done'

@@ -1,0 +1,604 @@
+%% Dend Finder 
+%F3 has been modified to handle 8bit single tiff stacks
+%large files will be broken into smaller blocks and then recombined
+%Strategy: 1)erode into wire frame.  
+%          2)measure length segments (or convolve with lenght look up table)
+%          3)for each segment find radius based on smallest xy diameter
+
+
+'start'
+tic
+colormap gray(255) %standard grey colormap
+
+%Get file names
+DPN=GetMyDir
+xyum=.153;
+zum=.5;
+
+
+%Get directory name
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+
+if isdir([TPN 'temp'])==0, mkdir([TPN 'temp']); end %create directory to store steps
+if isdir([TPN 'data'])==0, mkdir([TPN 'data']); end %create directory to store steps
+if isdir([TPN 'pics'])==0, mkdir([TPN 'pics']); end %create directory to store steps
+if isdir('.\history')==0, mkdir('.\history'); end %create directory to store steps
+
+save(['.\history' TPN(f3:f2-1) '_Skeletonize'],'TPN') %record path in history folder
+
+%%Enter Variables
+
+%%Image Variables
+
+aspect=zum/xyum;% ratio of z to xy dimentions
+live=1; %if live tissue then 1, 2 prevents threshold climbing in fixed tissue
+save([TPN 'data\ImageName.mat'],'DPN')
+
+
+%% READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'reading image'
+
+
+%%Get number of planes and spacer zeros
+d=dir(DPN); %get number of files in directory
+d=d(3:size(d,1));
+
+
+clear I Ic
+for i=1:size(d,1)
+    I(:,:)=imread([DPN d(i).name]); %read
+    I=medfilt2(I,[3,3]); %median filter
+    Irm(:,:,i)=I;  %build big stack
+    PercentRead=i/size(d,1)*100
+end
+
+%%PreSample
+%Irm=Irm(800:900,800:900,:);
+
+clear I
+'Save Irm'
+save([TPN 'temp/Irm.mat'],'Irm')
+[ys,xs,zs]=size(Irm); %get sizes
+
+%%Image median filtered data 
+subplot(1,1,1), image(max(Irm,[],3)*255/max(Irm(:))) %Image green
+pause(.01)
+
+'Done reading and median filtering'
+
+
+%% FIND DENDRITES %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'finding threshold'
+
+%}
+
+%% SKELETONIZE      Label Skeleton bits.
+'finding skeleton'
+clear seg F Seg
+if exist('Irm','var')==0, load([TPN 'temp/Irm.mat']),end
+D=Irm>0;
+clear Irm
+
+save([TPN 'temp/D.mat'],'D')
+image(max(D,[],3)*300),pause(.01)
+imwriteNp(TPN,D,'D')
+[Rys,Rxs,Rzs]=size(D);
+
+minObSize=20; %minim size of centroid to connect to
+minFillSize=4; %minimum size of new fill object necessary for connecting segment
+BlockSize=300; %aproximate size of individual processing blocks
+BlockBuffer=0; %amount of block to be cut off as edge buffer
+
+AllSeg=zeros(1,3,2); % Create full Variable for Segments
+save([TPN 'temp/AllSeg.mat'], 'AllSeg')
+
+%%  SubSample
+%%Find Real Block Size
+'subsampling'
+
+if Rxs>BlockSize
+    NumBx=round(Rxs/BlockSize);
+    Bxc=fix(Rxs/NumBx); %Block x dim closest to BlockSize for the image
+else Bxc=Rxs; NumBx=1; end 
+if Rys>BlockSize
+    NumBy=round(Rys/BlockSize);
+    Byc=fix(Rys/NumBy); %Block x dim closest to BlockSize for the image
+else Byc=Rys; NumBy=1; end
+if Rzs>BlockSize
+    NumBz=round(Rzs/BlockSize);
+    Bzc=fix(Rzs/NumBz); %Block x dim closest to BlockSize for the image
+else Bzc=Rzs; NumBz=1; end
+
+%%  Run Blocks
+for Bz=1:NumBz, for By=1:NumBy, for Bx=1:NumBx
+
+%Find real territory
+Tystart=(By-1)*Byc+1;
+Txstart=(Bx-1)*Bxc+1;
+Tzstart=(Bz-1)*Bzc+1;
+if By<Byc, Tyend=By*Byc; else Tyend=Rys; end
+if Bx<Bxc, Txend=Bx*Bxc; else Txend=Rxs; end
+if Bz<Bzc, Tzend=Bz*Bzc; else Tzend=Rzs; end
+
+%Find buffered Borders (extend to image boarders for last blocks in row and column)
+ystart=Tystart-BlockBuffer; ystart=max(1,ystart);
+yend=Tyend+BlockBuffer; yend=min(Rys,yend);
+xstart=Txstart-BlockBuffer; xstart=max(1,xstart);
+xend=Txend+BlockBuffer; xend=min(xend,Rxs);
+zstart=Tzstart-BlockBuffer; zstart=max(1,zstart);
+zend=Tzend+BlockBuffer; zend=min(zend,Rzs);
+
+
+
+
+%%Subsample Dendrites Channel
+if exist('D','var') ==0, load([TPN 'temp/D.mat']); end %load green
+D=D(ystart:yend,xstart:xend,zstart:zend); clear IgRaw %subsample
+
+
+%Find New sizes
+[ys,xs,zs]=size(D);
+sumD=sum(D,3);
+
+%% Run Skeletonize
+'Filling to find Skeleton'
+
+SG=0; %start segment counter
+PixDone=0; %Counter for Fill Progress
+AllPix=sum(D(:)); %Count all pixels to do
+rep=0; %start another damn counter
+D=(smooth3(D,'gaussian',5)>=.3); %Thats the images !!!!!!!!!!!!!!!!!!!!>=1?
+
+[D,ob]=bwlabeln(D,6); %Label Mask Objects -Six Connected
+
+for o=1:ob  %Run for All objects
+    o,size(ob)
+    if sum(sum(sum(D==o)))>minObSize;
+    %% Display Current object
+    image((max(D,[],3)>0)*75 + max(D==o,[],3)*300),pause(.01)
+       
+    %%Find minimum length as princomp
+    [vy,vx,vz]=find3(D==o); %Vectorize object 
+    clear V
+    V(:,1)=vy;V(:,2)=vx;V(:,3)=vz; %make single vector
+    clear vy vx vz
+    [Co,Sc]=princomp(V);  %find principal components of object
+    minV=find(Sc(:,1)==min(Sc(:,1)),1); %find position of min extreme position
+    maxV=find(Sc(:,1)==max(Sc(:,1)),1); %find position of max extreme position
+    startV=find(abs(Sc(:,1))==max(abs(Sc(:,1))),1); %find most extreme point for later starting point
+    minLength=Sc(maxV,1)-Sc(minV,1); %Find minimum Length in Voxels
+    clear Co Sc
+    
+    %%Start Filling
+    con6=[-1 0 0; 1 0 0; 0 -1 0 ; 0 1 0; 0 0 -1; 0 0 1]; %6con matrix
+    NewF=V(startV,:); %make starting point
+    Sold=V(startV,:); %make Skeleton Starting Point
+        
+  
+   while exist('NewF','var')  %while there are new voxels to do
+        
+    PrevF=NewF; clear NewF  %update list of new fill points
+    Fnew=D*0; %Create matrix for new pixels
+    count=0;  %reset counter
+    for f=1:size(PrevF,1) %run all Previously filled points
+    for c=1:6 % Run all 6 connected faces
+        y=PrevF(f,1)+con6(c,1);x=PrevF(f,2)+con6(c,2);z=PrevF(f,3)+con6(c,3); %assign new pix to check
+        if y>=1 & x>=1 & z>1 & y<=ys & x<=xs & z<=zs %If its within the boundries
+        if D(y,x,z)>0  % If new position is in the dendrite
+            D(y,x,z)=0; %Fill spot in fill registry
+            Fnew(y,x,z)=1;  % Fill spot in new pixel matrix (necessary for bwlabeln)
+            count=count+1; %move counter to register new position
+            PixDone=PixDone+1;
+            NewF(count,1)=y; NewF(count,2)=x; NewF(count,3)=z; %register new position. 
+        end %If its a new position
+        end %if its in bounds
+    end %Run faces
+    end % Run new points
+            
+    %Check new fill objects
+    [Fnew,things]=bwlabeln(Fnew,26); %Label new fill objects (with 26 connectivity)
+    for t=1:things %Do all objects
+        if sum(sum(sum(Fnew==t)))>minFillSize %minimum centroid size
+            [ly,lx,lz]=find3(Fnew==t); %Find position of all pixels in object
+            my=mean(ly); mx=mean(lx); mz=mean(lz); %Find centroid
+            Snew(t,1)=my;Snew(t,2)=mx; Snew(t,3)=mz; %record new points
+            SDist=sqrt((Sold(:,1)-my).^2+ (Sold(:,2)-mx).^2 + (Sold(:,3)-mz).^2); %find voxel distance from new to all old
+            source=find(SDist==min(SDist),1);
+
+            %Write Segments
+            SG=SG+1;
+            Seg(SG,1,1)=Sold(source,1);Seg(SG,2,1)=Sold(source,2); Seg(SG,3,1)=Sold(source,3);
+            Seg(SG,1,2)=my; Seg(SG,2,2)=mx; Seg(SG,3,2)=mz;
+            Obj(SG)=o; %record objects
+            
+        end %end if big enough to be worth new centroid
+    end
+    if exist('Snew','var'), Sold=Snew; clear Snew; end  %update skeleton points list: new becomes old
+   
+    if mod(SG,30)==0, image((sumD>0)*255 - (sum(D,3)>0)*100),end
+    
+   end % Repeat fill
+    
+
+   end %if object is big enough   
+end %run all objects
+
+clear AllPix D Fnew
+
+
+
+
+%% Convert to real distances
+if exist('Seg','var') % If any Segments were found
+clear SU
+SU(:,1:2,:)=Seg(:,1:2,:)*xyum;
+SU(:,3,:)=Seg(:,3,:)*zum;
+clear Seg
+save([TPN 'temp/SU.mat'],'SU')
+
+%%Remove overly long segments
+maxSegLength=2;
+SegLength=sqrt((SU(:,1,1)-SU(:,1,2)).^2 + (SU(:,2,1)-SU(:,2,2)).^2 + (SU(:,3,1)-SU(:,3,2)).^2);
+SU=SU(SegLength<=maxSegLength,:,:);
+
+
+
+'Skeleton Complete'
+
+%% Find Nodes
+'Finding Nodes'
+
+
+%% Map Nodes
+
+%%Find Connections
+SkelSize=size(SU,1);
+for i=1:SkelSize
+   
+    %%Check how many times each tip is an origin
+    TipFind=abs(SU(:,1,1)-SU(i,1,2))+abs(SU(:,2,1)-SU(i,2,2))+abs(SU(:,3,1)-SU(i,3,2));
+    Con(i,2)=sum(TipFind==0); %add occurances as origins
+    TipFind=abs(SU(:,1,2)-SU(i,1,2))+abs(SU(:,2,2)-SU(i,2,2))+abs(SU(:,3,2)-SU(i,3,2));
+    Con(i,2)=Con(i,2)+sum(TipFind==0); %add occurances as tips
+    
+    %%Check how many times each origin is an origin
+    OrigFind=abs(SU(:,1,1)-SU(i,1,1))+abs(SU(:,2,1)-SU(i,2,1))+abs(SU(:,3,1)-SU(i,3,1));
+    Con(i,1)=sum(OrigFind==0);
+    OrigFind=abs(SU(:,1,2)-SU(i,1,1))+abs(SU(:,2,2)-SU(i,2,1))+abs(SU(:,3,2)-SU(i,3,1));
+    Con(i,1)=Con(i,1)+sum(OrigFind==0);
+    Con(i,3)=sum(OrigFind==0);  %Secret Origin (0 if never a tip)
+end
+
+
+
+
+%% Remove some Intermediates
+'Removing intermediates'
+n=0; %node counter
+minDist=.5; %assign minimum distance
+clear nodes Object
+for i=1:SkelSize
+   %% Search list for Origin points
+   if Obj(i)==29, 'running 29', end
+    
+    if Con(i,1)>2 | Con(i,3)==0,  Origin=SU(i,:,1); %if current origin is branch point or never tip
+        if Obj(i)==29, '29 passed Origin Test', end
+        Link=Origin;  %make the origin the first link
+        for f=i:SkelSize  %run every subsequent segment from current point to end of list. 
+             if sum(abs(SU(f,:,1)-Link))==0 %Look for the next segment
+                 if Obj(i)==29, 'Found next Link', end
+                Tip=SU(f,:,2); %if the origin is a link, then assign the new tip
+                Link=Tip;
+                Dist=sqrt((Tip(1)-Origin(1))^2 + (Tip(2)-Origin(2))^2 + (Tip(3)-Origin(3))^2); %find distance
+                 %%Condition 1 =  Tip is end point
+                if Con(f,2) ~=2 %If tip is end point or branch point
+                   n=n+1;
+                   nodes(n,:,1)=Origin; nodes(n,:,2)=Tip; %Then assign segment to nodes
+                   Object(n)=Obj(i); % record source Object
+                   break %leave f to look down list for next origin
+                   if Obj(i)==29, 'Hit end point and wrote segment', end
+                elseif Dist>minDist %If far enough away to be segment
+                   n=n+1;
+                   nodes(n,:,1)=Origin; nodes(n,:,2)=Tip; %Then assign segment to nodes
+                   Object(n)=Obj(i);  %Record Source Object
+                   Origin=Tip; %update tip as new origin
+                   if Obj(i)==29, 'Hit min dist and wrote Segment', end
+                end  %Tip condition      
+             end %if its the right segment
+                
+         end %if current segment starts with the link
+
+    end %End if i is an origin.
+end
+
+
+clear Con Dist SU
+
+
+%% ReMap Nodes
+
+%%Find Connections
+clear TipFind OrigFind Con2
+NodeSize=size(nodes,1);
+for i=1:NodeSize
+   
+    %%Check how many times each tip is an origin
+    TipFind=abs(nodes(:,1,1)-nodes(i,1,2))+abs(nodes(:,2,1)-nodes(i,2,2))+abs(nodes(:,3,1)-nodes(i,3,2));
+    Con2(i,2)=sum(TipFind==0); %add occurances as origins
+    TipFind=abs(nodes(:,1,2)-nodes(i,1,2))+abs(nodes(:,2,2)-nodes(i,2,2))+abs(nodes(:,3,2)-nodes(i,3,2));
+    Con2(i,2)=Con2(i,2)+sum(TipFind==0); %add occurances as tips
+    
+    %%Check how many times each origin is an origin
+    OrigFind=abs(nodes(:,1,1)-nodes(i,1,1))+abs(nodes(:,2,1)-nodes(i,2,1))+abs(nodes(:,3,1)-nodes(i,3,1));
+    Con2(i,1)=sum(OrigFind==0);
+    OrigFind=abs(nodes(:,1,2)-nodes(i,1,1))+abs(nodes(:,2,2)-nodes(i,2,1))+abs(nodes(:,3,2)-nodes(i,3,1));
+    Con2(i,1)=Con2(i,1)+sum(OrigFind==0);
+    Con2(i,3)=sum(OrigFind==0);  %Secret Origin (0 if never a tip)
+end
+
+
+
+%% Connect the Unconnected
+'Connecting Unconnected'
+maxbridge=3; %maximum distance to bridge a gap in microns
+[Ends Type]=find(Con2(:,1:2)==1); Es=size(Ends); %Find all one connected points
+b=0; %reset bridge counter
+Bridged=0; %matrix for recording linked objects
+clear Dist bridge
+for i=1:size(Ends,1)
+    %%Find distance to all points
+    Dist=sqrt((nodes(:,1,:)-nodes(Ends(i),1,Type(i))).^2+ (nodes(:,2,:)-nodes(Ends(i),2,Type(2))).^2 + (nodes(:,3,:)-nodes(Ends(i),3,Type(i))).^2); 
+    home=Object(Ends(i));  %Identify home object of tip
+    Dist(Object'==home,1,:)=2*maxbridge; %eliminate segs of same object by increasing distance
+    minDist1=min(Dist(:,1,1));
+    minDist2=min(Dist(:,1,2));
+    if minDist1<minDist2 & minDist1<maxbridge
+       Btarget=find(Dist(:,1,1)==minDist1,1); %find nearest ID
+          b=b+1; %increace counter
+          bridge(b,:,1)=nodes(Btarget,:,1);  %make nearest the new origin
+          bridge(b,:,2)=nodes(Ends(i),:,Type(i)); %make current end a new tip
+          Bridged(b,1)=home; Bridged(b,2)=Object(Btarget); %record Briged objects
+     elseif minDist1 <= minDist2 & minDist2<maxbridge
+       Btarget=find(Dist(:,1,2)==minDist2,1);
+           b=b+1;
+           bridge(b,:,1)=nodes(Btarget,:,2); %make nearest the new origin
+           bridge(b,:,2)=nodes(Ends(i),:,Type(i)); %make current end a new tip
+           Bridged(b,1)=home; Bridged(b,2)=Object(Btarget); %record Briged objects
+    end
+end %End i, search all tips
+
+%%Eliminate extra bridges
+if exist('bridge','var') %if bridge exists
+
+
+%%Assign Bridge IDs
+id=0; %start ID counter
+bid=zeros(size(bridge,1),1); %create list for bridge IDs
+for i=1:size(bridge,1) %run all bridges
+    if bid(i)==0 % if starting bridge hasnt been IDed
+        id=id+1; %increace id counter
+    for j=1:size(bridge,1)  %check against all bridges
+        if bid(j)==0  %if target hasnt been IDed
+            dif1=sum(abs(Bridged(j,1)-Bridged(i,1))+abs(Bridged(j,2)-Bridged(i,2))); %check if same connection
+            dif2=sum(abs(Bridged(j,1)-Bridged(i,2))+abs(Bridged(j,2)-Bridged(i,1))); %check if reverse connection
+            if dif1 ==0 | dif2==0, bid(j)=id; end %if its the same connection, assign current ID
+        end %if j IDed
+    end %j, run all targets
+    end %if i has been IDed
+end %run all bridges
+
+%%find Shortest Bridges
+Bdist=sqrt((bridge(:,1,1)-bridge(:,1,2)).^2+(bridge(:,2,1)-bridge(:,2,2)).^2+(bridge(:,3,1)-bridge(:,3,2)).^2); %find all distances
+bridges=zeros(max(bid),3,2);
+for i=1:max(bid)
+    testdist=Bdist; % make temp bridge list
+    testdist(bid~=i)=maxbridge*2; %eliminate other ids
+    BmTarget=find(testdist==min(testdist),1); %find shortest bridge
+    bridges(i,:,:)=bridge(BmTarget,:,:); %enter shortest bridge
+end
+
+bridge=bridges; %replace redundant bridge list with pruned bridge list
+end %if bridge exists
+
+clear Bdist BmTarget Bridged Btarget Dist Ends bridges
+
+%% Create Final vector map
+if exist('bridge','var')
+    NewSeg=[nodes ; bridge];  %Create variable with all identified segments
+else 
+    NewSeg=nodes
+end
+
+
+%%  Recombine Blocks
+'Recombining Blocks'
+
+%find edges
+ey1=(Tystart-ystart+1)*xyum; ey2=(Tyend-ystart+1)*xyum;
+ex1=(Txstart-xstart+1)*xyum; ex2=(Txend-xstart+1)*xyum;
+ez1=(Tzstart-zstart+1)*zum; ez2=(Tzend-zstart+1)*zum;
+
+%%Diagnostic, get rid of later
+Sc=1/xyum;
+
+
+if BlockBuffer>0 %If there was any buffer region to trim
+
+%Unbuffer Results (replace or zero all segments crossing boarder)
+for i=1:size(NewSeg,1) %run all segments
+     
+   NS=NewSeg(i,:,:); %extract segment
+   NS=shiftdim(NS,1);
+   %%if any point is out of bounds   
+   if sum(NS(1,:)<ey1) | sum(NS(1,:)>ey2) | sum(NS(2,:)<ex1) | sum(NS(2,:)>ex2) | sum(NS(3,:)<ez1) | sum(NS(3,:)>ez2)
+        NS2=NS*0;
+       %if both points are out of same bound
+       if sum(NS(1,:)<ey1)==2  | sum(NS(1,:)>ey2)==2 | sum(NS(2,:)<ex1)==2 | sum(NS(2,:)>ex2)==2 | sum(NS(3,:)<ez1)==2 | sum(NS(3,:)>ez2)==2
+           NewSeg(i,:,:)=0; %delete segment for being completely out of bounds
+       else %if boundries are crossed
+           %if first node is inside territory
+           if sum(NS(1,1) >=ey1) & sum(NS(1,1)<=ey2) & sum(NS(2,1)>=ex1) & sum(NS(2,1)<=ex2) & sum(NS(3,1)>=ez1) & sum(NS(3,1)<=ez2)
+                NS2(:,1)=NS(:,1); 
+                state=1; state2=1; %set states to inside
+           else %if starting point is outside
+               state=0; state2=0; %set both states to outside
+           end % find state of first node
+           %% Run Segment
+           yd=NS(1,2)-NS(1,1); xd=NS(2,2)-NS(2,1); zd=NS(3,2)-NS(3,1);
+           Dist=sqrt(yd^2+xd^2+zd^2);
+           steps=round(Dist/.1); %step ratio 
+           step=Dist/steps; %step size
+           for s=1:steps
+                %%find next point
+                NS3(1)=NS(1,1)+yd*step*s; NS3(2)=NS(2,1)+xd*step*s; NS3(3)=NS(3,1)+zd*step*s;
+                %%set current state
+                if NS3(1) >=ey1 & NS3(1)<=ey2 & NS3(2)>=ex1 & NS3(2)<=ex2 & NS3(3)>=ez1 & NS3(3)<=ez2 %if new point is inside
+                    state2=1;
+                else,  state2=0;     end
+                if state~=state2 %if there was a state change
+                    if sum(NS2(:,1))==0 %if this is the first point
+                        NS2(:,1)=NS3; %enter first point
+                    else %if this is the second point
+                        NS2(:,2)=NS3;
+                    end %figure out which crossing point this is
+                end %end if there was a state change
+                state =state2; %change state to new state        
+           end %run all steps of segment
+           if state==1 %if the last point is inside
+               NS2(:,2)=NS3; %then make the second node the last point
+           end %end if last point is inside
+        end %if boundries are crossed
+        NewSeg(i,:,:)=NS2; %Set segment to the clipped segment
+     end%if any point is out of bounds
+ end % end i, run all segments
+
+ 
+%%Eliminate zeroed segments (totally out of bounds)
+NewSeg=NewSeg(sum(sum(NewSeg,2),3)>0,:,:);
+
+end %If unbuffering is necessary
+
+%%Add block shift to possitions
+NewSeg(:,1,:)=NewSeg(:,1,:)+ystart*xyum;
+NewSeg(:,2,:)=NewSeg(:,2,:)+xstart*xyum;
+NewSeg(:,3,:)=NewSeg(:,3,:)+zstart*zum;
+
+load([TPN 'temp/AllSeg.mat'])
+AllSeg=[AllSeg;NewSeg];
+save([TPN 'temp/AllSeg.mat'],'AllSeg')
+clear AllSeg NewSeg
+
+%%Unbuffer ( save just in case)
+%centro=uint8(centroid(Tystart-ystart+1:ys-(yend-Tyend), Txstart-xstart+1:xs-(xend-Txend), Tzstart-zstart+1:zs-(zend-Tzend)));
+
+end %if any segments were found
+PercentDoneShifting=((Bz-1)*NumBy*NumBx + (By-1)*NumBx + Bx)/(NumBz*NumBy*NumBx) *100  %print out percent of shifting done
+end,end,end %%End Bz, By, Bz Block translation
+
+%% Save Data
+
+%%move AllSeg from temp to Data
+load([TPN 'temp/AllSeg.mat'])
+if AllSeg(1,1,1)==0, AllSeg=AllSeg(2:size(AllSeg,1),:,:); end %Get rid of any spacer
+save([TPN 'data/AllSeg.mat'],'AllSeg')
+save([TPN 'data/Threshold.mat'],'Thresh')
+
+SegLength=sqrt((AllSeg(:,1,1)-AllSeg(:,1,2)).^2 +(AllSeg(:,2,1)-AllSeg(:,2,2)).^2 +(AllSeg(:,3,1)-AllSeg(:,3,2)).^2);
+save([TPN 'data/SegLength.mat'],'SegLength')
+TotalLength=sum(SegLength);
+save([TPN 'data/TotalLength.mat'],'TotalLength')
+
+clear AllSeg
+
+%% Finish
+
+TotalHours=toc/60/60
+[TPN(size(TPN,2)-6:size(TPN,2)-1)]
+SkeletonizedAt=uint16(clock)
+save([TPN 'data/SkeletonizedAt.mat'],'SkeletonizedAt')
+
+%clear all
+'Done Skeletonizing'
+
+%% Data Drawing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{ 
+%% Draw Nodes
+'Drawing Data'
+load([TPN 'data/AllSeg.mat'])
+Sc=1/xyum; %scalling factor to decide image size each pix width in um = 1/Sc
+AllSegI=0;
+
+for i=1:size(AllSeg,1)
+    AllSegI(round(AllSeg(i,1,1)*Sc)+1,round(AllSeg(i,2,1)*Sc)+1,round(AllSeg(i,3,1)*Sc)+1)=1;  %Draw all origins.
+    AllSegI(round(AllSeg(i,1,2)*Sc)+1,round(AllSeg(i,2,2)*Sc)+1,round(AllSeg(i,3,2)*Sc)+1)=1;  %Draw all tips.
+end
+
+maxAllSegI=(max(AllSegI,[],3)>0);
+image(maxAllSegI*300),pause(2)
+imwriteNp(TPN,AllSegI,'Nodes')
+
+%}
+
+%% Draw Skeleton
+SkelRes=.1;
+Length=zeros(size(AllSeg,1),1);
+Skel=AllSegI*0;
+%clear AllSegI
+for i=1:size(AllSeg,1)
+    Dist=sqrt((AllSeg(i,1,1)-AllSeg(i,1,2))^2 + (AllSeg(i,2,1)-AllSeg(i,2,2))^2 + (AllSeg(i,3,1)-AllSeg(i,3,2))^2); %find distance
+    Length(i)=Dist;
+      devs=max(1,round(Dist/SkelRes)); %Find number of subdivisions
+    for d=1:devs+1
+        sy=AllSeg(i,1,1)+((AllSeg(i,1,2)-AllSeg(i,1,1))/devs)*(d-1);
+        sx=AllSeg(i,2,1)+((AllSeg(i,2,2)-AllSeg(i,2,1))/devs)*(d-1);
+        sz=AllSeg(i,3,1)+((AllSeg(i,3,2)-AllSeg(i,3,1))/devs)*(d-1);
+        Skel(round(sy*Sc)+1,round(sx*Sc)+1,round(sz*Sc)+1)=1; %draw Skel
+    end
+end
+clear Dist
+maxSkel=(max(Skel,[],3)>0);
+imwriteNp(TPN,Skel,'Skel')
+
+%%colorize skeleton
+Skel=uint8(Skel);
+for i=1:size(Skel,3)
+    Dmap=uint8(Skel(:,:,i)>0);
+    Dmap(Dmap>0)=i;
+    Skel(:,:,i)=Dmap;
+end
+
+imwriteNp(TPN,Skel,'SkelDepth')
+
+
+%% Image Isosurface
+%{
+subplot(1,1,1)
+isosurface(Skel,0), axis equal, view(3)
+camlight, lighting gouraud, title('Skeleton') 
+clear Bridge 
+
+
+%clear BlockBuffer BlockSize
+%}
+
+%% NOTES
+%{
+
+4) F could be replaced by deleting D
+11) center connection should be restricted to things that were connected in previous fill 
+12) get rid of branches consisting of single processes
+
+
+
+
+
+
+%}

@@ -1,0 +1,4 @@
+
+1 scan error  found in image z:/Thousand+sectionRunCortexRoto/Thousand_high_res/Thousand_w15_high_res_retakes/w15_st07_sec08/Tile_r1-c1_w15_st07_sec08.tif, at: 1
+1 scan error  found in image z:/Thousand+sectionRunCortexRoto/Thousand_high_res/Thousand_w15_high_res_retakes/w15_st08_sec04/Tile_r1-c1_w15_st08_sec04_attempt1.tif, at: 1
+1 scan error  found in image z:/Thousand+sectionRunCortexRoto/Thousand_high_res/Thousand_w15_high_res_retakes/w15_st08_sec04/Tile_r1-c1_w15_st08_sec04_attempt2.tif, at: 272

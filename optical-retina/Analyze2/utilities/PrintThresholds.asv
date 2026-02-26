@@ -1,0 +1,7 @@
+TPN=GetMyDir
+
+Tdir=dir(TPN); Tdir=Tdir(3:size(Tdir,1));
+
+for i = 1: size(Tdir,1)
+   GetThresh=[TPN '\' Tdir(i).name '\data\Threshold.mat']; 
+end

@@ -1,0 +1,8 @@
+
+[TFN TPN]=GetMyFile;
+Iall = tiffread2([TPN TFN]);
+for i = 1: length(Iall)
+    I(:,:,i)=Iall(i).data;
+end
+maxI=max(I,[],3);
+image(maxI/5)

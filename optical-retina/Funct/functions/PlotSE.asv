@@ -1,0 +1,31 @@
+function[] = PlotSE(Data,X)
+%%Plots data in a matrix with standard error bars
+%%if...
+
+N=size(Data,1)
+T=size(Data,2);
+if ~exist('X'), X = 1:T; end
+
+%%Data
+for i = 1: T
+    S(1:N,i)=X(i);
+end
+
+scatter(S(:),Data(:),'r')
+hold on
+%%Find standard Error as StandardDeviation / sqrt(n)
+for a = 1:T
+    %%Find standard Error as StandardDeviation / sqrt(n)
+    E(a)=std(Data(:,a))/sqrt(N);
+    M(a)=mean(Data(:,a));
+end
+errorbar(X,M,E,'r')
+MeanAndSE=[M'  E']
+
+errorbar(X,mean(Data,1),E,'k','LineWidth',2,'MarkerSize',440)
+
+
+hold off
+
+ys=ylim;
+ylim([min(0,ys(1)) ys(2)]);

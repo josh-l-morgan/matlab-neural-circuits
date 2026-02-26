@@ -1,0 +1,222 @@
+%% Give  both 3D and 2D versions of DRP
+%Helps to filter the crap out of image prior to thresholding ( so long as
+%objects dont touch
+
+%%Resolutions
+    % 60x z2 1024 = .103 FV1000
+    % 25x z1 1024 = .4944 ? not tested
+clear all
+colormap gray(256)
+
+TPN = GetMyDir;
+%load([TPN 'Temp.mat'])
+
+'getting image info', pause(.1)
+prompt = {'Minimum Object size ','Dimensions ', 'Objective', 'Zoom','Resolution','Zstep','Bin','Look','Res at 60xz1 2048'};
+nLines = 1;
+
+Title='Get Image Info';
+
+ImageInfo= inputdlg(prompt,Title,nLines,{'1','2','20','1','512','2','1','50','0.115'});
+for i = 1:length(ImageInfo)
+    ImageInfo{i}= str2num(ImageInfo{i});
+end
+pause(.01)
+
+minObSize=ImageInfo{1};
+Dim = ImageInfo{2};
+Objective = ImageInfo{3};
+Zom = ImageInfo{4};
+Resolution = ImageInfo{5};
+zum = ImageInfo{6};
+Bin = ImageInfo{7};
+Look = ImageInfo{8};
+StandardRes = ImageInfo{9};
+
+xyum=(StandardRes/Zom)*(60/Objective)*(2048/Resolution);
+
+
+%% Get image
+'getting image'
+TPNi=[TPN]
+Idir=dir(TPNi);
+In={};
+for i = 1: length(Idir)
+    name=Idir(i).name;
+    LN=length(name);
+    if LN>=3
+        if sum(name(LN-3:LN)=='.tif')==4;
+            In{length(In)+1}=name;
+        end
+    end
+end
+
+I = imread([TPNi '\' In{1}]);
+I = max(I,[],3);
+siz = [size(I,1) size(I,2) length(In)];
+
+if siz(3)>1
+    I = zeros(siz,'uint8');
+for i = 1:siz(3)
+    I(:,:,i)=imread([TPNi '\' In{i}]);
+end
+end
+Imax=max(I,[],3);
+image(Imax'*255/max(Imax(:)));
+
+I = I > median(I(:)); %remove any background
+
+%% Grab positions
+'grabbing positions'
+[I numOb] = bwlabeln(I,26);
+Pos=[];
+for i = 1: numOb
+    ObInd=find(I==i);
+    if length(ObInd)>=minObSize  %if big enough
+        [y x z] = ind2sub(siz,ObInd);
+        Pos(size(Pos,1)+1,:)=mean([y x z],1);
+    end %% if big enough
+    ['imaging ' num2str(i) ' of ' num2str(numOb)]
+end
+
+%%Show centers
+CentI=sub2ind(siz,round(Pos(:,1)),round(Pos(:,2)),round(Pos(:,3)));
+Centers=(I>0)*50;
+Centers(CentI)=200;
+ImwriteNp(TPN,Centers,'Centers')
+clear Centers I
+
+%%Scale Positions
+Pos(:,1:2)=Pos(:,1:2)*xyum;
+Pos(:,3)=Pos(:,3)*zum;
+
+%% Find Dists to centers
+Dnum=size(Pos,1);
+Dists=zeros(Dnum);
+for d = 1:Dnum
+    Dists2(d,:)=sort(dist(round(Pos(:,1:2)), round(Pos(d,1:2))));  %use rounded positions
+    Dists3(d,:)=sort(dist(round(Pos(:,1:3)), round(Pos(d,1:3)))); 
+end
+
+if Dim==3
+    Dists=Dists3;
+else
+    Dists=Dists2;
+end
+
+%% Nearest Neighbor
+mDists=mean(Dists,1);
+Near=Dists(:,2);
+hNear=hist(Near,2.5:1:max(Near(:)));
+
+
+%% Create distance matrix
+DmatSize=ones(1,3)./[xyum xyum zum]*Look;
+DmatSize=fix(DmatSize)+1;
+Dmat=zeros(DmatSize);
+Tmat=zeros(DmatSize(1:2));
+for i = 1: DmatSize(3)
+[dmy dmx]=ind2sub(DmatSize(1:2),find(Dmat(:,:,i)==0));
+Tmat(:)=sqrt(((dmy-1)*xyum).^2 + ((dmx-1)*xyum).^2 + ((i-1)*zum).^2);  %% not right yet
+Dmat(:,:,i)=Tmat;
+end
+%% Density Recovery Profile
+' Running DRP'
+
+maxDist=Look;%max(Dists(:));
+DUsed=((Bin/2:Bin:fix(maxDist)))';
+Cnum=zeros(Dnum,size(DUsed,1));  %hist of cell bodies relative to each cellbody
+Anum=Cnum; %hist of area pixels relative to each cell body
+DistsA=Dnum;
+for c = 1:Dnum    
+    ['running ' num2str(c) ' of ' num2str(Dnum)],pause(.01)
+    cPos=Pos(c,:); %% find center
+    cPos=round(cPos./[xyum xyum zum]);
+    dPos=siz-cPos; %% find difference from size (direction 2)
+    pPos=[cPos;dPos];
+    Vmat=Dmat*0;
+    
+    %% NEEDS SHIFTING ACCORDING TO DIM 1!!!!!!!!!!!!!!!!
+    for py = 1:2, for px = 1:2, for pz = 1:2
+                uPos=[pPos(py,1) pPos(px,2) pPos(pz,3)];
+                sp=[py-1, px-1, pz-1];
+                uPos=uPos+sp;
+                uPos=min([uPos; DmatSize],[],1);  %% ??? Which goes first
+                
+                Vmat(py:uPos(1),px:uPos(2),pz:uPos(3))=Vmat(py:uPos(1),px:uPos(2),pz:uPos(3))+1;
+    end, end, end
+
+
+    %%find area and cells within each Bin
+    for d = 2:length(DUsed)
+       Anum(c,d)=sum(sum(sum(Vmat(Dmat<DUsed(d) & Dmat>DUsed(d-1))))); 
+       Cnum(c,d)=sum((Dists(c,:)<=DUsed(d)) & (Dists(c,:)>DUsed(d-1))); 
+    end
+ 
+    
+end
+
+%% Convert to area/volume
+pix=xyum*xyum;
+vox=pix * zum;
+
+if Dim == 3 
+    Anum=Anum*vox;
+else
+    Anum=Anum*pix;
+end
+
+
+% Dnum=Cnum./Anum;
+% ADnum=mean(Dnum,1);
+% bar(ADnum)
+
+Csum=mean(Cnum,1)';
+Asum=mean(Anum,1)';
+
+CoA=Csum./Asum;
+bar(CoA)
+
+save([TPN 'Cnum.mat'],'Cnum')
+save([TPN 'Anum.mat'],'Anum')
+
+%% Bin
+Rebin=4;
+for d = 1 : size(Asum,1)
+    Cbin(d)=sum(Csum(max(d-Rebin/2,2):min(d+Rebin/2,size(Csum,1))));
+    Abin(d)=sum(Asum(max(d-Rebin/2,2):min(d+Rebin/2,size(Asum,1))));
+end
+CAbin=Cbin./Abin;
+plot(CAbin)
+bar(Abin)
+bar(Cbin)
+subplot(2,1,1)
+image(Imax'*1000)
+subplot(2,1,2)
+bar(CAbin),pause(.01)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

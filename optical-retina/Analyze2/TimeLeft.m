@@ -1,0 +1,39 @@
+
+Due= [2007 11 30 19 0 0];
+
+
+
+while Due(1) < 2008
+    
+Due2=Due;
+Now = clock;
+
+Sec=Due2(6)-Now(6);
+if Sec<0
+    Due2(5)=Due(5)-1;
+    Sec=60+Sec;
+end
+Sec=fix(Sec);
+
+Min=Due2(5)-Now(5);
+if Min<0
+    Due2(4)=Due(4)-1;
+    Min=60+Min;
+end
+
+Hour=Due2(4)-Now(4);
+if Hour<0
+    Due2(3)=Due(3)-1;
+    Hour=24+Hour;
+end
+
+Day=Due2(3)-Now(3);
+
+Time_Left_To_Finish=[num2str(Day) ' days, ' ...
+    num2str(Hour) ' hours, ' ...
+    num2str(Min) ' minutes, ' ...
+    num2str(Sec) ' seconds']
+
+pause(60)
+
+end

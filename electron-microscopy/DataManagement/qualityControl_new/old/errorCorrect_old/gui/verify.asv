@@ -1,0 +1,48 @@
+function[proceed] = ResGui()
+%Display and edit results
+
+%% Make Figure
+RG = figure('Visible','off','Position',[100,100,300,100]);
+%Display = axes('Units','pixels','Position',[10,10,500,500]);
+
+
+%% Manage Cell Data
+
+ReadyStr = uicontrol('Style','text','Position',[10,50,280,40],...
+    'String','Proced to Retake?','FontSize',20);
+ReadyYes = uicontrol('Style','pushbutton','Position',[10,10,130,30],...
+    'String','Yes','Callback',{@ReadyYes_Callback},'FontSize',20);
+ReadyNo = uicontrol('Style','pushbutton','Position',[160,10,130,30],...
+    'String','No','Callback',{@ReadyNo_Callback},'FontSize',20);
+
+
+%% Initialize the GUI.
+% Change units to normalized so componets resize automatcally.
+% set([GetFolder,ShowFile,Display,ON,OFF,BI,Other,Notes,...
+%     Save,AgeStr,TypeStr,Age,Type],'Units','normalized');
+
+
+set(RG,'Name','Result Viewer')
+movegui(RG,'center')
+set(RG,'Visible','on') %make Gui visible
+
+set(gca,'DrawMode','fast')
+waitfor(gca, 'DrawMode','normal') 
+proceed = get(gcf, 'userdata');
+close(RG)
+%% Cell data Management
+
+    %%Set Ready State
+    function[answer] = ReadyYes_Callback(source,eventdata)
+        answer = 1;
+        set(gcf, 'userdata', answer); 
+        set(gca, 'DrawMode','normal') 
+        
+    end
+    function[answer] =  ReadyNo_Callback(source,eventdata)
+        answer = 0;
+        set(gcf, 'userdata',answer); 
+        set(gca, 'DrawMode','normal') 
+    end
+
+end

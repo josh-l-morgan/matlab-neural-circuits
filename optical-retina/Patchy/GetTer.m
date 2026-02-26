@@ -1,0 +1,106 @@
+clear all
+
+%%Get directory with image folders
+GPN=GetMyDir;
+GPNd=dir(GPN); GPNd=GPNd(3:length(GPNd));
+
+%%Find image folders
+ImageFolders={};
+for i = 1:length(GPNd)
+    Name=GPNd(i).name;
+    siz=length(Name);
+    if length(Name)>5;
+    if Name(siz-5:siz)=='.files'
+        ImageFolders(length(ImageFolders)+1,1)={Name};
+    end
+    end
+end
+
+%%write, max
+clear Imaxs
+TotalImages=length(ImageFolders)
+for i = 1:length(ImageFolders)
+   Report=['Running image ' num2str(i) ' of ' num2str(TotalImages)]
+   
+   'reading',pause(.01)
+   Ifolder=cell2mat(ImageFolders(i));
+   I=oifread([GPN Ifolder '\']);
+   
+   if size(size(I),2)>3
+   
+   'filtering',pause(.01)
+   I=MyMedian(I,3); 
+   Iname=Ifolder(1:find(Ifolder=='.',1)-1);
+   
+   'writing',pause(.01)
+   I=juggleCh(I);
+   %Iwrite([GPN Iname],I)
+   
+   %% collect maxes
+   Imax=max(I,[],4);
+   if exist('Imaxs')
+       [ys xs cs]=size(Imax);
+       Imaxs(1:ys,1:xs,:,size(Imaxs,4)+1)=Imax;
+   else
+       Imaxs=Imax;
+   end
+  
+   end
+end
+
+%%Write Max
+%Iwrite([GPN 'autoMaxTime'],Imaxs);
+
+finished_files = ImageFolders
+
+image(uint8(max(I,[],4)))
+
+
+
+%% Find Presyn
+P=squeeze(I(:,:,2,:));
+[lev EM] = graythresh(P);
+T=P>=(100*lev);
+image(max(P,[],3)*3)
+image(max(T,[],3)*1000)
+
+col=max(P,[],3)*3;
+col(:,:,2)=col;
+col(:,:,3)=max(T,[],3)*1000;
+image(col)
+
+%%Remove small
+ksize=5;
+kern=zeros(ksize+ksize-1,ksize+ksize-1);
+[y x] = find(kern==0);
+d=dist([y x],[ksize ksize]);
+id=sub2ind(size(kern),y,x);
+kern(id(d<=(ksize-1)))=1;
+image(kern*1000)
+
+%C = convn(T,kern,'same');
+
+C = T * 0;
+for i = 1:size(T,3)
+    C(:,:,i)=imfilter(uint8(T(:,:,i)),kern);
+    i
+end
+T=C>(sum(kern(:))*.5);
+image(max(T,[],3)*1000)
+col(:,:,3)=max(T,[],3)*1000;
+image(col)
+
+%%close
+Cl=T*0;
+SE=strel('disk',50);
+for i = 1:size(T,3)
+    Cl(:,:,i)=imdilate(T(:,:,i),SE);
+    Cl(:,:,i)=imerode(Cl(:,:,i),SE);
+    i
+end
+image(Cl(:,:,10)*100)
+T=C>(sum(kern(:))*.5);
+image(max(T,[],3)*1000)
+col(:,:,3)=max(Cl,[],3)*100;
+image(col)
+image(sum(Cl,3)*10)

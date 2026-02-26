@@ -1,0 +1,17 @@
+function[fKern] = gaus3d(kSize,kSig,pixSize)
+
+
+if nargin <3
+    pixSize
+kSize = [7 7 3];
+kRad = (kSize + 1)/2;
+kSig = 2;
+pixSize = [1 1 1];
+fKern = zeros(kSize);
+
+[y x z] = ind2sub(kSize,find(fKern==0));
+dists = sqrt(((y-kRad(1))*pixSize(1)).^2 ...
+    + ((x - kRad(2))*pixSize(2)).^2 + ((z-kRad(3))*pixSize(3)).^2);
+
+fKern(:) = 1 * exp(-.5 * (dists/kSig).^2);
+fKern

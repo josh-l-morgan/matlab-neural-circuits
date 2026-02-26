@@ -1,0 +1,16 @@
+function[members] = getList_erosionGlom(pickMembers)
+%%First Column is axon names, second colum is Glomerulus ID 
+%%id 1 = A, full reconstruction, 2= H full reconstruction crossover.
+%%3,4,5,6 = B,G,K,N partial reconstructions
+%%
+
+members = {[1006	109	1012	1056	106	1105	118	1047	1009	1113	107	1121	126	112	150	1021	1112	111	186	1025	2035	127	268	266	267	2032	110	2033	119	265	269	263] ...
+[2038	5102	276	504	156	143	273	170	505	508	279	277	278	271	510	509	507	506] ...
+[2001	2004	2005	203	2011	2006	2044	207	2030	2031	2003	206	217	212	227	2007	221	233	231	230	222	216	215	210	313	311	2009	225] ...
+[2021	2022	232	2025	2041	241	2027	2040	224	283	2023	2028	2024	242	282] ...
+[2012	237	2013	246	2016	247	2018	205	245	248	2019	2020]};
+
+
+if exist('pickMembers','var')
+    members = members{pickMembers};
+end

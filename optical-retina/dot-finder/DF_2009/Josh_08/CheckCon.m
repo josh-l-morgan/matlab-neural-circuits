@@ -1,0 +1,5 @@
+%function[]=CheckCon(vec,probe)
+%%Takes a m X 3 3d vector and tells you which are connected to the probe
+
+
+[ys xs zs]=size(field);

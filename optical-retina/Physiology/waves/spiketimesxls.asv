@@ -1,0 +1,25 @@
+%writes channel names and spike times to and excel file
+
+%% LOADING FILE
+clear; clc;
+[fileName pathName] = uigetfile('*.txt','Select TXT_ file');
+sp = nexread2006([pathName fileName]);
+clear fileName pathName
+[fileName pathName] = uiputfile('*.xls','Save .xls file as');
+sp.channels
+
+%% USER DEFINED INPUT
+prompt = {'episode time (s) []', 'channels []'};
+title = 'spike time export';
+defAns = {'', '3:'};
+answer = inputdlg(prompt,title,1,defAns);
+
+episode = str2num(answer{1}); %#ok<ST2NM>
+channels = str2double(answer{2});
+binSize = str2double(answer{3})/1000; %changes units to seconds
+nBinsPerAverage = str2double(answer{4}); %# of bins per averaging window
+correlationLag = str2double(answer{5})/str2double(answer{6});
+maxLag = ceil(str2double(answer{6}))/(binSize*1000);
+channelsToCompare = str2num(answer{7});%#ok<ST2NM>
+nChannels = length(channelsToCompare);
+channels = sp.channels(channelsToCompare);

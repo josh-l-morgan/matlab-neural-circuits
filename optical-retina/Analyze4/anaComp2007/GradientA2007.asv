@@ -1,0 +1,153 @@
+function [Grad] = GradientA2007(TPN)
+
+%%Get Numbers for Inner Half, Outer Half, Inner Third, Outer Third,
+%%inner half - CB, Outer Half / Inner Half - CB
+
+
+% Run as vectors
+load([TPN 'Use.mat'])
+load([TPN 'data\AllSegCut.mat'])
+Mids=mean(AllSegCut,3);
+Length=sqrt((AllSegCut(:,1,1)-AllSegCut(:,1,2)).^2 ...
+    + (AllSegCut(:,2,1)-AllSegCut(:,2,2)).^2 ...
+    + (AllSegCut(:,3,1)-AllSegCut(:,3,2)).^2);
+
+%Find eccentricities
+EccDPos=sqrt((Use.DPos(:,1)-Use.Cent(1)).^2 + (Use.DPos(:,2)-Use.Cent(2)).^2);
+EccMids=sqrt((Mids(:,1)-Use.Cent(1)).^2 + (Mids(:,2)-Use.Cent(2)).^2);
+
+%%find edges
+SortMids=sort(EccMids(EccMids>10));
+Outer=SortMids(fix(size(SortMids,1)*.98));
+Grad.Outer=Outer;
+
+
+
+InnerLength=sum(Length((EccMids>10) & (EccMids<(Outer/2))));
+OuterLength=sum(Length((EccMids>(Outer/2))));
+InnerDots=sum((EccDPos>10) & (EccDPos<(Outer/2)));
+OuterDots=sum((EccDPos>(Outer/2)));
+Grad.Vect=(InnerDots/InnerLength)/(OuterDots/OuterLength);
+GradV=Grad.Vect;
+
+
+
+%% Run from areas
+load([TPN 'CA.mat'])
+if size(CA.Arbor,2)>2
+    Area=CA.Arbor(2).Territory+CA.Arbor(3).Territory;
+    DotsA=CA.Arbor(2).DotMap + CA.Arbor(3).DotMap;
+    DendA=CA.Arbor(2).DendMap + CA.Arbor(3).DendMap;
+
+else
+    Area=CA.Arbor(1).Territory;
+    DotsA=CA.Arbor(1).DotMap;
+    DendA=CA.Arbor(1).DendMap;
+end
+
+DistMap=zeros(size(Area));
+for y = 1:size(Area,1)
+    for x = 1: size(Area,2)
+        DistMap(y,x)=sqrt((y-Use.Cent(1))^2+(x-Use.Cent(2))^2);
+    end
+end
+
+
+%% Chart all
+ilim=10; %inner limit of search
+Bin=10;
+clear cDist cDots cDend cArea CAreaAbs
+for i = ilim:Outer
+    cDist(i)=i;
+    cDots(i)=sum(EccDPos>(i-Bin/2) & EccDPos<(i+Bin/2));
+    cDend(i)=sum(Length(EccMids>(i-Bin/2) & EccMids<(i+Bin/2)));
+    cArea(i)=sum(Area(DistMap>(i-Bin/2) & DistMap<(i+Bin/2)));
+    cAreaAbs(i)=sum(Area(DistMap>(i-Bin/2) & DistMap<(i+Bin/2))>0);
+end
+cDD=cDots./cDend;
+cDotsA=cDots./cArea;
+cDendA=cDend./cArea;
+plot(cDotsA)
+plot(cDendA)
+plot(cDD)
+
+plot(cDD)
+ylim([0 .3])
+hold on
+%% Get Slope
+[p, S]=polyfit(cDist,cDD,1);
+Line=p(1)*cDist.^2+p(2);
+plot(Line)
+ylim([0 .3])
+hold off
+pause(.01)
+
+
+OArea=sum(Area(DistMap>(Outer/2) & DistMap<Outer));
+IArea=sum(Area(DistMap>10 & DistMap<(Outer/2)));
+Idot=(sum(EccDPos>10 & EccDPos<(Outer/2)))/IArea;
+Odot=(sum(EccDPos>(Outer/2) & EccDPos<Outer))/OArea;
+Idend=sum(Length(EccMids>10 & EccMids<(Outer/2)))/IArea;
+Odend=sum(Length(EccMids>(Outer/2) & EccMids<Outer))/OArea;
+IE=mean(EccMids(EccMids>10 & EccMids<(Outer/2)));
+OE=mean(EccMids(EccMids>(Outer/2)& EccMids<Outer));
+I2O=OE-IE; %mean distance from inner to outer.
+IDD=Idot/Idend;
+ODD=Odot/Odend;
+
+dDD=(IDD-ODD)/((IDD+ODD)); %~~~~!!!!!!!!!! Scale?
+dDot=(Idot-Odot)/((Idot+Odot));
+dDend=(Idend-Odend)/((Idend+Odend));
+
+Grad.Idot=Idot;
+Grad.Odot=Odot;
+Grad.Idend=Idend;
+Grad.Odend=Odend;
+Grad.I2O=I2O;
+Grad.dDD=dDD;
+Grad.dDot=dDot;
+Grad.dDend=dDend;
+
+Grad.IDD=Idot/Idend;
+Grad.ODD=Odot/Odend;
+Grad.RDD=Grad.IDD/Grad.ODD;
+Grad
+save([TPN 'GradA.mat'],'Grad')
+
+%% Run inner only <40um
+Outer=40; Middle=25;
+OArea=sum(Area(DistMap>(Middle) & DistMap<Outer));
+IArea=sum(Area(DistMap>10 & DistMap<(Middle)));
+Idot=(sum(EccDPos>10 & EccDPos<(Middle)))/IArea;
+Odot=(sum(EccDPos>(Middle) & EccDPos<Outer))/OArea;
+Idend=sum(Length(EccMids>10 & EccMids<(Middle)))/IArea;
+Odend=sum(Length(EccMids>(Middle) & EccMids<Outer))/OArea;
+IE=mean(EccMids(EccMids>10 & EccMids<(Middle)));
+OE=mean(EccMids(EccMids>(Middle)& EccMids<Outer));
+I2O=Outer-Middle; %mean distance from inner to outer.
+IDD=Idot/Idend;
+ODD=Odot/Odend;
+
+dDD=(IDD-ODD)/((IDD+ODD)); %~~~~!!!!!!!!!! Scale?
+dDot=(Idot-Odot)/((Idot+Odot));
+dDend=(Idend-Odend)/((Idend+Odend));
+
+Grad.Idot=Idot;
+Grad.Odot=Odot;
+Grad.Idend=Idend;
+Grad.Odend=Odend;
+Grad.I2O=I2O;
+Grad.dDD=dDD;
+Grad.dDot=dDot;
+Grad.dDend=dDend;
+Grad.Outer=Outer;
+
+Grad.IDD=Idot/Idend;
+Grad.ODD=Odot/Odend;
+Grad.RDD=Grad.IDD/Grad.ODD;
+
+save([TPN 'GradI.mat'],'Grad')
+%%
+
+
+

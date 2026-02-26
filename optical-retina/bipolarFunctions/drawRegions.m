@@ -1,0 +1,82 @@
+%% Draw Regions
+clear all
+%% Get file
+IPN = GetMyDir
+inams = getPics(IPN);
+slashes = find(IPN == '\');
+[TFN TPN] = uigetfile([IPN(1:slashes(end-1)) '*.rgn'],'get Regions');
+%% Read Image
+for i = 1:length(inams)
+    I(:,:,:,i) = imread([IPN inams{i}]);
+end
+Imax = max(I,[],4);
+Imax(:,:,2) = Imax(:,:,2) * .2;
+Imax(:,:,1) = Imax(:,:,1) * 10;
+
+%% parse raw region file
+[fid message] = fopen([TPN TFN]);
+rawR = fread(fid);
+limits = find((rawR<48) | (rawR>57));
+limits = [1; limits; length(rawR) + 1];
+nums = zeros(length(rawR),1);
+c = 0;
+for i = 1:length(limits)-1
+    num = rawR(limits(i)+1:limits(i+1)-1);
+    if ~isempty(num)
+        c = c+1;
+        nums(c) = str2num(char(num(:)'));
+
+    end
+end
+
+nums = nums(1:c);
+
+%%  make regions
+
+regStart = find(nums>3000);
+regStart = regStart - regStart(1) + 1;
+regStop = [regStart(2:end)-1; length(nums)];
+rLength = regStop - regStart;
+
+st = 15;
+yp = [1:20] * 2 -1;
+xp = [1:20] * 2;
+for i = 1:length(regStart)
+    regNums = nums(regStart(i):regStop(i));
+    numPoint = regNums(st);
+    regs{i} = [regNums(st + yp(1:numPoint)) regNums(st + xp(1:numPoint))];
+end
+
+%% Plot regions
+image(Imax)
+hold on
+for i = 1:length(regs)
+    reg = regs{i};
+    plot(reg(:,1),reg(:,2),'g');
+end
+
+while 1
+
+    regH = input('region to highlight : ')
+
+    image(Imax)
+    hold on
+    for i = 1:length(regs)
+        reg = regs{i};
+        plot(reg(:,1),reg(:,2),'g');
+    end
+
+    for i = 1:20
+        reg = regs{regH};
+        plot(reg(:,1),reg(:,2),'b'); pause(.01)
+        plot(reg(:,1),reg(:,2),'w'); pause(.01)
+
+    end
+
+    hold off
+end
+
+
+
+
+

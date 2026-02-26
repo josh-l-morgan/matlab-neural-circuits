@@ -1,0 +1,52 @@
+%% Rename files for retake
+
+
+TPN = GetMyDir;
+load([TPN 'q.mat'])
+if exist([TPN 'r.mat'])
+  load([TPN 'r.mat'])
+  retakeNum = length(r)+1; 
+else
+  retakeNum = 1;
+end
+
+qualityThreshold = 3;
+
+allQual = [q.tile.quality];
+
+retake = allQual' < qualityThreshold;
+
+retakeIds = find(retake);
+for i = 1:length(retakeIds)
+  nam = q.checkedNams{retakeIds(i)};
+  if ~strcmp(nam(1:4),'Tile')
+   retake(retakeIds(i)) = 0; 
+  end
+end
+retakeIds = find(retake);
+
+retakeFolders = q.checkedFolders(retake);
+retakeNams = q.checkedNams(retake);
+
+
+r(retakeNum).retakeFolders = retakeFolders;
+r(retakeNum).retakeNams = retakeNams;
+save([TPN 'r.mat'],'r')
+
+%% Rename retake tiles
+
+for i = 1:length(retakeNams)
+  fold = [retakeFolders{i} '\'];
+  nam = retakeNams{i};
+  Bad = ['Bad' num2str(retakeNum) '_'];
+  matNam = [nam(1:end-3) 'mat']
+  if exist([fold nam])
+    q.checkedNams{retakeIds(i)} = [Bad nam];
+    dos(['move ' fold nam ' ' fold Bad nam]);
+    dos(['move ' fold matNam ' ' fold Bad matNam ]);
+  end
+end
+
+
+save([TPN 'q.mat'],'q')
+

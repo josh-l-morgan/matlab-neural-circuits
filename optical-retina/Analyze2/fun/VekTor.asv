@@ -1,0 +1,53 @@
+%%Vector, the friendly vector
+
+Vbody=ones(5);
+[Vy Vx]=find(Vbody);
+field=zeros(20);
+
+for i = 1:100
+    
+    
+    for n=1:size(Vy,1)
+       
+       moves=[];
+       for y = -1:1:1, for x = -1 : 1 :1
+            d=sqrt((Vy-Vy(n)+y).^2+(Vx-Vx(n)+x).^2);
+            ok=sum(d<1.5)>1;
+            block=sum(d==0);
+            if ok & ~block
+                moves=[moves ; y x];
+                
+            end
+            d,y,x,ok,block
+            
+            
+            
+       end, end
+            
+        %%Show
+            miny=min(Vy); minx=min(Vx);
+            Showy=Vy-miny+10
+            Showx=Vx-minx+10
+            field=field*0;
+            field(sub2ind([20 20],Showy,Showx))=100;
+            field(Showy(n),Showx(n))=300;
+            image(field),pause(.1)
+
+            moves
+            n
+            pause
+            if ~isempty(moves)
+                pick=fix(rand*size(moves,1))+1
+                Vy(n)=moves(pick,1);
+                Vx(n)=moves(pick,2);            
+            end
+            
+           
+            
+       
+       
+       
+       
+       
+    end
+end

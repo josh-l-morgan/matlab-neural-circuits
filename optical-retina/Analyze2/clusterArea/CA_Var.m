@@ -1,0 +1,89 @@
+load(['UseCells.mat'])
+
+for k = 1:size(UseCells,1)
+    k
+    TPN = char(UseCells(k));
+   if exist([TPN 'CAbi.mat'])
+       load([TPN 'CAbi.mat'])
+   else
+        load([TPN 'CA.mat'])
+   end
+   clear a DendMap DotMap Ter  normDD 
+   DotVals=[];
+   DendVals=[];
+   if size(CA.Arbor,2)>2
+       for a = 2:3
+           DotMap=CA.Arbor(a).DotDist;
+           DendMap=CA.Arbor(a).DendDist;
+           Ter=CA.Arbor(a).Territory;
+           %%only include areas with at least 5um of dend withing 10um radius
+           %DDvals=[DDvals; DotMap((Ter>0) & (DendMap>0.016))./DendMap((Ter>0) & (DendMap>0.016))];
+           DotVals=[DotVals;DotMap(Ter>0)];
+           DendVals=[DendVals;DendMap(Ter>0)];
+       end 
+   else
+        DotMap=CA.Arbor(1).DotDist;
+        DendMap=CA.Arbor(1).DendDist;
+        Ter=CA.Arbor(1).Territory;
+        DotVals=[DotVals;DotMap(Ter>0)];
+        DendVals=[DendVals;DendMap(Ter>0)];
+        %DDvals=[DDvals; DotMap((Ter>0) & (DendMap>0.016))./DendMap((Ter>0) & (DendMap>0.016))];
+   end
+   ENuf=DendVals>0.016; %must be at least 5 um of dendrite to measure a region
+   DendVals=DendVals(ENuf);
+   DotVals=DotVals(ENuf);
+   DD=DotVals./DendVals;
+   
+   RealVarDt=var(DotVals);
+   [R P]=corrcoef(DendVals,DotVals);
+   CorDdDt=[R(1,2) P(1,2)];
+   
+%% Simulate Variance
+   SampSize=sum(ENuf);
+   reps=100;
+   for r=1:reps
+       Shake=randperm(SampSize);
+       %rDD=DD(Shake);
+       rDd=DendVals(Shake);
+       rDt=DD.*rDd;
+       rVar(r)=var(rDt);
+       [R P]=corrcoef(rDt,DotVals);
+       rCorDdDt(r,:)=[R(1,2) P(1,2)];
+       
+   end
+   PVarDt=sum(rVar<=RealVarDt)
+   PCorDdDt=sum(rCorDdDt(:,1)<=CorDdDt(1));
+   
+   CaVar.PVarDt=PVarDt;
+   CaVar.RealVarDt=RealVarDt;
+   CaVar.mRandVar=mean(rVar);
+   CaVar.SDEVrandVar=std(rVar);
+   CaVar.CorDdDt=CorDdDt;
+   CaVar.PCorDdDt=PCorDdDt;
+   CaVar.mCorDdDt=mean(rCorDdDt(:,1));
+   
+   
+   CaVar
+   save([TPN 'CaVar.mat'],'CaVar')  
+%%   
+    
+end
+
+
+%% Show info
+
+
+for k = 1:size(UseCells,1)
+    k
+    TPN = char(UseCells(k));
+    load([TPN 'CaVar.mat']);
+    %save([TPN 'CaVar.mat'],'CaVar')  
+    CaVar
+   % P(k)=CaVar.P;
+
+end
+
+hist(P)
+
+    
+    

@@ -1,0 +1,320 @@
+
+dilateRad  = 3; %radius to dilate PRC
+set(0,'DefaultFigureWindowStyle','docked')
+fig = figure;
+
+global tis
+if 0
+load('MPN.mat')
+load([MPN 'dsObj.mat'])
+end
+
+
+obIsPrc = find(tis.obI.nameProps.tag.prc);
+prcNum = length(obIsPrc);
+obIsGlia = find(tis.obI.nameProps.tag.glia);
+ob2cid = tis.obI.nameProps.cellNum;
+
+
+prcCids = ob2cid(obIsPrc)';
+typeID = tis.cells.type.typeID;
+
+typeID(ob2cid(obIsGlia)) = 10; %Make glia 10 until cellNav updated
+
+
+%% Get Segmentation dimensions
+minSeg = [inf inf inf];
+maxSeg = [0 0 0];
+for i = 1:length(dsObj)
+    subs = dsObj(i).subs;
+    cMin = min(subs,[],1);
+    cMax = max(subs,[],1);
+    minSeg = min([minSeg;cMin],[],1);
+    maxSeg = max([maxSeg;cMax],[],1);
+end
+
+%% Make Segmentation Volume
+vBuf = dilateRad + 1;
+vSize = maxSeg-minSeg + vBuf*2;
+numOb = length(dsObj);
+
+segV = zeros(vSize,'uint16');
+for i = 1:numOb
+    subs = dsObj(i).subs;
+    subs = subs - repmat(minSeg,[size(subs,1) 1]) +vBuf+1;
+    subInd = sub2ind(vSize,subs(:,1),subs(:,2),subs(:,3));
+    segV(subInd) = i;
+end
+
+%%Add Edge value
+edgeVal = numOb+1;
+segV(1:vBuf-1,:,:) = edgeVal;
+segV(end-vBuf+1,:,:) = edgeVal;
+segV(:,1:vBuf-1,:) = edgeVal;
+segV(:,end-vBuf+1,:) = edgeVal;
+segV(:,:,1:vBuf-1) = edgeVal;
+segV(:,:,end-vBuf+1) = edgeVal;
+
+cmap = hsv(numOb);
+cmap = [0 0 0;cmap(randperm(size(cmap,1)),:)];
+a = subplot(1,1,1);
+colormap(cmap)
+if 0
+    for i = 1:size(segV,3)
+        image(a,segV(:,:,i)+1);
+        drawnow
+    end
+end
+
+sumSegV = sum(segV>0,3);
+
+
+%% bad fix to shifts
+if 0
+clf
+for i = 1:prcNum
+
+    %% cut out chunk of segmentation volume
+    subs = dsObj(obIsPrc(i)).subs-minSeg +vBuf+1;
+    sMax = max(subs,[],1);
+    minZ = min(subs(:,3));
+    maxZ = max(subs(:,3));
+
+    shift0 = [0 0 0]
+    isZ = find(subs(:,3)==minZ);
+    oldV = subs(isZ,:);
+    clf
+    for z = minZ+1:maxZ
+        isZ = find(subs(:,3)==z);
+        if isempty(isZ)
+            newV = oldV;
+        else
+            newV = subs(isZ,:);
+        end
+        mean1 = mean(newV,1);
+        mean0 = mean(oldV,1);
+        shift1 = mean1-mean0;
+
+        ind1 = sub2ind([sMax(1) sMax(2)],newV(:,1),newV(:,2));
+        ind0 = sub2ind([sMax(1) sMax(2)],oldV(:,1),oldV(:,2));
+        int10 = intersect(ind1,ind0)
+
+
+        clf,hold on, view(45,45)
+
+        scatter3(subs(:,1),subs(:,2),subs(:,3),'.','k')
+        scatter3(newV(:,1),newV(:,2),newV(:,3),'o','r');
+        scatter3(oldV(:,1),oldV(:,2),oldV(:,3),'o','b');
+        pause
+        if isempty(int10)
+
+
+            downStream = find(subs(:,3)>=z);
+            fixShift = shift1-shift0;
+            
+            subs(downStream,1) = subs(downStream,1)-fixShift(1);
+            subs(downStream,2) = subs(downStream,2)-fixShift(2);
+            newV = subs(isZ,:);
+            shift1 = shift0;
+
+            scatter3(subs(downStream,1),subs(downStream,2),subs(downStream,3),'.','g')
+            pause
+
+            'bark'
+           
+        end
+
+        shift0 = shift1;
+        oldV = newV;
+    end
+
+
+
+end
+end
+
+
+
+%% Get shape
+for i = 1:prcNum
+
+    %% cut out chunk of segmentation volume
+    subs = double(dsObj(obIsPrc(i)).subs-minSeg +vBuf+1);
+
+    dif1 = subs(:,1)  - subs(:,1)';
+    dif2 = subs(:,2)  - subs(:,2)';
+    dif3 = subs(:,3)  - subs(:,3)';
+
+    dists = sqrt(dif1.^2 + dif2.^2 + dif3.^2);
+
+    maxDist(i) = max(dists(:));
+
+
+end
+
+
+for i = 1:prcNum
+
+    %% cut out chunk of segmentation volume
+    subs = double(dsObj(obIsPrc(i)).subs-minSeg +vBuf+1);
+    clear allVox
+    allVox.subs = double(subs);
+    allVox.minMax = {min(subs,[],1) max(subs,[],1)};
+    allVox.seedInd = 1;
+    allVox.seedSub = subs(1,:);
+    allVox.mid = median(subs,1);
+
+    %allVox = parseCellSubs(allVox)
+
+
+
+allVox.minMax = allVox.minMax;
+seedSub = double(allVox.seedSub);
+seed = allVox.seedInd;
+
+
+
+arbor = subs2arbor(allVox);
+end
+
+%% Dilate PRC
+se = strel('sphere',dilateRad);
+showDilation = 1;
+clear dVals
+for i = 1:prcNum
+
+    %% cut out chunk of segmentation volume
+    subs = dsObj(obIsPrc(i)).subs-minSeg +vBuf+1;
+    y = subs(:,1);
+    x = subs(:,2);
+    z = subs(:,3);
+    segSamp = segV(min(y)-vBuf:max(y)+vBuf,min(x)-vBuf:max(x)+vBuf,min(z)-vBuf:max(z)+vBuf);
+
+    zMode = round(size(segSamp,3)/2);
+
+
+    prcV1 = (segSamp==obIsPrc(i));
+    sumPrcV = sum(prcV1,3);
+    dPrcV = imdilate(prcV1,se);
+    cutVals = find((dPrcV>0) &(prcV1==0));
+    sumSegSampV = max(segSamp,[],3);
+
+    dVals{i} = segSamp(cutVals);
+    if showDilation
+        if sum(dVals{i})
+            cutV = segSamp* 0;
+            cutV(cutVals)  = segSamp(cutVals);
+            sumCutV = sum(cutV>0,3);
+            sumDPrcV = sum(dPrcV,3);
+
+            colSum = zeros(size(segSamp,1),size(segSamp,2),3);
+            colSum(:,:,1) = sumPrcV;
+            colSum(:,:,2) = sumCutV;
+            colSum(:,:,3) = sumSegSampV;
+
+
+            colSlice = colSum*0;
+            colSlice(:,:,1) = prcV1(:,:,zMode)*1000;
+            colSlice(:,:,2) = cutV(:,:,zMode)*10000;
+            colSlice(:,:,3) = segSamp(:,:,zMode)*10;
+
+            maxCutV = max(cutV,[],3);
+            [y x] = find(maxCutV>0);
+            minCut = min([y x],[],1);
+            maxCut = max([y x],[],1);
+            colormap(cmap)
+
+            minCut = max(minCut-10,[1 1]);
+            maxCut = min(maxCut+10,size(maxCutV));
+
+            
+
+            s1 = subplot(1,2,1)
+
+            %image(s1,uint8(colSum(minCut(1):maxCut(1),minCut(2):maxCut(2),:)*50))
+            image(s1,uint8(colSlice))
+            s2  = subplot(1,2,2)
+            image(s2,maxCutV(minCut(1):maxCut(1),minCut(2):maxCut(2)))
+
+            drawnow
+            pause
+        end
+    end
+end
+
+
+%% Parse dVals
+clear n
+for i = 1:length(dVals);
+    selfId = obIsPrc(i);
+    v = dVals{i};
+    n(i).v = v;
+    n(i).selfObId = selfId;
+    n(i).selfCid = ob2cid(selfId);
+    n(i).selfType = typeID(n(i).selfCid);
+    n(i).cutVoxNum = length(v);
+    n(i).emptyVox = sum(v==0);
+    n(i).selfVox = sum(v==selfId);
+    cutCidsV  = ob2cid(v((v>0) & (v~=selfId) & (v~=edgeVal)));
+    n(i).cutCids = unique(cutCidsV);
+    n(i).cutCidsCount = histc(cutCidsV,n(i).cutCids);
+    n(i).types = typeID(n(i).cutCids);
+    n(i).edgeVoxNum = sum(v==edgeVal);
+    n(i).maxDists = max(
+end
+
+%% Check cell types
+checkTypeNames = {'rgc' 'bpc' 'amc' 'glia'}; % N + 1 will be other
+clear checkTypeId
+checkTypeId = [1 7 8 10]; 
+
+for i = 1:length(n)
+    types = n(i).types;
+    n(i).checkTypeNames = cat(2,checkTypeNames,'other');
+    n(i).checkTypeIds = checkTypeId;
+    
+    for t = 1:length(checkTypeId)
+
+        isT = find(types==checkTypeId(t));
+        
+        n(i).typeCount(t) = length(isT);
+        n(i).typeVCount(t) = sum(n(i).cutCidsCount(isT));
+        types(isT) = 0;
+    end
+    isOther = find(isT>0);
+    n(i).typeCount(length(checkTypeId)+1) = length(isOther);
+    n(i).typeVCount(length(checkTypeId)+1) = sum(n(i).cutCidsCount(isOther));
+
+
+end
+
+
+%% Combine cells
+
+typeCellNum = zeros(prcNum,length(checkTypeNames)+1);
+typeVoxNum = typeCellNum;
+totVox = zeros(prcNum,1);
+for i = 1:length(n)
+   typeCellNum(i,:) = n(i).typeCount;
+   typeVoxNum(i,:) = n(i).typeVCount;
+   totVox(i) = n(i).cutVoxNum;
+end
+
+headings = {'cid' 'type' 'surround' 'empty' 'self' 'edge' 'rgc' 'bpc' ...
+    'amc' 'glia' 'other'  'rgc (cells)' 'bpc (cells)' 'amc (cells)' 'glia (cells)' 'other (cells)'};
+result(:,1) = cat(1,n.selfCid);
+relult(:,2) = cat(1,n.selfType);
+result(:,3) = cat(1,n.cutVoxNum);
+result(:,4)  = cat(1,n.emptyVox);
+result(:,5) = cat(1,n.selfVox);
+result(:,6) = cat(1,n.edgeVoxNum);
+result(:,7:11) = typeVoxNum;
+result(:,12:16) = typeCellNum;
+
+result(:,4:11) = (result(:,4:11)./result(:,3))*100;
+
+result
+
+
+
+

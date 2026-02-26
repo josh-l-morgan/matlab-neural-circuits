@@ -1,0 +1,557 @@
+
+%%Check for unassigned bipolar cells
+%%Determine if polarity of Ca responses are consistent with other cells. Is
+%%it SNR dependent.
+%%See if changing masks changes bimodality or polarity spread.
+%%Consolidate redundant ROIs
+
+%{
+
+1) Karl finishes cell 14, bip identification, ROI correlation
+2) Try filtering ROIs by redundancy and edge proximity
+3) Check distribution of physiological responses against other
+distributions for RANGE and BIMODALITY
+
+
+4) In parrallel run model against population of vGlut
+
+Responses to flashing Bar
+
+
+%}
+
+
+
+if 1
+    global glob
+    datFold = [glob.datDir 'Analysis\Data\preproc\'];
+    SPN =datFold;
+    load([SPN 'ptDat.mat']);
+    load([SPN 'ROI.mat']);
+    %load([SPN 'ROI2.mat']);
+    load([SPN 'SOI.mat']);
+    load([SPN 'GOI.mat']);
+    load([SPN 'POI.mat']);
+    load([SPN 'NOI.mat']);
+end
+
+standardize = 0; %scale distributions by standard deviation before calculating error
+matchType = 1; % 1 = rmse, 2 = cc
+weightErrors = 0; % multiply covariance by weight (SNR)
+filterBySNR = 0;
+filterByEdge = 0;
+
+
+roiNearEdge = [];%[66 67 68 69 71 120 144 70 198 ]; % manually identified by jm 1/6/2022
+
+onScale = 1;%[.6:.1:3];;
+offScale = [1];
+noise = [0:.001:.005];
+
+minBip = 10;
+testLengths = [1:150];
+L = length(testLengths);
+
+caPol = POI.Polarity;
+SNR = POI.Polarity * 0 + 1;
+SNR(isnan(SNR)) = 0;
+SNRcol = colorProp(SNR,'STD');
+
+roiCids = POI.roiCids;%ptDat(:,3);
+numRoi = length(roiCids);
+
+allPred = zeros(numRoi,L,length(onScale),length(offScale),length(noise));
+goodRoi = zeros(numRoi,1);
+vCids = [2 3 4 13];
+
+goodCid = zeros(length(vCids),1);
+useCid = POI.cids;
+
+
+%% Show POI
+clf
+if  0
+    for p = 1:length(POI.cids)
+        %%Show
+        clf
+        axis('equal')
+        nTarg = find(NOI.cids==POI.cids(p),1);
+        isCid = POI.roiCids == POI.cids(p);
+        nep = NOI.neps(nTarg).nep;
+        pos = nep.pos
+        scatter3(pos(:,1),pos(:,2),pos(:,3),'.','k');
+        set(gca,'clipping', 'off')
+        hold on
+        pCol = jet(max(POI.plane));
+
+        for z = 1:max(POI.plane)
+            useROI = find(isCid & (POI.plane == z));
+            useN = POI.closeNode(useROI);
+            scatter3(pos(useN,1),pos(useN,2),pos(useN,3),50,...
+                'o','filled'),'color',pCol(z,:);
+
+        end
+        pause(1)
+    end
+end
+
+%% Get weight
+for v = 1:length(vCids)
+    vCid = vCids(v);
+    vTarg = find(SOI.cids == vCid);
+
+    isCid = find(POI.roiCids==vCid);
+    if ~isempty(isCid)
+        useNodes = POI.closeNode(isCid);
+
+        d = SOI.cell(vTarg).d(:,useNodes);
+        preSign = SOI.cell(vTarg).preSign;
+        numBip = sum(preSign>0);
+        preSignMat = repmat(preSign,[1 size(d,2)]);
+        onMat = preSignMat == 1;
+        offMat = preSignMat == 2;
+        if (sum(preSign==1)>=minBip) && (sum(preSign==2)>=minBip)
+            fprintf('%d is good\n',vCid)
+            goodRoi(isCid) = 1;
+            goodCid(v) = 1;
+        else
+            fprintf('%d is bad\n',vCid)
+        end
+
+
+        predPol = zeros(length(isCid),L,length(onScale),length(offScale));
+        for c = 1:L
+            lc = testLengths(c);
+
+            W = exp(-d/lc); % Apply length constant
+            for n = 1:length(noise)
+                for s = 1:length(onScale)
+                    for s2 = 1:length(offScale)
+                        Won = W .* onMat * onScale(s) + noise(n)*0;
+                        Woff = W .* offMat * offScale(s2) + noise(n);
+
+                        sumOn = sum(Won,1) ;
+                        sumOff = sum(Woff,1) ;
+
+                        predPol(:,c,s,s2,n) = (sumOff-sumOn)./(sumOff+sumOn);
+                    end
+                end
+            end
+
+        end
+        allPred(isCid,:,:,:,:) = predPol;
+    end
+end
+
+
+
+
+%% Find error
+'finish reading out noise!!!!'
+%useRoi = find(~isnan(sum(allPred,2)));
+
+if filterBySNR
+    goodRoi = goodRoi & (SNR>filterBySNR);
+end
+if filterByEdge
+    for r = 1:length(GOI.roiID)
+        hit = intersect(GOI.roiID{r},roiNearEdge);
+        if ~isempty(hit)
+            goodRoi(r) = 0;
+        end
+    end
+end
+useRoi = find(goodRoi>0);
+
+usePred = allPred(useRoi,:,:,:,:);
+
+%%Set error weights
+if weightErrors == 1
+    ew = SNR;% * 0 + 1;
+else %dont weight errors
+    ew = SNR * 0 + 1;
+end
+ew = ew(goodRoi>0);
+ew = ew/mean(ew);
+ewM = repmat(ew,[1 size(usePred,2) size(usePred,3) size(usePred,4) size(usePred,5)]);
+
+
+caPolN = caPol(useRoi);% - mean(caPol(useRoi));
+if standardize
+    caPolN = caPolN/std(caPolN);
+end
+usePredN = usePred;% - repmat(mean(usePred,1),[size(usePred,1) 1]);
+if standardize
+    stdUsePred = std(usePredN,1);
+    usePredN = usePredN./repmat(stdUsePred,[size(usePred,1) 1 1]);
+end
+caPolMatN = repmat(caPolN,[1 L size(usePred,3) size(usePred,4) size(usePred,5)]);
+
+difMatN = caPolMatN - usePredN;
+meanErrN = mean(abs(difMatN));
+% rmseN = sqrt(mean(difMatN.^2,1));
+% rmseN = rmseN/ mean(abs(caPolN));
+rmseN = 0-meanErrN;
+
+%%Get correlation coefficient
+caPolMatM = caPolMatN - repmat(mean(caPolMatN,1),[size(caPolMatN,1) 1 1 1 1]);
+usePredM = usePredN - repmat(mean(usePredN,1),[size(usePredN,1) 1 1 1 1]);
+covN = mean(caPolMatM .* usePredM .* ewM,1);
+std1 = std(caPolMatN,1);
+std2 = std(usePredN,1);
+cc = covN./(std1.*std2);
+
+
+
+%rmseN = (std1*3)-rmseN./std1;
+
+
+if matchType == 1
+    matchVal = rmseN;
+else
+    matchVal = cc;
+end
+
+%%Apply weights
+
+
+minE = max(matchVal(:))
+indE = find(matchVal==minE);
+[by bx bs1 bs2 bn] = ind2sub(size(matchVal),indE);
+bym = mean(by);
+bxm = mean(bx);
+bs1m = mean(bs1);
+bs2m = mean(bs2);
+bnm = mean(bn);
+
+
+bestOnScale = onScale(round(bs1m))
+bestOffScale = offScale(round(bs2m))
+bestLength = testLengths(round(bxm))
+bestNoise = noise(round(bnm))
+
+
+clf
+
+subplot(3,2,1)
+showErr = rmseN(:,:,round(bs1m),round(bs2m),round(bnm));
+plot(testLengths,showErr)
+title(sprintf('best length = %0.2f, OnScale = %0.2f,OffScale = %0.2f, noise = %0.4f',...
+    bestLength,bestOnScale,bestOffScale,bestNoise))
+
+
+subplot(3,2,2)
+showErr = cc(:,:,round(bs1m),round(bs2m),round(bnm));
+plot(testLengths,showErr)
+title(sprintf('cc'))
+
+
+
+showPred = usePredN(:,round(bxm),round(bs1m),round(bs2m),round(bnm));
+%showPred = squeeze(usePredN(:,round(bxm),:,round(bnm))); %% show all on scaling
+%showPred = squeeze(usePredN(:,round(bxm),round(bzm),:)); %% show all noise
+
+pause(1)
+
+
+%%Show shift in matching with length constants
+if 1
+
+
+    subplot(3,2,3)
+
+    stdDif = abs(testLengths-15);
+    std15 = find(stdDif==min(stdDif),1);
+    scatS = scatter(usePredN(:,std15,round(bs1m),round(bs2m),round(bnm)),caPolN,15,'filled');
+    scatS.CData = [1 1 1];%SNRcol(useRoi,:);
+    title(sprintf('distribution at 15 um standard'))
+    set(gca,'color','k')
+
+    drawnow
+
+
+    subplot(3,2,4)
+
+    if 0
+        for r = 2
+            for s = 1:size(showPred,2)
+                scat1 = scatter(showPred(:,s),caPolN,15,'filled');
+                scat1.CData = [1 1 1];%SNRcol(useRoi,:);
+                title(sprintf('length constant %0.2f',testLengths(s)))
+                %                 xlim([-1 1])
+                %                 ylim([-1 1])
+                set(gca,'color','k')
+                drawnow
+                pause(.1)
+            end
+            for s = size(showPred,2):-1:1
+                scat1 = scatter(showPred(:,s),caPolN,15,'filled');
+                scat1.CData = [1 1 1];%SNRcol(useRoi,:);
+                title(sprintf('length constant %0.2f',testLengths(s)))
+                %                 xlim([-1 1])
+                %                 ylim([-1 1])
+                set(gca,'color','k')
+                drawnow
+                %pause(.1)
+            end
+
+        end
+    end
+
+    scat1 = scatter(usePredN(:,round(bxm),round(bs1m),round(bs2m),round(bnm)),caPolN,15,'filled');
+    scat1.CData = SNRcol(useRoi,:);
+    title(sprintf('length constant %0.2f', testLengths(bxm)))
+    %     xlim([-1 1])
+    %     ylim([-1 1])
+    set(gca,'color','k')
+
+    drawnow
+
+
+end
+
+return
+
+%% Display as histogram
+if 1
+    clf
+    maxDist = .025;
+    medPred = zeros(length(POI.testDepths),length(testLengths));
+
+    for d  = 1:size(usePredN,2)
+
+        bestPred = usePredN(:,d,round(bs1m),round(bs2m),round(bnm));
+
+        polRange = [-1:.05:1];
+        for p = 1:length(POI.testDepths)
+
+            subplot(length(POI.testDepths),1,p)
+            isPlane = (POI.plane(useRoi) == p) & (POI.planeDist(useRoi)<=maxDist);
+
+            pols = bestPred(isPlane);
+            medPred(p,d) = median(pols);
+            histPols = hist(pols,polRange);
+            bar(polRange,histPols)
+            title(sprintf('length constant %0.2f, testDepth = %0.2f',...
+                testLengths(d),POI.testDepths(p)))
+        end
+
+        pause(.1)
+    end
+    pause(1)
+
+    clf
+    subplot(4,1,3)
+    maxY =max(medPred(:))*2;
+    minY = min(medPred(:))*2;
+    clear pError pMatch
+    for d = 1:size(usePredN,2)
+
+        pDifs = abs(medPred(2:end,d) - POI.popPol(2:end)');
+        pError(d) = sum(pDifs)
+        pError(d) = sqrt(mean(pDifs.^2));
+        R = corrcoef(medPred(2:end,d),POI.popPol(2:end)');
+        pMatch(d) = R(1,2);
+
+        scatter(POI.testDepths,POI.popPol,'k','filled')
+        hold on
+        scatter(POI.testDepths,medPred(:,d),'r','lineWidth',2)
+        ylim([minY maxY])
+        hold off
+        drawnow
+    end
+
+    subplot(4,1,4)
+    plot(pError,'r')
+    hold on
+    plot(pMatch,'b')
+
+    bestFit = testLengths(find(pError==min(pError),1))
+
+    scatter(POI.testDepths,POI.popPol,'k','filled')
+    hold on
+    scatter(POI.testDepths,medPred(:,bestFit),'r','lineWidth',2)
+    ylim([minY maxY])
+    hold off
+        
+medPred(:,bestFit)
+
+end
+
+
+
+
+
+
+
+
+return
+
+%% Compare errror to SNR
+
+if 0
+    bestErrors = difMatN(:,round(bxm),round(bs1m),round(bs2m),round(bnm));
+    scatter(SNR(useRoi),bestErrors)
+    caN = caPolMatN(:,round(bxm),round(bs1m),round(bs2m),round(bnm));
+    uPN = usePredN(:,round(bxm),round(bs1m),round(bs2m),round(bnm));
+    scatter3(caN,uPN,SNR(useRoi))
+end
+
+
+%% Check each roi
+useRoi = find(goodRoi>0);
+subplot(3,2,5)
+cla, hold on
+for r = 1:length(useRoi);
+
+    usePredR = usePredN(r,:,:,:,:);
+    caPolNR = caPolN(r);% - mean(caPol(useRoi));
+    dif = abs(usePredR-caPolNR);
+
+    minE = min(dif(:));
+    indE = find(dif==minE);
+    [by bx bs1 bs2 bn] = ind2sub(size(dif),indE);
+    bymR = mean(by);
+    bxmR = mean(bx);
+    bs1mR = mean(bs1);
+    bs2mR = mean(bs2);
+    bnmR = mean(bn);
+
+    bestOnScale = onScale(round(bs1m));
+    bestOffScale = offScale(round(bs2m));
+    bestLengths(r) = testLengths(round(bxmR));
+    bestNoise = noise(round(bnm));
+
+    %     subplot(2,2,3)
+    %     hold off
+    %     scat1 = scatter(usePredN(:,round(bxm),round(bs1m),round(bs2m),round(bnm)),caPolN,15,'filled');
+    %     scat1.CData = SNRcol(useRoi,:);
+    %     title(sprintf('length constant %0.2f',testLengths(s)))
+    %     %                 xlim([-1 1])
+    %     %                 ylim([-1 1])
+    %     set(gca,'color','k')
+    %     hold on
+    %     scat2 = scatter(usePredN(r,round(bxm),round(bs1m),round(bs2m),round(bnm)),caPolN(r),150,'filled');
+    %
+    subplot(3,2,5)
+    showDif = dif(:,:,round(bs1m),round(bs2m),round(bnm));
+    hold on
+    plot(showDif)
+    drawnow
+
+end
+
+useBest = (bestLengths>testLengths(1)) & (bestLengths<testLengths(end));
+useBestLengths = bestLengths(useBest);
+
+percentLengthsUsed = mean(useBest)*100
+
+subplot(3,2,5)
+hold off
+hist(useBestLengths,testLengths)
+
+medBestLengthsR = median(useBestLengths)
+sortBL = sort(useBestLengths,'ascend');
+bl95 = [sortBL(round(length(sortBL) * .025))      sortBL(round(length(sortBL) * .975))]
+SE = std(useBestLengths)/sqrt(length(useBestLengths))
+title(sprintf('L = %0.2f, 95%% = %0.2f - %0.2f, SE = %0.2f',medBestLengthsR, bl95(1),bl95(2)),SE)
+
+
+
+%% Show each cell
+
+useCid = vCids(goodCid>0);
+pCol  = {'r' 'g' 'b' 'k' 'm'}
+
+for v = 1:length(useCid)
+    vCid = useCid(v);
+    useRoi = find((goodRoi>0) & (POI.roiCids==vCid));
+
+    usePred = allPred(useRoi,:,:,:,:);
+    caPolMat = repmat(caPol(useRoi),1, L, size(usePred,3), size(usePred,4), size(usePred,5));
+    difMat = caPolMat - usePred;
+    rms = sqrt(mean(difMat.^2,1));
+    meanErr = mean(abs(difMat),1);
+
+
+    %%Set error weights
+    if weightErrors == 1
+        ew = SNR;% * 0 + 1;
+    else %dont weight errors
+        ew = SNR * 0 + 1;
+    end
+    ew = ew(useRoi>0);
+    ew = ew/mean(ew);
+    ewM = repmat(ew,[1 size(usePred,2) size(usePred,3) size(usePred,4) size(usePred,5)]);
+
+
+    caPolN = caPol(useRoi);% - mean(caPol(useRoi));
+    if standardize
+        caPolN = caPolN/std(caPolN);
+    end
+    usePredN = usePred;% - repmat(mean(usePred,1),[size(usePred,1) 1]);
+    if standardize
+        stdUsePred = std(usePredN,1);
+        usePredN = usePredN./repmat(stdUsePred,[size(usePred,1) 1 1]);
+    end
+    caPolMatN = repmat(caPolN,[1 L size(usePred,3) size(usePred,4) size(usePred,5)]);
+    difMatN = caPolMatN - usePredN;
+    meanErrN = mean(abs(difMatN));
+    rmseN = sqrt(mean(difMatN.^2,1));
+    rmseN = rmseN/ mean(abs(caPolN));
+
+    %%Get correlation coefficient
+    caPolMatM = caPolMatN - repmat(mean(caPolMatN,1),[size(caPolMatN,1) 1 1 1 1]);
+    usePredM = usePredN - repmat(mean(usePredN,1),[size(usePredN,1) 1 1 1 1]);
+    ewM = repmat(ew,[1 size(usePredM,2) size(usePredM,3) size(usePredM,4) size(usePredM,5)]);
+    covN = mean(caPolMatM .* usePredM .* ewM,1);
+    std1 = std(caPolMatN,1);
+    std2 = std(usePredN,1);
+    cc = covN./(std1.*std2);
+
+    if matchType == 1
+        matchVal = (max(abs(rmseN(:))) - rmseN)./((std1 ));
+    else
+        matchVal = cc;
+    end
+
+    minE = max(matchVal(:))
+    indE = find(matchVal==minE);
+    [by bx bs1 bs2 bn] = ind2sub(size(matchVal),indE);
+    bym = mean(by);
+    bxm = mean(bx);
+    bs1m = mean(bs1);
+    bs2m = mean(bs2);
+    bnm = mean(bn);
+
+    bestOnScale = onScale(round(bs1m))
+    bestOffScale = offScale(round(bs2m))
+    bestLength = testLengths(round(bxm))
+    bestNoise = noise(round(bnm))
+
+    showErr = matchVal(:,:,round(bs1m),round(bs2m),round(bnm));
+    showMeanErr = meanErrN(:,:,round(bs1m),round(bs2m),round(bnm));
+
+
+    showPred = usePredN(:,:,round(bs1m),round(bs2m),round(bnm));
+
+
+    subplot(3,2,6)
+    hold on
+    plot(testLengths,showErr,pCol{v})
+    title(' ')
+    hold on
+
+    %ylim([0 1])
+
+    %title(sprintf('%d rois for cell %d',length(useRoi),vCid))
+    drawnow
+end
+
+
+
+
+
+
+
+

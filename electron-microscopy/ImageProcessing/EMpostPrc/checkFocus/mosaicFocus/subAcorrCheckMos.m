@@ -1,0 +1,111 @@
+%% Turn mosaics from waffer into viewable (centers and downsample) mosaics
+clear all 
+%% Get Waffer folder information
+wif = GetMyWafer;
+%% View stitched
+
+%logF = dlmread(wif.log{end})
+%% Parse XML
+[tree, rootname, dom]=xml_read(wif.xml{end});
+overlap = tree.MosaicSetup.TileOverlapXum;
+xs = tree.MosaicSetup.TileWidth;
+ys = tree.MosaicSetup.TileHeight;
+res = tree.MosaicSetup.PixelSize;
+pixelOverlap = fix(overlap / res * 1000);
+minXfield = tree.MosaicSetup.Width;
+minYfield = tree.MosaicSetup.Height;
+
+%% Target Dir
+TPN = wif.dir; TPN = [TPN(1:end-1) 'Shaped\'];
+TPNsav = [TPN 'quality\'];
+if ~exist(TPNsav),mkdir(TPNsav);end
+
+%% test Focus
+colormap gray(256)
+dsampy = 100;
+dsampx = 100;
+sampA = 3;
+
+for s = 1 : length(wif.sec) % run sections
+    sprintf('reading  section %d of %d',s,length(wif.sec))
+
+    %[tree, rootname, dom]=xml_read(wif.sec(s).xml);
+    rc = wif.sec(s).rc;
+    mosDim = max(rc,[],1);
+    mos = zeros(mosDim(1),mosDim(2),3);
+    for t = 1:length(wif.sec(s).tile)
+        profile on
+        tic
+        %Ir = imread(wif.sec(s).tile{t},'PixelRegion',{[1000 1500],[1000 1500]});
+        %FM = fmeasure(Ir,'SFRQ',[])
+        subplot(2,1,1)
+        %image(Ir),pause(.01)
+        I1 = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1 dsampy ys],[1 dsampx xs]}));
+        I1 = I1(1:end-1,:);
+        Id = zeros(size(I1,1),size(I1,2),sampA);
+        yshift = [ 0 0 1 2 1];
+        xshift = [ 1 2 0 0 1];
+        for i = 1 :length(yshift)
+            Is = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1+yshift(i) dsampy ys],[1 + xshift(i) dsampx xs]}));
+            Is = Is(1:size(I1,1),1:size(I1,2));
+            Id(:,:,i) = abs(Is-I1);
+        end
+        %Ic(:,:) = min(abs(Is-circshift(I1,[5 0])),abs(Is-circshift(I1,[0 5])));
+        Ic(:,:) = abs(Is - circshift(I1,[5 0]));
+        vals = sort(Ic(:),'descend');
+        difC = mean(vals(1:fix(length(vals)/5)));
+                
+        clear medDif
+        for d = 1:size(Id,3)
+            vals = Id(:,:,d);
+            vals = sort(vals(:),'descend');
+            medDif(d) = mean(vals(1:fix(length(vals)/5)));
+        end
+        
+
+        %Make contrast image
+        freqMap = sum(Id,3);
+        bKern = ones(4,10);
+        freqReg = fastCon(freqMap,bKern);
+        [h w] = find(freqReg == max(freqReg(:)),1);
+        focTarg = [h/size(freqMap,1) w/size(freqMap,2)];
+        
+        con = difC-medDif(1);
+        scaledDif = (medDif-medDif(1))/con
+        
+        dmap = [scaledDif(2) scaledDif(4)];
+        %ylim([medDif(1) difC]),pause(.01)
+        
+        mos(rc(t,1),rc(t,2),:) = [dmap(1) dmap(2) con];
+        mosC = uint8(mos * 10);
+        
+        focSec(s).tile(t).difX1X2Y1Y2XY1 = medDif;
+        focSec(s).tile(t).focY = scaledDif(4);
+        focSec(s).tile(t).focX = scaledDif(2);
+        focSec(s).tile(t).contrast = con;
+        focSec(s).tile(t).focusTarget = focTarg;
+        
+        lap = toc
+        
+        profile off
+        if lap > .5
+           % profile viewer
+           % pause
+        end
+    end
+    mosA(:,:,:,s) = mos;
+    image(mosC),pause(1)
+    imwrite(mosC,[TPNsav wif.secNam{s} '.tif'],'Compression','none')
+   
+end
+save([TPNsav 'qual.mat'],'mosA')
+save([wif.dir 'focSec.mat'],'focSec')
+
+
+
+
+
+
+
+
+

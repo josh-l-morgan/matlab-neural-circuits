@@ -1,0 +1,96 @@
+%% Collect folders
+
+
+
+%%Get directory with image folders
+disp('getting folders')
+subFolders = findFolders;
+disp('got folders')
+%% Get root
+rootD = subFolders{1};
+%mkdir([rootD '\imageIndex'])
+
+%%Find bipMask folders
+ImageFolders={}; CellFolders = {};
+ImageDir = ImageFolders;
+for i = 1:length(subFolders)
+    Name=subFolders{i};
+    slashes = find(Name == '\');
+    lastFold = Name(slashes(length(slashes))+1:length(Name));
+    cellFold = Name(1:slashes(length(slashes)));
+    if strcmp(lastFold(1:min(7,length(lastFold))),'bipMask')
+            ImageFolders = [ImageFolders ; [Name '\']];
+            CellFolders = [CellFolders ; cellFold];
+            ImageDir=[ImageDir ;{Name(1:length(Name)-length(lastFold))}];
+    end
+end
+
+%% find Image folders
+
+foundI = {};
+needI = {};
+
+for i = 1:length(CellFolders)
+    sprintf('checking %.0f of %.0f folders',i,length(CellFolders))
+    cellFold = CellFolders{i};
+    dirCell = dir(cellFold);
+    Ifold = {};
+    
+    for f = 1:length(dirCell)
+        Name=dirCell(f).name;
+        siz=length(Name);
+
+        if length(Name)>5;
+            if Name(siz-5:siz)=='.files'
+                dots = find(Name == '.');
+                Ifold{length(Ifold)+1,1}=[cellFold Name(1:dots(length(dots)-1)-1)];
+            end
+        end
+    end
+    
+    if length(Ifold)==1 %% if only one image
+        foundI{length(foundI)+1} = Ifold{1};
+    else
+        %% look for same size
+       %pause
+        bipDir = dir(ImageFolders{i});
+        rightSize = {};
+        for t = 1: length(Ifold)
+            foldDir = dir(Ifold{t});
+            if length(foldDir) == (length(bipDir)-1);
+                rightSize{length(rightSize)+1} = Ifold{t};
+            end
+        end
+        if length(rightSize) == 1
+            foundI{length(foundI)+1} = rightSize{1};
+        else
+            needI{length(needI)+1} = cellFold;
+        end
+    end
+       
+end
+ 
+%% Get user input
+gotI = {};
+for i = 1: length(needI)
+   gotI{length(gotI)+1} = uigetdir(needI{i});
+   if length(gotI{length(gotI)})<3, break, end
+end
+
+allI = {foundI{:} gotI{:}};
+
+
+
+
+
+% 
+% fIN = 'placeholder';
+% if ~exist('useFolders')
+%     useFolders = {};
+% end
+% while length(fIN)>2
+%     fIN = GetMyDir
+%     useFolders{length(useFolders)+1} = fIN;
+% 
+% end
+  

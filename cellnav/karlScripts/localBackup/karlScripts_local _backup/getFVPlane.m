@@ -1,0 +1,24 @@
+function outputPlane=getFVPlane(pts)
+x=pts(:,3);
+y=pts(:,2);
+z=pts(:,1);
+
+B = [x, y, ones(size(z,1),1)] \ z;
+xv = [min(x) max(x)];
+yv = [min(y) max(y)];
+zv = [xv(:), yv(:), ones(2,1)] * B; 
+if 0
+figure
+scatter3(x, y, z, '.')
+hold on
+patch([min(xv) min(xv) max(xv) max(xv)], [min(yv) max(yv) max(yv) min(yv)], ...
+    [min(zv) min(zv) max(zv) max(zv)], 'r', 'FaceAlpha',0.5)
+ hold off
+grid on
+xlabel('X')
+ylabel('Y')
+end
+
+outputPlane=B;
+
+end

@@ -1,0 +1,73 @@
+clear all
+
+KPN=GetMyDir
+Kdir=dir(KPN);
+Kdir=Kdir(3:size(Kdir,1));
+yxum=0.103;
+zum=0.3;
+load('.\cmap.mat')
+
+for k = 1:1%size(Kdir,1)
+    TPN = [KPN '\' Kdir(k).name '\']; 
+    if exist([TPN 'CA.mat'])
+        load([TPN 'Dots.mat'])
+        load([TPN 'find\SG.mat'])
+        load([TPN 'data\AllSegCut.mat'])
+        load([TPN 'data\Results.mat'])
+        
+        load([TPN 'Cell.mat'])
+        cName=['P' Cell.Age '_' Cell.Type '_' Kdir(k).name '_' num2str(k)]
+        Use.cName=cName;
+        clear Cell cName
+        
+        
+        OK=SG.passF;
+        DPos=Dots.Pos(OK,:);
+        DPos(:,1:2)=DPos(:,1:2)*.103; DPos(:,3)=DPos(:,3)*.3;
+        Cent=Dots.Im.CBpos;
+        Cent=Cent*.103;
+        Use.DPos=DPos;
+        Use.Cent=Cent;
+        
+
+
+        Use.NN=NN;
+        clear NN OK DPos Cent Dots SG
+        
+
+        %%Extract Dend positions 
+        Mids=mean(AllSegCut,3);
+        Length=sqrt((AllSegCut(:,1,1)-AllSegCut(:,1,2)).^2 ...
+           + (AllSegCut(:,2,1)-AllSegCut(:,2,2)).^2 ...
+           + (AllSegCut(:,3,1)-AllSegCut(:,3,2)).^2);
+        
+       Use.Mids=Mids;
+       Use.Length=Length;
+       
+       clear Mids Length AllSgeCut
+       
+       
+       %%Extract Depth restrictions
+        clear Top Bottom
+        for i = 1: size(Results.Arbor,2)
+            Top(i)=Results.Arbor(i).Top;
+            Bottom(i)=Results.Arbor(i).Bottom;
+        end
+        clear Results
+        
+        Use.Top=Top;
+        Use.Bottom=Bottom;
+        clear Top Bottom
+
+       
+       
+        
+       save([TPN 'Use.mat']) 
+        
+        
+        
+        
+        
+        
+    end
+end

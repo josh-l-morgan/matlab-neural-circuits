@@ -1,0 +1,9 @@
+%% Enter data locations
+
+montageDirs = {'Y:\joshm\LGNs1\rawMontages';...
+    'Y:\joshm\LGNs1\badSections';...    
+    'X:\joshm\LGNs1\rawMontages';...
+    'X:\joshm\LGNs1\badSections'}
+
+
+save('..\matFiles\montageDirs.mat','montageDirs')

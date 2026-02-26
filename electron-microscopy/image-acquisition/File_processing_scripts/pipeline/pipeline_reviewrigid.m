@@ -1,0 +1,199 @@
+function pipeline_reviewrigid(param)
+%This function displays the results of the different rigid alignment methods
+%To be used in the pipeline
+%By Daniel Berger for MIT-BCS Seung, June 4 2009
+
+if (param.nrofrows==1)&&(param.nrofcolumns==1) %Only one row/column: no reshape needed
+  figure(20);
+  if isfield(param,'absrotang')
+    plot(param.absrotang);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    relangaccum=cumsum(param.refinerelrot.rotarr2)+param.absrotang(1);
+    plot(relangaccum,'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute (blue) and relative (red) rotation estimates plotted ABSOLUTE');
+  xlabel('Slice No.');
+  ylabel('Absolute rotation angle');
+  
+  figure(21);
+  if isfield(param,'absrotang')
+    absangdiff=param.absrotang(2:end)-param.absrotang(1:end-1);
+    absangdiff=[0; absangdiff];
+    plot(absangdiff);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(param.refinerelrot.rotarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute (blue) and relative (red) rotation estimates plotted RELATIVE');
+  xlabel('Slice No.');
+  ylabel('Relative rotation angle');
+  
+  figure(22);
+  subplot(2,1,1);
+  if isfield(param,'abstransbetweenslices')
+    plot(param.abstransbetweenslices.transx);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(param.refinerelrot.transxarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Relative X translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Relative X translation');
+  subplot(2,1,2);
+  if isfield(param,'abstransbetweenslices')
+    plot(param.abstransbetweenslices.transy);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(param.refinerelrot.transyarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Relative Y translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Relative Y translation');
+ 
+  figure(23);
+  subplot(2,1,1);
+  if isfield(param,'abstransbetweenslices')
+    plot(cumsum(param.abstransbetweenslices.transx,1));
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(cumsum(param.refinerelrot.transxarr2,1),'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute X translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Absolute X translation');
+  subplot(2,1,2);
+  if isfield(param,'abstransbetweenslices')
+    plot(cumsum(param.abstransbetweenslices.transy,1));
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(cumsum(param.refinerelrot.transyarr2,1),'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute Y translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Absolute Y translation');
+  
+else
+  figure(20);
+  if isfield(param,'absrotang')
+    plot(reshape(param.absrotang,size(param.absrotang,1),size(param.absrotang,2)*size(param.absrotang,3)),'b');
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    if isfield(param,'absrotang')
+      relangaccum=cumsum(param.refinerelrot.rotarr2)+param.absrotang(1);
+    else
+      relangaccum=cumsum(param.refinerelrot.rotarr2);
+    end;
+    plot(reshape(relangaccum,size(relangaccum,1),size(relangaccum,2)*size(relangaccum,3)),'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute (blue) and relative (red) rotation estimates plotted ABSOLUTE');
+  xlabel('Slice No.');
+  ylabel('Absolute rotation angle');
+  
+  figure(21);
+  if isfield(param,'absrotang')
+    absangdiff=param.absrotang(2:end,:,:)-param.absrotang(1:end-1,:,:);
+    absangdiff=[zeros(1,size(absangdiff,2),size(absangdiff,3)); absangdiff];
+    %absangdiff=[0; absangdiff];
+    %plot(absangdiff);
+    plot(reshape(absangdiff,size(absangdiff,1),size(absangdiff,2)*size(absangdiff,3)),'b');
+    hold on;
+  end;
+  
+  if isfield(param,'refinerelrot')
+    plot(reshape(param.refinerelrot.rotarr2,size(param.refinerelrot.rotarr2,1),size(param.refinerelrot.rotarr2,2)*size(param.refinerelrot.rotarr2,3)),'r');
+    %plot(param.refinerelrot.rotarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute (blue) and relative (red) rotation estimates plotted RELATIVE');
+  xlabel('Slice No.');
+  ylabel('Relative rotation angle');
+  
+  figure(22);
+  subplot(2,1,1);
+  if isfield(param,'abstransbetweenslices')
+    plot(reshape(param.abstransbetweenslices.transx,size(param.abstransbetweenslices.transx,1),size(param.abstransbetweenslices.transx,2)*size(param.abstransbetweenslices.transx,3)),'b');
+    %plot(param.abstransbetweenslices.transx);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(reshape(param.refinerelrot.transxarr2,size(param.refinerelrot.transxarr2,1),size(param.refinerelrot.transxarr2,2)*size(param.refinerelrot.transxarr2,3)),'r');
+    %plot(param.refinerelrot.transxarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Relative X translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Relative X translation');
+  
+  subplot(2,1,2);
+  if isfield(param,'abstransbetweenslices')
+    plot(reshape(param.abstransbetweenslices.transy,size(param.abstransbetweenslices.transy,1),size(param.abstransbetweenslices.transy,2)*size(param.abstransbetweenslices.transy,3)),'b');
+    %plot(param.abstransbetweenslices.transy);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(reshape(param.refinerelrot.transyarr2,size(param.refinerelrot.transyarr2,1),size(param.refinerelrot.transyarr2,2)*size(param.refinerelrot.transyarr2,3)),'r');
+    %plot(param.refinerelrot.transyarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Relative Y translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Relative Y translation');
+  
+  figure(23);
+  subplot(2,1,1);
+  if isfield(param,'abstransbetweenslices')
+    plot(reshape(cumsum(param.abstransbetweenslices.transx,1),size(param.abstransbetweenslices.transx,1),size(param.abstransbetweenslices.transx,2)*size(param.abstransbetweenslices.transx,3)),'b');
+    %plot(param.abstransbetweenslices.transx);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(reshape(cumsum(param.refinerelrot.transxarr2,1),size(param.refinerelrot.transxarr2,1),size(param.refinerelrot.transxarr2,2)*size(param.refinerelrot.transxarr2,3)),'r');
+    %plot(param.refinerelrot.transxarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute X translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Absolute X translation');
+  
+  subplot(2,1,2);
+  if isfield(param,'abstransbetweenslices')
+    plot(reshape(cumsum(param.abstransbetweenslices.transy,1),size(param.abstransbetweenslices.transy,1),size(param.abstransbetweenslices.transy,2)*size(param.abstransbetweenslices.transy,3)),'b');
+    %plot(param.abstransbetweenslices.transy);
+    hold on;
+  end;
+  if isfield(param,'refinerelrot')
+    plot(reshape(cumsum(param.refinerelrot.transyarr2,1),size(param.refinerelrot.transyarr2,1),size(param.refinerelrot.transyarr2,2)*size(param.refinerelrot.transyarr2,3)),'r');
+    %plot(param.refinerelrot.transyarr2,'r');
+  end;
+  hold off;
+  grid on;
+  title('Absolute Y translation from absolute (blue) and relative (red) rotation estimates');
+  xlabel('Slice No.');
+  ylabel('Absolute Y translation');
+end;

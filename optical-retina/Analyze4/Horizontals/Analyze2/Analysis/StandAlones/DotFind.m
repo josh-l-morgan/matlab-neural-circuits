@@ -1,0 +1,507 @@
+%% Dot Finder 
+%F3 has been modified to handle 8bit single tiff stacks
+%large files will be broken into smaller blocks and then recombined
+'start', StartTime=clock, 
+ tic 
+
+
+
+%% Get file names
+[DFN,DPN]=uigetfile('*.tif','DialogTitle','Choose stack to find dots');
+
+%Get directory name
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+if isdir('./history')==0, mkdir('./history'); end %create directory to store steps
+save(['./history' TPN(f3:f2-1)],'TPN') %record path in history folder
+
+colormap gray(255) %standard grey colormap
+if isdir([TPN 'temp'])==0, mkdir([TPN 'temp']); end %create directory to store steps
+if isdir([TPN 'data'])==0, mkdir([TPN 'data']); end %create directory to store steps
+if isdir([TPN 'pics'])==0, mkdir([TPN 'pics']); end %create directory to store steps
+ 
+
+
+%% Enter Variables
+
+%%Image Variables
+xyum=.103;
+zum=.3;
+aspect=zum/xyum;% ratio of z to xy dimentions
+channels=3;
+live=1; %if live tissue then 1, 2 prevents threshold climbing in fixed tissue
+BlockSize=100; %aproximate size of individual processing blocks
+BlockBuffer=20; %amount of block to be cut off as edge buffer
+
+%%Dot criteria
+step=2; %Sensitivity=grey value step of iterative threshold (2 was standard)
+MaxDot=7^3;  %Maximum Dot Volume (in pixels)= maximum dot size for iterative threshold (6^3 was standard)
+MinDot=3;  %Minimum Dot Volume (in pixels)= minimum dot size for iterative threshold   (10 was standard)
+PunctaThreshold=5; %Minimum Number of Steps Passed = centroids less than puncta threshold are zeroed. 
+EdgeOfPeak=.5; %Determine Dot Edge = ratio of edge brightness to peak brightness (.5 was standard)
+minFilledVolume=3; %minimum number of pixels in final object contour (20 was standard)
+RoundThreshold=60; %minimum roundness threshold (60 was standard)
+
+
+%% READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'reading image'
+
+%%Find Images
+d=dir(DPN); %get number of files in directory
+planes=size(d,1)-2; %find number of planes
+pdiddy=fix(log10(planes))+1; %get number of digits of planes 
+ns=size(DFN,2); %find size of name
+%make variable (get dimensions)
+
+name2=[DPN DFN(1:ns-4-pdiddy) num3str(1,pdiddy) DFN(ns-3:ns)];
+I(:,:,:)=imread(name2); [ys,xs,zs]=size(I);    %Read first pic
+Csums=sum(sum(I)); %find sums of channels in each plane
+if Csums(3)>0, channels=2; else, channels=1; end
+IgRaw=zeros(ys,xs,planes,'uint8');
+
+
+%%Figure out channels
+nameD=[DPN DFN(1:ns-4-pdiddy) num3str(1,pdiddy) DFN(ns-3:ns)];
+Ic(:,:,:)=imread(nameD); %read
+if size(Ic,3)==1, channels=1; %if only one channel
+elseif size(Ic,3)==2, channels=1; %if only two channels
+elseif sum(sum(Ic(:,:,3)))==0, channels=1; %if third channel is blank
+else channels=2; %if third channel is not blank
+end
+
+for i=1:planes
+    name2=[DPN DFN(1:ns-4-pdiddy) num3str(i,pdiddy) DFN(ns-3:ns)];
+    I(:,:,:)=imread(name2);
+    I=uint8(I);
+    IgRaw(:,:,i)=I(:,:,channels); %ColorSeperate
+    PercentRead=i/planes*100
+end
+
+%%PreSample
+%IgRaw=IgRaw(1330:1430,950:1050,:);
+
+clear I
+'Save Raw files'
+save([TPN 'temp\IgRaw.mat'],'IgRaw')
+imwriteNp(TPN,IgRaw,'IgRaw')
+[Rys,Rxs,Rzs]=size(IgRaw); %get sizes
+clear IbRaw IrRaw
+%}
+
+
+%Create final data output
+BigCentroid=zeros(Rys,Rxs,Rzs,'uint8');
+save([TPN 'temp/BigCentroid.mat'],'BigCentroid');
+clear BigCentroid
+
+BigFilled=zeros(Rys,Rxs,Rzs,'uint8');
+save([TPN 'temp/BigFilled.mat'], 'BigFilled');
+clear BigFilled
+
+%% Find Image Stats
+if exist('IgRaw') ==0, load([TPN 'temp/IgRaw.mat']); end %load green
+lowpoint=min(IgRaw(:));highpoint=max(IgRaw(:)); %find top and bottom
+GstatsH=hist(IgRaw(1:min(10000000,Rys*Rxs*Rzs)),1:1:255); %find mode (mean background)
+for g=1:255  %look for 95% point
+if sum(GstatsH(1:g))/sum(GstatsH)>=.95, Gmode=g, break, end
+end %end g = looking for 95% point
+
+clear IgRaw
+
+
+%% SubSample
+%%Find Real Block Size
+'subsampling'
+
+if Rxs>BlockSize
+    NumBx=round(Rxs/BlockSize);
+    Bxc=fix(Rxs/NumBx); %Block x dim closest to BlockSize for the image
+else Bxc=Rxs; NumBx=1; end 
+if Rys>BlockSize
+    NumBy=round(Rys/BlockSize);
+    Byc=fix(Rys/NumBy); %Block x dim closest to BlockSize for the image
+else Byc=Rys; NumBy=1; end
+if Rzs>BlockSize
+    NumBz=round(Rzs/BlockSize);
+    Bzc=fix(Rzs/NumBz); %Block x dim closest to BlockSize for the image
+else Bzc=Rzs; NumBz=1; end
+
+%% Run Blocks
+for Bz=1:NumBz, for By=1:NumBy, for Bx=1:NumBx
+PercentBlocksDone=((Bz-1)*NumBy*NumBx+Bz   +  (By-1) * NumBx + By  + Bx)/(NumBz*NumBx*NumBy)
+
+%Find real territory
+Tystart=(By-1)*Byc+1;
+Txstart=(Bx-1)*Bxc+1;
+Tzstart=(Bz-1)*Bzc+1;
+if By<Byc, Tyend=By*Byc, else Tyend=Rys, end
+if Bx<Bxc, Txend=Bx*Bxc, else Txend=Rxs, end
+if Bz<Bzc, Tzend=Bz*Bzc, else Tzend=Rzs, end
+
+%Find buffered Borders (extend to image boarders for last blocks in row and column)
+ystart=Tystart-BlockBuffer; ystart=max(1,ystart);
+yend=Tyend+BlockBuffer; yend=min(Rys,yend);
+xstart=Txstart-BlockBuffer; xstart=max(1,xstart);
+xend=Txend+BlockBuffer; xend=min(xend,Rxs);
+zstart=Tzstart-BlockBuffer; zstart=max(1,zstart);
+zend=Tzend+BlockBuffer; zend=min(zend,Rzs);
+
+
+subplot(2,2,3)
+ViewTrans=logical(zeros(Rys,Rxs));
+ViewTrans(ystart:yend,xstart:xend)=1;
+image(max(ViewTrans,[],3)*1000),pause(.01)
+
+
+%%Subsample Green Channel
+if exist('IgRaw') ==0, load([TPN 'temp/IgRaw.mat']); end %load green
+Ig=single(IgRaw(ystart:yend,xstart:xend,zstart:zend)); clear IgRaw %subsample
+save([TPN 'temp/Ig.mat'],'Ig') %save subplot
+subplot(2,2,1), image(max(Ig,[],3)*255/max(Ig(:))) %Image green
+
+
+%Find New sizes
+[ys,xs,zs]=size(Ig);
+
+
+
+%% Median filter all channels
+for smear=1:1 %number of times median filtered !!!!
+    'median filter',number=smear;
+    clear Igm
+    for i=1:zs        
+        Igm(:,:,i)=medfilt2(Ig(:,:,i),[3,3]); 
+        end
+    end
+
+%save data
+'saving median filtered subsamples...'
+save([TPN 'temp/Igm.mat'],'Igm')
+'done saving'
+    
+%%Image median filtered data 
+subplot(2,2,1), image(max(Igm,[],3)*255/max(Igm(:))) %Image green
+pause(.01)
+
+clear Ig Ir Ib Irm Igm Ibm
+
+'median filter done'
+
+%% FIND DOTS Green Channel%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'iterative threshold',
+load([TPN 'temp/Igm.mat'])
+centroids=Igm*0; %set up matrix to map centroids
+IgmTsum=Igm*0; %set up matrix to sum passed thresholds
+
+highpoint=max(Igm(:));
+steps=fix((highpoint-Gmode)/step)+2;
+
+
+for i = Gmode:step:fix(highpoint)+2 %run thresholds through all relevant intensities
+
+   %IterativeThresholdPercentDone=uint8((i-Gmode)/(highpoint+2-Gmode)*100)
+    
+   %%run threshold
+   clear IT
+   IT(:,:,:)=Igm>i;
+   [Igl,labels]=bwlabeln(IT(:,:,:),6); % label each area to check
+   if labels<65536, Igl=uint16(Igl); end  %shrink bitdepth if possible
+   IglH=hist(Igl(Igl>0),1:1:labels+2);  %count pix for each labeled object
+     
+
+   %identify pixels for each puncta  
+   for p=1:labels  %run all lables
+       if IglH(p)< MaxDot & IglH(p)>MinDot  %% Morphology Filter ! Puncta size criteria !
+            
+           clear y x z v 
+           [y,x,z]=find3(Igl==p);
+           
+           %find centroids
+           for pv=1:IglH(p) %pixel values and positions
+               v(pv)=Igm(y(pv),x(pv),z(pv)); %make value list
+           end
+           ym=sum(y.*v')/sum(v);xm=sum(x.*v')/sum(v);zm=sum(z.*v')/sum(v);
+           %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!recording single value!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           centroids(round(ym),round(xm),round(zm))=centroids(round(ym),round(xm),round(zm))+1; %Register in centroid map 
+
+       else %end if the right size
+           Igl(Igl==p)=0; %clear wrong size object
+       end% end check size
+      
+   end  %end do each label
+   
+   %subplot(2,2,2)
+   image(max(centroids,[],3)*500),pause(.1) %display current centroid map
+      
+   %%Add all passing labeled objects to IgTsum
+   IgmTsum(Igl>0)=IgmTsum(Igl>0)+1;  
+   subplot(2,2,4)
+   image(max(IgmTsum,[],3)*100),pause(.1)
+   
+end  %end iterative threshold
+
+
+clear IT Igl
+subplot(2,2,4)
+image(max(IgmTsum,[],3)*100 )
+save([TPN 'temp/IgmTsum.mat'], 'IgmTsum')
+imwriteNp(TPN,IgmTsum,'IgmTsum')
+
+'grouping centroids',pause(.01)
+   [LabCent,centlab]=bwlabeln(centroids>0,26); %try different connectivities
+   LabCent=single(LabCent);
+   centroid=centroids*0;
+   clear ym xm zm vs 
+   for p=1:centlab
+       clear y x z v
+       [y,x,z]=find3(LabCent==p);  %finds xyz for each puncta
+       pix=size(y,1);
+       sumy=0;sumx=0;sumz=0;
+       for pv=1:pix %find centroid values
+           v(pv)=centroids(y(pv),x(pv),z(pv));
+           sumy=sumy+y(pv)*v(pv); %sum y values
+           sumx=sumx+x(pv)*v(pv); %sum x values
+           sumz=sumz+z(pv)*v(pv); %sum z values
+       end
+       vs(p)=sum(v);  %record total values
+           ym(p)=sumy/sum(v);xm(p)=sumx/sum(v);zm(p)=sumz/sum(v); %weighted Centroid
+           centroid(round(ym(p)),round(xm(p)),round(zm(p)))=sum(v);
+           subplot(2,2,2),image(max(centroid,[],3)*5),pause(.01)
+   end %end labels
+   clear LabCent centroids
+ 
+
+'Insure centroids are peaks', pause(.01)%!!!!!!!!! replace with new peak finder
+[ys,xs,zs]=size(IgmTsum);
+%if threshold of
+Igmb=single(zeros(ys+10,xs+10,zs+10)); %buffer IgmTsum
+Igmb(6:ys+5,6:xs+5,6:zs+5)=IgmTsum; 
+centroidB=single(zeros(ys+10,xs+10,zs+10)); %buffer centroid
+centroidB(6:ys+5,6:xs+5,6:zs+5)=centroid; 
+for p=1:centlab %run all potential puncta
+   %subsample 
+   ymt=round(ym(p))+5; xmt=round(xm(p))+5; zmt=round(zm(p))+5; %find target pix
+   B=Igmb(ymt-5:ymt+5,xmt-5:xmt+5,zmt-5:zmt+5); %extract 11X11X11 cube
+   C=centroidB(ymt-5:ymt+5,xmt-5:xmt+5,zmt-5:zmt+5); %extract centroid map
+   thresh=B(6,6,6); %pick minimum peak value
+   T=B>=thresh;
+   
+   %Display   
+   image(sum(B,3)*30);pause(.01)
+   image(max(C,[],3)*100);pause(.01)
+   image(max(T,[],3)*100);pause(.01)
+   [PeakAreas,n]=bwlabeln(T,6); %try different connectivities
+   tArea=PeakAreas(6,6,6); %ID of area with incleding test centroid
+   D=C.*(PeakAreas==tArea); %matrix of centroids within test area
+   image(max(D,[],3)*100);pause(.01)
+   if max(D(:))>C(6,6,6) %if there is a brighter (bigger IgmTsum), kill centroid
+       centroid(round(ym(p)),round(xm(p)),round(zm(p)))=0;
+   end
+end %end run all potential puncta
+
+
+image(max(centroid,[],3)*600),pause(.01)
+clear Igmb centroidB B C D T PeakAreas
+save([TPN 'temp/centroid.mat'], 'centroid')
+
+
+%% Threshold minimum # of filter pass times to find your dots
+centroid(centroid<PunctaThreshold)=0; %matrix of centroids that passed threshold more than once
+image(max(centroid,[],3)*500),pause(.01)
+
+[yv,xv,zv]=find3(centroid>0);   %find and print Tvalues
+val=0; %for recording puncta values
+for i=1:size(yv,1);  val(i)=centroid(yv(i),xv(i),zv(i)); end
+PunctaValues=val %print puncta values (number of passes)
+%}
+
+
+%% Find dot countour %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+'finding dot contour',pause(.01)
+subplot(2,2,2)
+image(max(Igm,[],3)*.1),pause(.01)
+subplot(2,2,2)
+
+%%find positions of dots, give dots an ID 
+centroid(IgmTsum==0)=0; %safegard to eliminate centroids outside of threshold area (shouldnt be necessary)
+[Py,Px,Pz]=find3(centroid>0);
+numdots=size(Py,1);
+filled=uint16(zeros(ys,xs,zs));
+Dotmap=uint8(zeros(ys,xs,zs));  %make 3D map where positions are labled with dot ID
+for i=1:numdots;   Dotmap(Py(i),Px(i),Pz(i))=i; end
+
+for n=1:numdots%run dots
+    PercentDoneFindingContour=100*n/numdots
+    
+    %% Characterize puncta core (find IgmTsum val at centroid and peak of nearby pixels
+    peak=Igm(Py(n),Px(n),Pz(n)); %value at centroid
+    countTS=0; %make counter for summed thresholds
+    %grab all values with 5pix(cardinal) from centroid
+    for yc=Py(n)-2:Py(n)+2, for xc=Px(n)-2:Px(n)+2, for zc=Pz(n)-2:Pz(n)+2;
+               if yc>0 & yc<=ys,if xc>0 & xc<=xs, if zc>0 & zc<=zs
+               countTS=countTS+1;
+               TS(countTS)=IgmTsum(yc,xc,zc); %record values
+               end,end,end %end walls
+    end,end,end %end search yxz
+    TS=sort(TS,'descend'); %decending list of values near puncta
+    peakTS=median(TS(1:4));  %take median of top four values withing 2pix of centriod
+    peakTS=min((peakTS*.5),IgmTsum(Py(n),Px(n),Pz(n))); %insure centroid is included
+
+    %% Identify region as countour based on peak
+    ContourL=single(IgmTsum>=max(peakTS*EdgeOfPeak,1)); %Threshold (minimum threshold is 1 pass)
+    [ContourL]=single(bwlabeln(ContourL,6)); %label countour based on connectivty
+    Ctarget=ContourL(Py(n),Px(n),Pz(n)); %Pic object overlapping center
+    
+    if sum(sum(sum(Dotmap(ContourL==Ctarget)>0)))>1 % if contour includes more than 1 centroid
+        %% sort pixes in area according to who is closest
+        [ay,ax,az]=find3(ContourL==Ctarget); numa=size(ay,1); %find each pix in countour
+        ContourL=single(Dotmap).*single(ContourL==Ctarget); %restrict map to area
+        [pdy,pdx,pdz]=find3(ContourL>0); numpd=size(pdy,1); % find centroids in area
+        AtoPD=1;
+        for a=1:numa %run all pixels
+            for pd=1:numpd %end check all centroids
+                AtoPD(pd)=sqrt((ay(a)-pdy(pd))^2+(ax(a)-pdx(pd))^2+(az(a)-pdz(pd))^2); %find distances
+            end %end chack all centroids
+            closest=find(AtoPD==min(AtoPD));
+            if size(closest,1)>1  %if equal distance
+                %!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSERT VALUE CHECKER!!!!!!!!!!!1
+            end %end if equal distance
+            if Dotmap(pdy(closest),pdx(closest),pdz(closest))==n %if its the dot currently running
+                filled(ay(a),ax(a),az(a))=Dotmap(pdy(closest),pdx(closest),pdz(closest)); %enter ID
+            end %if current dot wins
+        end %end run all pixels (a)
+    else
+        filled(ContourL==Ctarget)=n;
+          
+    end % if there is more than one centroid within countour
+        
+end %run contour for each dot
+
+image(max(filled,[],3)*10000) %image filled contours
+save([TPN 'temp/filled.mat'], 'filled')
+%}
+
+%% Size and roundness filtering of final contour
+load([TPN 'temp/filled.mat'])
+'running contour size and roundness filter'
+%buffer filled
+filled2=single(zeros(ys+10,xs+10,zs+10));
+filled2(6:ys+5,6:xs+5,6:zs+5)=filled;
+filled=filled2; clear filled2
+sym=filled; %matrix for recording roundness
+%make spheres (distance map)
+look=5;cent=look+1;
+sphere=single(zeros(cent+look,cent+look,cent+look));
+for yr=1:look*2+1,for xr=1:look*2+1,for zr=1:look*2+1
+    sphere(yr,xr,zr)=sqrt((yr-cent)^2+(xr-cent)^2+(zr-cent)^2);
+end,end,end %end make sphere
+
+for n=1:max(filled(:))
+    PercentDoneCheckingRoundness=n/max(filled(:))*100
+
+    %% extra final size filter
+    [filledpix]=find3(filled==n);
+    size(filledpix);
+    if size(filledpix,1)<minFilledVolume,filled(filled==n)=0;
+    else %check roundness
+            
+    %% check roundness
+    [fy,fx,fz]=find3(filled==n); %find area
+    fym=round(mean(fy));fxm=round(mean(fx));fzm=round(mean(fz)); %find center
+    checkf=single(filled(fym-look:fym+look,fxm-look:fxm+look,fzm-look:fzm+look)>0); %sample filled
+    image(max(checkf,[],3)*300),pause(.01)
+    for r=1:5
+        heck=(checkf.*(sphere>r-1 & sphere<=r));
+        image(sum(heck,3)*30),pause(.1)
+        hell(r)=sum(heck(:));
+        crap(r)=sum(sum(sum(sphere>r-1 & sphere<=r)));
+        shit(r)=abs(.5-hell(r)/crap(r));
+    end
+    roundness=mean(shit)*200; %imageable roundness rateing (1:100)
+    sym(filled==n)=roundness; %assign roundness value
+    
+    end %if big enough check roundness
+end %size and symetry countour filter
+filled=filled(6:ys+5,6:xs+5,6:zs+5); %unbuffer filled
+sym=sym(6:ys+5,6:xs+5,6:zs+5);
+
+%apply sym filter to filled
+filled=filled.*(sym>RoundThreshold);
+
+image(sum((filled(:,:,:)>0),3)*300),pause(.01)
+clear ContourT ContourL ContourD Igm IgmTsum ay ax az
+save([TPN 'temp/sym.mat'],'sym')
+save([TPN 'temp/filled.mat'],'filled')
+imwriteNp(TPN,filled,'filled')
+clear  round sym Dotmap Igm 
+
+%% Recombine Blocks
+%%Unbuffer
+centro=uint8(centroid(Tystart-ystart+1:ys-(yend-Tyend), Txstart-xstart+1:xs-(xend-Txend), Tzstart-zstart+1:zs-(zend-Tzend)));
+fille=uint8(filled(Tystart-ystart+1:ys-(yend-Tyend), Txstart-xstart+1:xs-(xend-Txend), Tzstart-zstart+1:zs-(zend-Tzend)));
+clear centroid filled 
+
+%%Enter into Big figure
+load([TPN 'temp/BigCentroid']); 
+BigCentroid(Tystart:Tyend,Txstart:Txend,Tzstart:Tzend)=centro;
+save([TPN 'temp/BigCentroid'],'BigCentroid')
+clear BigCentroid centro
+
+load([TPN 'temp/BigFilled']);
+BigFilled(Tystart:Tyend,Txstart:Txend,Tzstart:Tzend)=fille;
+save([TPN 'temp/BigFilled'],'BigFilled')
+clear BigFilled fille
+
+%% Go to next Block
+clear filled centroid
+end,end,end %%End Bz, By, Bz Block translation
+
+
+%% Recombine Blocks
+load([TPN 'temp/BigCentroid']);
+save([TPN 'data/BigCentroid'],'BigCentroid'); 
+imwriteNp(TPN,BigCentroid,'BigCentroid')
+clear BigCentroid
+
+load([TPN 'temp/BigFilled']);
+save([TPN 'data/BigFilled'], 'BigFilled');
+imwriteNp(TPN,BigFilled,'BigFilled')
+subplot(1,1,1)
+image(max(BigFilled,[],3)*1000)
+clear BigFilled
+
+%% Finish
+
+TotalHours=toc/60/60
+[TPN(size(TPN,2)-6:size(TPN,2)-1)]
+DotFindAt=uint16(clock)
+save([TPN 'data/DotFindAt.mat'],'DotFindAt')
+
+clear all
+'Done DotFind'
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
+Notes:
+
+DO:
+Do percent over brightness predicted from dendrite GFP TdTomato ratio.
+Concider finding length by stringing maxes together. 
+factor in aspect ratio
+jitter on dendrite instead of just IPL
+should somehow account for channel bleed through
+
+
+DID:
+Identified dots by Iterative threshold
+Identified dot volume
+
+%}
+

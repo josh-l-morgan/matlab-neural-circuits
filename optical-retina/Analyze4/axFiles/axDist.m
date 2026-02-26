@@ -1,0 +1,5 @@
+function[d]=axDist(A,B)
+
+%finds distance from points in matrix A (y x) to a single Point in B (y x)
+A=double(A); B=double(B);
+d=sqrt( (A(:,1)- B(1)).^2 + (A(:,2) - B(2)).^2 );

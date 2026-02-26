@@ -1,0 +1,93 @@
+
+clear all
+TPN = GetMyDir;
+
+downSamp = 1;
+inams = getPics(TPN);
+
+%% Get image info
+for i = 1:length(inams)
+   
+    nam = inams{i};
+    
+    hex(i) = str2num(nam(1:3));
+    
+    posX(i) = str2num(nam(21:27));
+    posY(i) = str2num(nam(49:55));
+    
+    %I = imread([TPN nam]);
+    info(i) = imfinfo([TPN nam]);
+    
+    width(i) = info.Width;
+    height(i) = info.Height;
+    
+    beam(i) = str2num(nam(61:62));
+end
+width = round(mean(width)/downSamp);
+height = round(mean(height)/downSamp);
+
+%% Figure out positions
+
+tilePos = [0 0 ; 
+    0 -1;  -1 -.5; -1 .5; 0 1; 1 .5; 1 -.5;
+    0 -2; -1 -1.5; -2 -1; -2 0; -2 1; -1 1.5; 0 2; 1 1.5; 2 1; 2 0; 2 -1; 1 -1.5;
+    0 -3; -1 -2.5; -2 -2; -3 -1.5; -3 -.5; -3 .5; -3 1.5; -2 2; -1 2.5; 
+    0 3;  1 2.5; 2 2; 3 1.5; 3 .5; 3 -.5; 3 -1.5; 2 -2; 1 -2.5; 
+    0 -4; -1 -3.5; -2 -3; -3 -2.5; -4 -2; -4 -1; -4 0; -4 1; -4 2; -3 2.5; -2 3; -1 3.5; 
+    0 4; 1 3.5; 2 3; 3 2.5; 4 2; 4 1; 4 0; 4 -1; 4 -2; 3 -2.5; 2 -3; 1 -3.5];
+
+tileShift = [ 4 3; 5 2;
+
+hexPos = [ 0 0; -4 -7; -9 -.5; -5 6; 4 7; 9 .5; 5 -6.5];
+hexPos(:,1) = hexPos(:,1) * height;
+hexPos(:,2) = hexPos(:,2) * width;
+hexPos(:,1) = hexPos(:,1) - min(hexPos(:,1));
+hexPos(:,2) = hexPos(:,2) - min(hexPos(:,2));
+maxHex = max(hexPos,[],1);
+
+tilePos(:,1) = tilePos(:,1) * height;
+tilePos(:,2) = tilePos(:,2) * width;
+minBeam = min(tilePos,[],1);
+
+tilePos(:,1) = tilePos(:,1) - minBeam(1);
+tilePos(:,2) = tilePos(:,2) - minBeam(2);
+maxBeam = max(tilePos,[],1);
+
+
+%%%
+H = zeros(maxHex(1) + maxBeam(1),maxBeam(2) + maxHex(2),'uint8');
+
+for i = 1:length(inams)
+    sprintf('running image %d of %d',i, length(inams))
+        y = tilePos(beam(i),1) +hexPos(hex(i),1);
+        x = tilePos(beam(i),2) + hexPos(hex(i),2);
+        
+        I = imread([TPN inams{i}]);
+        I = 255 - I;
+        I = I - min(I(:));
+        I = double(I)/double(max(I(:))) * 255;
+        
+        I = imresize(I,[height width]);
+        if x>size(H,2),pause,end
+        H(y+1:y+height,x+1:x+width) = I;
+        %image(H),pause(.1)
+end
+colormap gray(256)
+image(H)
+
+writeTif(H,'star.tif')
+
+
+writeTif(H(1:20000,1:30000),'star1.tif')
+writeTif(H(1:20000,30000:end),'star2.tif')
+writeTif(H(20000:end,1:30000),'star3.tif')
+writeTif(H(20000:end,30000:end),'star4.tif')
+
+%% Get Images
+
+
+
+
+
+
+

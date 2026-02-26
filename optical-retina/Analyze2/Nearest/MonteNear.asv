@@ -1,0 +1,157 @@
+
+load('UseCells.mat')
+
+for k = 1:1%size(UseCells,1)
+    k
+    TPN=char(UseCells(k));
+    
+    %% Get Data
+    load([TPN 'Use.mat'])
+    DPos=Use.DPos;
+    NN=Use.NN;
+    Mids=Use.Mids;
+
+
+    %% Get real Data
+    for d = 1:size(DPos,1)
+        
+       DPosDist=dist(DPos,DPos(d,:));       
+       DPosDist=sort(DPosDist);
+       Neighbors.DPos(d,1)=DPosDist(2);      
+     
+       NNDist=dist(NN,NN(d,:));       
+       NNDist=sort(NNDist);
+       Neighbors.NN(d,1)=NNDist(2);      
+
+    end
+    Neighbors.med.DPos=median(Neighbors.DPos);
+    Neighbors.med.NN=median(Neighbors.NN);
+    
+    
+%% Check Randoms
+    'Check Randoms'
+    clear Rnn RHist
+    Rrep=100;
+    RNeighbors=zeros(size(NN,1),1);
+    RHists=zeros(Rrep,size([0:.1:5],2));
+    for r=1:Rrep
+        %%Make random distribution
+        Pick=fix(rand(size(NN,1),1)*size(Mids,1))+1;
+        RPos=Mids(Pick,:);
+        
+        %%Get Neighbors
+        RNeighbor=zeros(size(RPos,1),1);
+        for d=1:size(RPos,1)
+            RPosDist=dist(RPos,RPos(d,:));
+            RPosDist=sort(RPosDist);
+            RNeighbor(d,1)=RPosDist(2);
+        end
+        RNeighbors=RNeighbors+RNeighbor/Rrep; %Running average of NN distribution
+        Rnn(r,1)=median(RNeighbor); %record median nearest neighbor
+        RHists(r,:)=hist(RNeighbor,0:.1:5);
+        
+        %{
+        subplot(2,1,1)
+        hist(RNeighbor,0:.1:5)
+        axis([0 5 0 200])
+        subplot(2,1,2)
+        hist(RNeighbors*(Rrep/r),0:.1:5)
+        axis([0 5 0 200])
+        pause(.1)
+        %}
+        
+    end
+    
+    bar(mean(RHists,1))
+    
+    Neighbors.RPos=RNeighbors;
+    Neighbors.med.Rand=median(Rnn);
+    
+%% Check Even
+    'check even distribution'
+    Erep = 60;
+    %% start distribution
+    Pick=fix(rand(size(NN,1),1)*size(Mids,1))+1;
+    EPos=Mids(Pick,:);
+    MoveFract=2;
+    %% Move en masse
+    ENeihbor=zeros(size(RPos,1),1);
+    for e = 1 : 20
+        for d=1:size(RPos,1)
+            EPosDist=dist(EPos,EPos(d,:));
+            EPosDist=sort(EPosDist);
+            ENeighbor(d,1)=EPosDist(2);
+        end
+        medENN=median(ENeighbor);
+        SortENeighbor=sort(ENeighbor);
+        MoveNum=fix(size(SortENeighbor,1)/MoveFract)+1;
+        TooClose=ENeighbor<medENN;
+        Pick=fix(rand(size(NN,1),1)*size(Mids,1))+1;
+        EPos(TooClose,:)=Mids(Pick(TooClose),:);
+        MoveFract=MoveFract+1;
+    end
+    
+    %% Move Singly
+    Ssize=100; %search size for new random positions
+    MoveNum=50;
+    
+    for e = 1: Erep
+        for d=1:size(RPos,1)
+            EPosDist=dist(EPos,EPos(d,:));
+            EPosDist=sort(EPosDist);
+            ENeighbor(d,1)=EPosDist(2);
+        end
+            medENN=median(ENeighbor)
+            
+            Pick=fix(rand(Ssize,1)*size(Mids,1))+1;
+            
+            for p = 1: size(Pick,1)
+                pDist=dist(EPos,Mids(Pick(p),:));
+                pDist=sort(pDist);
+                pNeighbor(p,1)=pDist(2);
+            end
+            
+            MoveNum=max(MoveNum-1,1);
+            SortEN=sort(ENeighbor);
+            Thresh=SortEN(MoveNum);
+            Worst=find(ENeighbor<=Thresh); Worst=Worst(1:MoveNum);
+            SortPn=sort(pNeighbor,'descend');
+            Thresh=SortPn(MoveNum); 
+            Best=find(pNeighbor>=Thresh); Best=Best(1:MoveNum);
+            EPos(Worst,:)=Mids(Pick(Best),:);            
+    end
+    
+    Neighbors.EPos=ENeighbor;
+    Neighbors.med.EPos=median(ENeighbor);
+    
+    
+%% Draw
+    colormap gray(255)
+    drawIt=NN;
+    DrawIt=zeros(max(drawIt(:,1))+3,max(drawIt(:,2))+3);
+    for i = 1:size(drawIt,1)
+        DrawIt(fix(drawIt(i,1))+1,fix(drawIt(i,2))+1)=DrawIt(fix(drawIt(i,1))+1,fix(drawIt(i,2))+1)+1;
+    end
+    image(DrawIt*75),pause(.01)
+
+%% Hist Nearest Neighbors
+    
+    Showf=fieldnames(Neighbors);
+    Showf=Showf([1 2 4 5])
+    fnum=size(Showf,1)
+    for i = 1:fnum
+        subplot(fnum,1,i)
+        hist(getfield(Neighbors,char(Showf(i))),0:.1:5);
+        axis([0 5 0 200])
+                
+    end
+    
+    Neighbors.med
+    
+
+
+%%
+    
+   save([TPN 'Neighbors.mat'],'Neighbors')
+    
+end

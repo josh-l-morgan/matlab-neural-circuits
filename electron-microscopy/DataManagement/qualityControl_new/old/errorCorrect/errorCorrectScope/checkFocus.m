@@ -1,0 +1,158 @@
+function[focSec] = checkFocus(wif)
+if ~exist('wif','var')
+    wif = GetMyWafer;
+end
+
+
+%% Turn mosaics from waffer into viewable (centers and downsample) mosaics
+
+
+
+%% Parse XML
+[tree, rootname, dom]=xml_read(wif.xml{end});
+
+xs = tree.MosaicSetup.TileWidth;
+ys = tree.MosaicSetup.TileHeight;
+
+%% Define variables
+dsampy = fix(xs/100)+1; %down sample image reading
+dsampx = fix(ys/100)+1;
+        
+yshift = [ 0 0 0 1 1 1 2 2 2]; %shifts for extracting 3X3 samples
+xshift = [ 0 1 2 0 1 2 0 1 2];
+%% Target Dir
+TPN = wif.dir; TPN = [TPN(1:end-1) 'Shaped\'];
+TPNsav = [TPN 'quality\'];
+if ~exist(TPNsav),mkdir(TPNsav);end
+
+%% test Focus
+colormap gray(256)
+
+for s = 1 : length(wif.sec) % run sections
+    sprintf('reading  section %d of %d',s,length(wif.sec))
+    
+     rc = wif.sec(s).rc;
+     mosDim = max(rc,[],1);
+     mos = zeros(mosDim(1),mosDim(2),3);
+    for t = 1:length(wif.sec(s).tile)
+        
+        I1 = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1 dsampy ys],[1 dsampx xs]}));
+        Id = zeros(size(I1,1),size(I1,2),length(yshift));
+        
+        %grab samples
+        for i = 1:length(yshift)
+            Is = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1+yshift(i) dsampy ys],[1 + xshift(i) dsampx xs]}));
+            Is = 255-Is(1:size(I1,1),1:size(I1,2));
+            Id(:,:,i) = Is;
+        end
+        meanId = mean(Id,3);
+        top = find(meanId>=mean(meanId(:)));
+%%   Saturation
+        L = length(Id(:));
+        tooHigh = sum(Id(:)  == 255);
+        tooLow = sum(Id(:) == 0);
+        percentSat = (tooHigh + tooLow)/L * 100;
+        
+        
+
+%%     Find contrasts
+        %1 %2 %3
+        %4 %5 %6
+        %7 %8 %9
+%           
+%         I = double(imread(wif.sec(s).tile{t},'PixelRegion',...
+%             {[ round(ys/2) - 50 round(ys/2)+50],[round(xs/2)- 100 round(xs/2)+100]}));
+%         subplot(2,1,1)
+%         image(I)
+
+%%Other useful patterns
+%         sur ={[1 2 3 4 6 7 8 9],[1 4 7  3 6 9],[1 2 3 7 8 9],...
+%             [1 2 4 6 8 9], [2 3 6 4 7 8],[1 3 7 9],[1 3 8]};
+%         cent ={[5], [2 5 8],  [4 5 6],[3 5 7],[1 5 9],[2 4 6 9],[7 2 9]};
+        
+        sur = {[2 4 6 8], [1 2 3 6], [2 3 6 9]};       
+        cent = {[1 3 7 9], [9 8 7 4], [8 7 4 1]};
+        box = [1 3 7 9];
+        cols = ['k' 'r' 'b' 'm' 'c' 'g' '.'];
+            subplot(2,1,2) 
+        for f = 1: length(cent)
+            dif = mean(Id(:,:,cent{f}),3)-mean(Id(:,:,sur{f}),3);
+            dif = abs(dif);
+            meanDifs(f) = (mean(dif(top)));
+            difs(:,:,f) = dif;
+%             range = min(dif(:)):30:max(dif(:));
+%             range = 0:100:2000;
+%             H(:,f) = hist(dif(:),range);%,-10:1:1000);
+%             plot(range,H(:,f),cols(f))
+%             hold on
+%             ylim([0 300])
+%             xlim([0 2000])
+            
+        end
+        
+        difMap = max(difs(:,:,2),difs(:,:,3)); 
+        
+
+
+        
+%% global contrast
+        glob = mean(Id(:,:,box),3);
+        gY = abs(glob(1:end-1,:) - glob(2:end,:));
+        gX = abs(glob(:,1:end-1) - glob(:,2:end));
+        image(fitH(gX))
+        meanGlob = (mean([gX(:);gY(:)]))-meanDifs(1);
+        
+        scaledDifs = meanDifs-meanDifs(1);
+        dmap = [scaledDifs(2) scaledDifs(3)];
+        mos(rc(t,1),rc(t,2),:) = [dmap(1) dmap(2) meanGlob];        
+%% Find Focus Target
+        dome = fspecial('gaussian',size(meanId,1),size(meanId,1));
+        dome = dome/max(dome(:));
+        SE = strel('disk',round(size(dome,1)/5),4);
+        mesa = imdilate(dome,SE);
+        image(fitH(mesa))
+        plot(mesa(round(size(mesa,1)/2),:))
+        ylim([0 max(mesa(:))])
+        image(fitH(mesa))
+        
+        
+        bKern = ones(2,4);
+        freqReg = fastCon(meanId,bKern);
+        freqReg = freqReg - min(freqReg(:));
+        freqREg = freqReg/max(freqReg(:));
+        freqReg = freqReg.*mesa;
+        image(fitH(freqReg))
+        [h w] = find(freqReg == max(freqReg(:)),1);
+        focTarg = [h/size(freqReg,1) w/size(freqReg,2)];
+        
+        
+        quality = scaledDifs(2) * scaledDifs(3);
+        pause(.01)
+%% Record data        
+        focSec(s).tile(t).quality = quality; 
+        focSec(s).tile(t).percentSaturation = percentSat;
+        focSec(s).tile(t).meanGlob = meanGlob;
+        focSec(s).tile(t).meanDifs = meanDifs; 
+        focSec(s).tile(t).scaledDifs = scaledDifs;
+        focSec(s).tile(t).sdOverGlob = scaledDifs/meanGlob;
+        focSec(s).tile(t).focusTarget = focTarg;
+%%
+        focSec(s).tile(t).use.quality = quality;
+        focSec(s).tile(t).use.percentSaturation = percentSat;
+        focSec(s).tile(t).use.globalContrast = meanGlob;
+        
+    end
+    mosA(:,:,s,:) = mos;
+    
+end
+save([TPNsav 'qual.mat'],'mosA')
+save([wif.dir 'focSec.mat'],'focSec')
+
+%manFocus(wif)
+
+
+
+
+
+
+

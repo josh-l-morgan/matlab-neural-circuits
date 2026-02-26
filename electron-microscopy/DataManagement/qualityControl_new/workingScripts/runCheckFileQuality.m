@@ -1,0 +1,41 @@
+clear all
+
+TPN = GetMyDir
+
+nams = GetPics(TPN)
+
+
+for i = 1:length(nams)
+    sprintf('checking file %d of %d',i,length(nams))
+    tile =  checkFileQual([TPN nams{i}]);
+    tiles(i) = tile;
+end
+
+%%
+for i = 1:length(tiles)
+    reportQ{i,1} = nams{i};
+    reportQ{i,2} = tiles(i).quality;
+    reportQ{i,3} = tiles(i).range;
+    reportQ{i,4} = tiles(i).stdHigh;
+end
+%%67 = 3, 56 = 8, 48 = 9, 13 = 7, 8 = 4.
+reportQ
+
+% %%
+% for i = 1:length(reportQ)
+%     repNum(i) = str2num(nams{i}(2:6));
+%     ratNum(i) = str2num(rateing{i,1}(2:6));
+% end
+% scatter(repNum,ratNum)
+%%
+% cols = {'r','g','b'}
+% for i = 1:3
+%     dat = [reportQ{:,i+1}];
+%     dat = dat - min(dat);
+%     dat = dat/mean(dat);
+%     scatter([rateing{:}]+i/10,dat,cols{i})
+%     hold on
+% end
+% hold off
+
+

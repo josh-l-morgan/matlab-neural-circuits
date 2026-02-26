@@ -1,0 +1,212 @@
+global tis
+
+%%Run RGCsubTypes first
+
+
+%%ON-OFF subtypes
+offTags = {'bc1' 'bc2' 'bc3a' 'bc3b' 'bc4' 'boff' 'bcoff'};
+onTags =  {'bc5i' 'bc5o' 'bc5t' 'bc6' 'bc7' 'bc8' 'bc11' 'bon' '5' 'bcon' 'bc5' 'rbc' 'xbc'};
+unkTags = {'bcunk' 'bunk' };
+
+testTag = {unkTags offTags onTags};
+
+subTypeNames = tis.cells.type.subTypeNames{7};
+unkOffOn = zeros(length(subTypeNames),1);
+for i = 1:length(subTypeNames)
+    
+    nam = subTypeNames{i};
+    for s = 1:length(testTag)
+        for t = 1:length(testTag{s})
+            if strcmp(testTag{s}{t},nam)
+                unkOffOn(i) = s-1;
+                break
+            end
+        end
+    end
+end
+
+
+
+allR = [];
+for i = 1:length(rgcGroupCids)
+    checkCids = rgcGroupCids{i};
+    allR = cat(1,allR,checkCids);
+end
+
+allB = [];
+for i = 1:length(bpcGroupCids)
+    checkCids = bpcGroupCids{i};
+    allB = cat(1,allB,checkCids);
+end
+
+
+
+isAMC = find(tis.cells.type.typeID == 8); 
+isVGC = intersect(isAMC,find(tis.cells.type.subTypeID == 1));
+vgcCids = tis.cids(isVGC)
+
+%%load SM
+smDir = 'E:\IxQ_KarlsRetinaVG3_2019\Analysis\SMs\'
+
+
+
+for bG = 1:length(bpcGroupCids)
+    bCids = bpcGroupCids{bG}
+    
+end
+
+%%
+
+lc = 20;
+for v  = 1;%1:length(vgcCids)
+     figSkel{i} = figure; 
+    fileName = sprintf('sm_cid%d.mat',vgcCids(v));
+    if exist([smDir fileName],'file')
+        useSM(v) = 1;
+        load([smDir fileName]);
+        d = sm.syn2Skel.syn2SkelDist;
+        %d = sm.skel2skel.linDist;
+
+        pre = sm.syn.pre;
+        post = sm.syn.post;
+        
+        if ~isempty(pre)
+        
+        
+        %% get all synapse to node distances
+        
+        W = exp(-d/lc); % Apply length constant
+        
+        preSign = zeros(length(pre),1);
+        for p = 1:length(pre)
+            targ = find(tis.cids == pre(p),1);
+            if tis.cells.type.typeID(targ) == 7;
+                subT = tis.cells.type.subTypeID(targ);
+                if subT
+                    preSign(p,1) = unkOffOn(subT);
+                end
+            elseif tis.cells.type.typeID(targ) == 8
+               preSign(p,1) = -1; 
+            end
+        end
+        pos = sm.nep.pos;
+        Won = W .* repmat(preSign==1,[1 size(W,2)]);
+        Woff = W .* repmat(preSign==2,[1 size(W,2)]);
+        Winhib = W.* repmat(preSign==-1,[1 size(W,2)]);
+        
+        synPos = sm.syn.pos;
+        onSynPos = synPos(preSign == 2,:);
+        offSynPos = synPos(preSign == 1,:);
+        inhibSynPos = synPos(preSign == -1,:);
+        
+        sumOn = sum(Won,1);
+        sumOff = sum(Woff,1);
+        sumInhib = sum(Winhib,1);
+            
+        colormap(jet(100))        
+        sumOnN = sumOn * 50/mean(sumOn(:));
+        sumOffN = sumOff * 50/mean(sumOff(:));
+        sumInhibN = sumInhib * 50/mean(sumInhib(:));
+        
+        sumOnN = sumOn * 50/mean(sumOn(:));
+        
+        maxI = max([sumOn(:); sumOff(:)]);
+        col2 = [sumOff(:)/max(sumOff(:))  sumOn(:) * 0 sumOn(:)/max(sumOn(:))];
+        
+        offBias = sumOff./(sumOn+sumOff)*100;
+       
+        pos = sm.nep.pos;
+        markerSize = 150;
+        
+        %% Plot
+        subplot(2,2,1)
+        scatSkel = scatter3(pos(:,1),pos(:,2),pos(:,3),'.','clipping','off');
+        axis equal
+        view([ 0 90])
+        scatSkel.CData = ceil(sumOnN);
+%         hold on
+%         scatOn = scatter3(onSynPos(:,1),onSynPos(:,2),onSynPos(:,3),300,'k','+','linewidth',2,'clipping','off');
+%         scatOff = scatter3(offSynPos(:,1),offSynPos(:,2),offSynPos(:,3),300,'k','linewidth',2,'clipping','off');
+%         hold off
+        ylim([min(pos(:,2)) max(pos(:,2))]);
+        xlim([min(pos(:,1)) max(pos(:,1))]);
+        zlim([min(pos(:,3)) max(pos(:,3))]);
+        
+        subplot(2,2,2)
+        scatSkel = scatter3(pos(:,1),pos(:,2),pos(:,3),'.','clipping','off');
+        axis equal
+        view([ 0 90])
+        scatSkel.CData = ceil(sumOffN);
+%         hold on
+%         scatOn = scatter3(onSynPos(:,1),onSynPos(:,2),onSynPos(:,3),300,'k','+','linewidth',2,'clipping','off');
+%         scatOff = scatter3(offSynPos(:,1),offSynPos(:,2),offSynPos(:,3),300,'k','linewidth',2,'clipping','off');
+%         hold off
+        ylim([min(pos(:,2)) max(pos(:,2))]);
+        xlim([min(pos(:,1)) max(pos(:,1))]);
+        zlim([min(pos(:,3)) max(pos(:,3))]); 
+        
+        subplot(2,2,3)
+        scatSkel = scatter3(pos(:,1),pos(:,2),pos(:,3),'.','clipping','off');
+        axis equal
+        view([ 0 90])
+        scatSkel.CData = ceil(offBias);
+        hold on
+        scatOn = scatter3(onSynPos(:,1),onSynPos(:,2),onSynPos(:,3),markerSize,'k','+','linewidth',2,'clipping','off');
+        scatOff = scatter3(offSynPos(:,1),offSynPos(:,2),offSynPos(:,3),markerSize,'k','linewidth',2,'clipping','off');
+        hold off
+        ylim([min(pos(:,2)) max(pos(:,2))]);
+        xlim([min(pos(:,1)) max(pos(:,1))]);
+        zlim([min(pos(:,3)) max(pos(:,3))]); 
+        
+        subplot(2,2,4)
+        scatSkel4 = scatter3(pos(:,1),pos(:,2),pos(:,3),'.','clipping','off');
+        axis equal
+        view([ 0 90])
+        scatSkel4.CData = ceil(sumInhibN);
+%         hold on
+%         scatOn = scatter3(onSynPos(:,1),onSynPos(:,2),onSynPos(:,3),300,'k','+','linewidth',2,'clipping','off');
+%         scatOff = scatter3(offSynPos(:,1),offSynPos(:,2),offSynPos(:,3),300,'k','linewidth',2,'clipping','off');
+%         hold off
+        ylim([min(pos(:,2)) max(pos(:,2))]);
+        xlim([min(pos(:,1)) max(pos(:,1))]);
+        zlim([min(pos(:,3)) max(pos(:,3))]); 
+
+        pause(1)
+        
+        else
+            disp('pre is empty')
+        end
+        
+        
+            %
+            %         subTypePre = zeros(length(pre),1);
+            %         for p = 1:length(pre)
+%             targ = find(tis.cids == pre(p),1);
+%             if tis.cells.type.typeID(targ) == 7;
+%                 subTypePre(p) = tis.cells.type.subTypeID(targ);
+%             end
+%         end
+%          
+%         preBipGroup = zeros(length(pre),1);
+%           for bG = 1:length(bpcGroupCids)
+%                 bCids = bpcGroupCids{bG};
+%                 
+%           end
+        
+        
+        
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+

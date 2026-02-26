@@ -1,0 +1,7 @@
+clear all
+colormap gray(256)
+[TFN TPN] = GetMyFile;
+I = imread([TPN TFN]);
+image(I)
+
+[y x] = ginput

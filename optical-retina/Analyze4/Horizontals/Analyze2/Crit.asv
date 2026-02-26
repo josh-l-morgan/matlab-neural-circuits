@@ -1,0 +1,49 @@
+
+
+%% Load File
+DPN = GetMyDir
+
+f=find(DPN=='\');
+f2=f(size(f,2)-1);
+f3=f(size(f,2)-2);
+TPN=DPN(1:f2); %Define target folder (one level up from files)
+
+load([TPN 'Dots.mat'])
+
+%% Define Criteria
+Vol=3;
+Cut=2;
+ItSum=2;
+DFOf=5;
+DistToMask=10;
+
+%% Select Puncta
+for i = 1: Dots.Num
+   v=Dots.Vol(i)>=Vol;
+   c=Dots.Cut(i)~=Cut;
+   itsum=Dots.ItSum(i)>=ItSum;
+   df=Dots.DFOf(i)>=DFOf;
+   dm=Dots.DistToMask(i)>=DistToMask;
+   pass(i)=v & c & itsum & df & dm;
+end
+
+P=find(pass)'; %% list of passing puncta
+
+%% Draw puncta matrix
+
+Passed=zeros(Dots.ImSize,'uint8');
+for i = 1: size(P,1)
+   Passed(Dots.Vox(P(i)).Ind)=100;     
+end
+
+colormap gray(255)
+image(max(Passed,[],3))
+imwriteNp(TPN,Passed,'Passed')
+
+
+
+
+
+
+
+

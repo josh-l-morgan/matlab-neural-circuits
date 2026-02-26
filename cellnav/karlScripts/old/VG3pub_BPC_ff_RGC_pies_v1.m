@@ -1,0 +1,711 @@
+%runNAlocal();
+%load('MPN.mat');
+baseDir='Y:\karlsRetina\CellNavLibrary_IxQ\Volumes\AprilMerge\';
+WPN=[baseDir 'Analysis\'];
+MPN=[baseDir 'Merge\'];
+SMDir=[baseDir 'Analysis\SMs\'];
+TableDir='G:\Data\MATLAB\1029_analysis\';
+TableFilename='ixQ_POI_Registry_current.csv';
+load([MPN 'obI.mat']);
+load([MPN 'dsObj.mat']);
+%load('WPN.mat');
+load([WPN 'tis.mat']);
+tisClean=tis;
+%get the POI table
+test=readtable([TableDir TableFilename]);
+%get Jim's Data
+jimDat=load('G:\Data\MATLAB\122618_jimProcDat\ProcessedData\EMCorrespondencePhys.mat');
+infCutoff=0.01;
+modelRadius=2500;
+
+%% start here
+%pull the pts from downloaded csv in the analysis directory
+ptList=test.EM_location(:);
+ptListClosestROI=test.Closest_ROI_ID(:);
+vgcCidList=test.vgc_cid(:);
+vgcCidList=[2 3 4 5 13];
+
+SMs={};
+uniqueVGCs=unique(vgcCidList);
+
+for curSMIt=1:length(uniqueVGCs)
+    fileStr=['sm_cid' + string(uniqueVGCs(curSMIt)) + '.mat'];
+    if isfile([SMDir + fileStr])
+        load([SMDir + fileStr]);
+        SMs{curSMIt}=sm;
+    end
+end
+
+downsampVect=[250,250,25];
+%put the code here for fetching the necessary sm.mat if it isn't loaded.
+outputRadius=100;
+inputRadius=5;
+ptListDS={};
+nearOutputs={};
+nearInputs={};
+closeInputEdges={};
+closeOutputEdges={};
+closeInputPos={};
+closeOutputPos={};
+closeInputTypes={};
+closeInfluenceDat={};
+closeJimDat={};
+resistivity = 2000;
+Rm = 2000;
+radius = .01;
+Vo = 1;
+a=radius/10000;
+%x=d/10000;
+ra=resistivity/(pi*a^2);
+rm=Rm/(2*pi*a);
+lc=sqrt(rm/ra);
+
+%% get the lists for paring down the synapse locations based on type
+rgcType={'rgc', 'rgc', 'rgc', 'rgc', 'rgc'};
+rgcSubType={'on', 'off', 'on/off', '4ow', '85'};
+rgcCids=type2cid(rgcType,rgcSubType,tis);
+
+allTypes=cid2type(tis.cells.cids,tis);
+rgcTypeInf=zeros(length(uniqueVGCs),length(tis.cells.type.subTypeNames{7}));
+bpcCids=type2cid({'bpc'},{'all'},tis);
+
+%% prelim figs
+
+%figure();
+%hold on;
+%ax=gca;
+h=histogram(tis.cells.type.subTypeID(find(tis.cells.type.typeID==1)));
+rgcSubCounts=h.Values;
+figure();
+ax=gca;
+bar([1:45],rgcSubCounts);
+ax.XTick=[2:45];
+ax.XTickLabel=string(tis.cells.type.subTypeNames{1});
+ax.YLim=[0 10];
+
+%ax.XTick([1:1:50]);
+%ax.xticklabels(string(tis.cells.type.subTypeNames{1}));
+
+%% clean the tis data
+synBadIDs=find(tisClean.syn.pos(:,1)<1);
+
+
+%% Go through the finished skels and get data for any outputs to a member 
+% of the cidlist for that cell type.
+plotSyns=1;
+plotRGC=0;
+curTypeIt=1;
+typesInf=struct;
+finalResults={};
+finalAns=zeros(length(rgcCids),15);
+for k=1:length(rgcCids)
+    curRgcCids=rgcCids{k};
+    for skit=1:length(uniqueVGCs)
+        %get the skel data for the currnet vgc
+        curSM=SMs{skit};
+        smEdges=curSM.syn.edges;
+        rgcSynIDs=find(ismember(smEdges(:,1),curRgcCids));
+        typesInf(k).SM(skit).rgcOutputPos=curSM.syn.pos(rgcSynIDs,:);
+        if ~isempty(rgcSynIDs)
+            for curSynIt=1:length(rgcSynIDs)
+                curSynID=rgcSynIDs(curSynIt);
+                curSynDists=curSM.syn2Skel.syn2SynDist(curSynID,:);
+                curSynInfluence=Vo*exp(-curSynDists/lc/10000);
+                curSynInfluence(curSynInfluence<infCutoff)=0;
+                curSynInfluence(curSynID)=0;
+                typesInf(k).SM(skit).synInf(curSynIt,:)=curSynInfluence;
+            end
+            %still inside the vgcSM loop, so here is the spot to grab all the
+            %partner cids and get their types
+            preTypeList=cid2type(smEdges(:,2),tis);
+            bpcInputIDs=find(preTypeList{1}==7);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            smInfTots=sum(typesInf(k).SM(skit).synInf,1);
+            %Now I have the types for everything, so I just go through the bpc
+            %types and put the summed influence into a matrix. Then pie!!
+            bpcTypeInfMat=zeros(length(tis.cells.type.subTypeNames{7}),1);
+            for j=1:length(tis.cells.type.subTypeNames{7})
+                subTypeIDs=intersect(bpcInputIDs,find(preTypeList{3}==j));
+                curBpcTypeInf=smInfTots(subTypeIDs);
+                if ~isempty(curBpcTypeInf)
+                    bpcTypeInfMat(j)=sum(curBpcTypeInf);
+                end
+            end
+            rgcTypeInf(skit,:)=bpcTypeInfMat;
+        end
+        
+    end
+    finalResults{k}=rgcTypeInf;
+    finalAns(k,:)=sum(rgcTypeInf,1);
+    figure();
+    hold on
+    subplot(2,1,2);
+    pie(finalAns(k,:),string(tis.cells.type.subTypeNames{7}));
+    subplot(2,1,1);
+    hold on
+    %let's make the graphs of the actual cells
+    curRgcVox=getCidVox(curRgcCids,10,dsObj,tis);
+    
+    for m=1:length(curRgcVox)
+        plotVx=curRgcVox{m};
+        if plotRGC==1
+            scatter3(plotVx(:,1),plotVx(:,2),plotVx(:,3),'.')
+        end
+        if plotSyns==1
+            for n=1:length(typesInf(k).SM)
+                synPosMat=typesInf(k).SM(n).rgcOutputPos;
+                scatter3(synPosMat(:,1)*10,synPosMat(:,2)*10,synPosMat(:,3)*10,50,'ro');
+            end
+        end
+    end
+    
+    title(rgcSubType{k});
+    
+    
+end
+
+% finalAns=sum(rgcTypeInf,1);
+% figure();
+% pie(finalAns)
+
+
+
+
+
+
+
+%% here is the loop that gets the data for making pies.
+
+for ptIt=1:length(ptList)
+    ptIt;
+    %check that the vgc is a fully traced one (3 or 4)
+    if ismember(vgcCidList(ptIt),[2 3 4 13])
+        
+        curSM=SMs{vgcCidList(ptIt)};
+        curPtLoc=ptList{ptIt};
+        curPtLoc=strip(split(curPtLoc(2:end-1),','));
+        curPtLoc=[str2num(curPtLoc{1}),str2num(curPtLoc{2}),str2num(curPtLoc{3})];
+        curPtDS=curPtLoc./downsampVect; %X and Y are flipped from the structs!!!
+        curPtDS=[curPtDS(2),curPtDS(1),curPtDS(3)];
+        ptListDS{ptIt}=curPtDS;
+        %Find the closest node to the point
+        curPtSkelDists=sqrt(sum((curSM.arbor.nodes.pos/10-curPtDS).^2,2));
+        closestSkelNodeIdx=find(curPtSkelDists==min(curPtSkelDists));
+        closestSkelNodePos=curSM.arbor.nodes.pos(closestSkelNodeIdx,:)/10;
+        %Get the distances from each synapse to this closest node
+        allSynDists2closestNode=curSM.syn2Skel.syn2SkelDist(:,closestSkelNodeIdx); %might change to skelTopoDist
+        %allSynDists2closestNode=curSM.syn2Skel.(:,closestSkelNodeIdx);
+        %closestSynIdx=find(curPtSynDists<outputRadius);
+        closestSynIdx=find(allSynDists2closestNode<outputRadius);
+        if ~isempty(closestSynIdx)
+            % !!!!!!!!!!!!!!! The parsing of the inputs/outputs is based on the SM
+            %isIn and isOut columns. Any mistakes there are carried through here.
+            closeInputs=closestSynIdx(ismember(closestSynIdx,curSM.syn.isIn));
+            closeOutputs=closestSynIdx(ismember(closestSynIdx,curSM.syn.isOut));
+            %10-20-20 new code for getting distance matrix
+            inputDistanceIdx=find(allSynDists2closestNode<modelRadius);
+            modelInputIdx=inputDistanceIdx(ismember(inputDistanceIdx,curSM.syn.isIn));
+            modelInputDist=allSynDists2closestNode(modelInputIdx);
+            modelInputCids=curSM.syn.edges(modelInputIdx,2);
+            modelInputInf=zeros(length(modelInputCids),1);
+            modelInputOnOff=zeros(length(modelInputCids),1);
+            modelCellType=zeros(length(modelInputCids),1);
+            modelCellSubtype=zeros(length(modelInputCids),1);
+            if ~isempty(modelInputCids)
+                for i=1:length(modelInputCids)
+                    modelInputInf(i)=Vo*exp(-modelInputDist(i)/lc/10000);
+                    if modelInputCids(i)>0
+                        if ~isempty(tis.cells.type.typeID(tis.cells.cids==modelInputCids(i)))
+                            modelCellType(i)=tis.cells.type.typeID(tis.cells.cids==modelInputCids(i));
+                        end
+                        if tis.cells.type.typeID(tis.cells.cids==modelInputCids(i))==7
+                            modelCellSubtype(i)=tis.cells.type.subTypeID(tis.cells.cids==modelInputCids(i));
+                            if ismember(tis.cells.type.subTypeID(tis.cells.cids==modelInputCids(i)),[1:5,15])
+                                modelInputOnOff(i)=2;
+                            elseif ismember(tis.cells.type.subTypeID(tis.cells.cids==modelInputCids(i)),[6:12,14])
+                                modelInputOnOff(i)=1;
+                            end
+                            
+                        end
+                    end
+                end
+                
+                closeInfluenceDat{ptIt}=[modelInputCids,modelInputDist,modelInputInf,modelCellType,modelInputOnOff,modelCellSubtype,modelCellType.*1000.+modelCellSubtype];
+                nearInputs{ptIt}=closeInputs;
+                nearOutputs{ptIt}=closeOutputs;
+                closeInputEdges{ptIt}=curSM.syn.edges(closeInputs,:);
+                closeOutputEdges{ptIt}=curSM.syn.edges(closeOutputs,:);
+                closeInputPos{ptIt}=curSM.syn.pos(closeInputs,:);%.*downsampVect;
+                closeOutputPos{ptIt}=curSM.syn.pos(closeOutputs,:);%.*downsampVect;
+                %[~,inputTisInds]=ismember(curSM.syn.edges(closeInputs,2),tis.cells.cids);
+                %tis.cells.type.typeNames{tis.cells.type.typeID(inputTisInds)}
+                %closeInputTypes{ptIt}=
+                %closeOutputTypes{ptIt}=
+            end
+            %Get the type and subtype info
+            blankResults=[string(0),string(0),string(0),string(0)];
+            allCurInputResults=repmat(blankResults,length(closeInputs),1);
+            for inputCellID=1:length(closeInputs)
+                inputCellCid=curSM.syn.pre(closeInputs(inputCellID),:);
+                %sprintf('%d', inputCellCid)
+                if inputCellCid>0
+                    curInputType=tis.cells.type.typeID(tis.cells.cids==inputCellCid);
+                    if curInputType==0
+                        curInputTypeString='none';
+                    else
+                        curInputTypeString=tis.cells.type.typeNames(curInputType);
+                    end
+                    if curInputType==7
+                        curInputSubType=tis.cells.type.subTypeID(tis.cells.cids==inputCellCid);
+                        if curInputSubType==0
+                            curInputSubTypeString='unk';
+                        else
+                            curInputSubTypeString=tis.cells.type.subTypeNames{curInputType}(curInputSubType);
+                        end
+                    else
+                        curInputSubType=0;
+                        curInputSubTypeString='unk';
+                    end
+                    curInputResults=[curInputType,curInputSubType,string(curInputTypeString),string(curInputSubTypeString)];
+                else
+                    curInputType=0;
+                    curInputSubType=0;
+                    curInputTypeString='none';
+                    curInputSubTypeString='none';
+                end
+                curInputResults=[curInputType,curInputSubType,string(curInputTypeString),string(curInputSubTypeString)];
+                allCurInputResults(inputCellID,:)=curInputResults;
+            end
+            closeInputTypes{ptIt}=allCurInputResults;
+        end
+    end
+end
+
+%% Check the output from the previous section
+figure();
+hold on;
+legendLabels=[];
+qualMap=jet(100);
+for ptIt=1:length(ptList)
+    if vgcCidList(ptIt) < 5
+        if ~isempty(SMs{vgcCidList(ptIt)})
+            curSM=SMs{vgcCidList(ptIt)};
+            scatter3(curSM.arbor.nodes.pos(:,1)/10,curSM.arbor.nodes.pos(:,2)/10,curSM.arbor.nodes.pos(:,3)/10,curSM.arbor.nodes.rad,'black')
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            scatter3(curSM.syn.pos(:,1),curSM.syn.pos(:,2),curSM.syn.pos(:,3),20,'cyan');
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            
+        end
+    end
+end
+for ptIt=1:length(ptList) %1:length(ptList)\
+    if vgcCidList(ptIt) < 5
+        if ~isempty(SMs{vgcCidList(ptIt)})
+            curSM=SMs{vgcCidList(ptIt)};
+            curPOIclosestROI=ptListClosestROI(ptIt);
+            curPOIclosestROIdat=jimDat.D(jimDat.D(:,3)==curPOIclosestROI,:);
+            curPOIclosestROIpolarity=round((curPOIclosestROIdat(9)+1)*49)+1;
+            scatter3(ptListDS{ptIt}(1),ptListDS{ptIt}(2),ptListDS{ptIt}(3),150,qualMap(curPOIclosestROIpolarity),'filled');
+            %[x y z] = sphere(outputRadius);
+            % h = surfl(x, y, z);
+            % set(h, 'FaceAlpha', 0.5)
+            %shading interp
+            curOutputIdx=nearOutputs{ptIt};
+            curOutputPos=curSM.syn.pos(curOutputIdx,:);
+            curInputIdx=nearInputs{ptIt};
+            curInputPos=curSM.syn.pos(curInputIdx,:);
+            %scatter3(curOutputPos(:,1),curOutputPos(:,2),curOutputPos(:,3),40,'filled','blue');
+            %scatter3(curInputPos(:,1),curInputPos(:,2),curInputPos(:,3),40,'filled','green');
+            set(gca,'clipping','off');
+        end
+    end
+end
+
+drawLegend=0;
+if drawLegend==1
+    legend(legendLabels);
+end
+
+autoBound=0;
+if autoBound==1
+    %find the bounds of the arbor and set the limits of the plot
+    xBounds=[min(curSM.arbor.nodes.pos(:,1)) max(curSM.arbor.nodes.pos(:,1))];
+    yBounds=[min(curSM.arbor.nodes.pos(:,2)) max(curSM.arbor.nodes.pos(:,2))];
+    zBounds=[min(curSM.arbor.nodes.pos(:,3)) max(curSM.arbor.nodes.pos(:,3))];
+end
+
+%xlim(xBounds/10);
+%ylim(yBounds/10);
+%zlim(zBounds/10);
+
+%% 10-20-20 figure for Josh
+
+if 0
+    for i=1:length(tis.dat.alias)
+        cidList=tis.dat.alias{i};
+        typeList=zeros(1,length(cidList));
+        for cidIt=1:length(cidList)
+            curCid=cidList(cidIt);
+            if ~isempty(tis.cells.type.subTypeID(tis.cells.cids==curCid))
+            typeList(cidIt)=tis.cells.type.subTypeID(tis.cells.cids==curCid);
+            end
+        end
+        [cidList;typeList]
+    end
+end
+
+
+%set up the figure
+figure();
+hold on;
+%iterate through the POI list.
+for i=1:length(ptList)
+    if ~isempty(ptList{i})
+        curPOIclosestROI=ptListClosestROI(i);
+        curPtJimDat=jimDat.D(jimDat.D(:,3)==curPOIclosestROI,:);
+        if ~isempty(curPtJimDat)
+            curPtPol=curPtJimDat(9);
+            curPtQual=curPtJimDat(12);
+            closeJimDat{i}=[curPtPol,curPtQual];
+            curPtLoc=ptListDS{i};
+            if curPtLoc>0 & 0
+                scatter(curPtPol,curPtLoc(3)*25,curPtQual*100);
+            end
+        end
+        %calculate the influence for each of the pts
+        for j=1:length(closeInfluenceDat)
+            curPtInfDat=closeInfluenceDat{j};
+            
+            
+            
+        end
+    end
+end
+%% calculate the predicted polarity for each of the points.
+%adding josh's calcs
+resistivity = 2000;
+Rm = 2000;
+radius = .1; %can update this with actual radii
+Vo = 1;
+a=radius/10000;
+%x=d/10000;
+ra=resistivity/(pi*a^2);
+rm=Rm/(2*pi*a);
+lc=sqrt(rm/ra);
+%V=Vo*exp(-x/lc);
+%W=V;
+
+modelPol={};
+modelPolJosh={};
+modelPolJoshON={};
+modelPolJoshOFF={};
+for i=1:length(closeInfluenceDat)
+    curInfDat=closeInfluenceDat{i};
+    if length(curInfDat)>0
+        curInPolInfJoshON=0;
+        curInPolInfJoshOFF=0;
+        curInfBPC=curInfDat(curInfDat(:,4)==7,:);
+        curPol=0;
+        curPolJosh=0;
+        curPolJoshTotal=0;
+        for j=1:size(curInfBPC,1)
+            curIn=curInfBPC(j,:);
+            curInPolInfJosh=Vo*-(-1)^curIn(5)*exp(-curIn(2)/lc/10000);
+            curInPolInf=1/curIn(2)^2*-(-1)^curIn(5);
+            curPolJosh=curPolJosh+curInPolInfJosh;
+            if curPolJosh<0
+                curInPolInfJoshOFF=curInPolInfJoshOFF+abs(curPolJosh);
+            elseif curPolJosh>0
+                curInPolInfJoshON=curInPolInfJoshON+abs(curPolJosh);
+            end
+            curPolJoshTotal=curPolJoshTotal+abs(curInPolInfJosh);
+            curPol=curPol+curInPolInf;
+            
+        end
+        modelPol{i}=curPol;
+        modelPolJosh{i}=curPolJosh/curPolJoshTotal;
+        modelPolJoshON{i}=curInPolInfJoshON;
+        modelPolJoshOFF{i}=curInPolInfJoshOFF;
+    end
+end
+
+figure();
+hold on
+JimQualResults=[];
+for ptIt=1:length(closeInfluenceDat)
+    curJimPol=closeJimDat(ptIt,:);
+    curInfDat=closeInfluenceDat{ptIt};
+    curModPol=modelPol{ptIt};
+    curModPolJosh=modelPolJosh{ptIt};
+    if sum(curJimPol)~=0 && ~isempty(curModPolJosh)
+    scatter(curJimPol(1),curModPolJosh,curJimPol(2)*100,'black','filled')
+    JimQualResults=[JimQualResults; curJimPol(2)];
+    end
+end
+title(radius);
+
+jetQual=jet(100);
+
+figure();
+hold on
+for ptIt=1:length(closeInfluenceDat)
+    
+    curJimPol=closeJimDat(ptIt,:);
+    curModPolJosh=modelPolJosh{ptIt};
+    curJoshON=modelPolJoshON{ptIt};
+    curJoshOFF=modelPolJoshOFF{ptIt};
+    if sum(curJimPol)~=0 && ~isempty(curModPolJosh)
+    %scatter(curJimPol(1),curJoshON,50,'yellow','filled');
+    %scatter(curJimPol(1),curJoshOFF,50,'blue','filled');
+    plot([curJimPol(1);curJimPol(1)],[curJoshON*2;curJoshOFF],'color',jetQual(round(curJimPol(2)*100),:) );
+    scatter(curJimPol(1),curJoshOFF,'markerfacecolor',[.7 .5 1],'markeredgecolor','k');
+    scatter(curJimPol(1),curJoshON*2,'markerfacecolor',[1 1 0],'markeredgecolor','k');
+    %plot([c;c],[a;b],'k');
+    
+    end
+end
+xlim([-1 1]);
+%% calc JimPolarity
+%plot jim dat
+closeJimDat=zeros(length(closeInfluenceDat),3);
+for i=1:length(closeInfluenceDat)
+    curPOIclosestROI=ptListClosestROI(i);
+    curPtJimDat=jimDat.D(jimDat.D(:,3)==curPOIclosestROI,:);
+    if ~isempty(curPtJimDat)
+        curPtPol=curPtJimDat(9);
+        curPtQual=curPtJimDat(11);
+        curPtZpos=curPtJimDat(12);
+        closeJimDat(i,:)=[curPtPol,curPtQual,curPtZpos];
+    end
+end
+
+jimPieDat=zeros(length(closeJimDat),6);
+jimPieDat(:,6)=(closeJimDat(:,1)+1)./2;
+jimPieDat(:,2)=1.-jimPieDat(:,6);
+jimPieDat(closeJimDat(:,1)==0,:)=0;
+
+%% UBERPLOT figure
+figure();
+hold on
+for ptIt=1:length(ptList)
+    if vgcCidList(ptIt) ==3
+        if ~isempty(SMs{vgcCidList(ptIt)})
+            curSM=SMs{vgcCidList(ptIt)};
+            scatter3(curSM.arbor.nodes.pos(:,1)/10,curSM.arbor.nodes.pos(:,2)/10,curSM.arbor.nodes.pos(:,3)/10,curSM.arbor.nodes.rad,'black')
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            %scatter3(curSM.syn.pos(:,1),curSM.syn.pos(:,2),curSM.syn.pos(:,3),20,'cyan');
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            
+        end
+    end
+end
+
+pieRack={};
+
+cellTypeSubtype = [8000 7015 7003 7004 7005 7014 7006 7007 7008 7010];
+typeCol = [1 0 0; .3 .3 .8; .3 0 1; 0 0 1; 0 .3 1; .8 .8 .3; 1 .6 0; .9 .7 0; .6 .8 0; .8 1 0];
+typeNames = {'Amacrine', 'OFF bpc', 'bpc 3', 'bpc 3b', 'bpc 4', 'ON bpc', 'bc5i', 'bc5o', 'bc5t', 'bc7'};
+
+for i=1:length(closeInfluenceDat)
+    if vgcCidList(i) == 3
+        curPtInfDat=closeInfluenceDat{i};
+        if length(curPtInfDat)>0
+            curPtPieDat=zeros(10,2);            
+            curPtPieDat(:,1)=cellTypeSubtype;
+            for j=1:10
+                curSubtypeInf=sum(curPtInfDat(curPtInfDat(:,7)==curPtPieDat(j,1),3));
+                curPtPieDat(j,2)=curSubtypeInf;
+            end
+            pieRack{i}=curPtPieDat;
+            curPtLoc=ptListDS{i};
+            if size(curPtLoc)>0
+                scatter3(curPtLoc(1),curPtLoc(2),curPtLoc(3),20,'red','filled');
+            end
+        end
+    end
+end
+
+Jimplot=0;
+
+%figure();
+%hold on
+pieTable={};
+for i=1:length(pieRack)
+    if vgcCidList(i) == 3
+        %subplot(6,5,i);
+        curPie=pieRack{i};
+        jimPie=jimPieDat(i,:);
+        if length(curPie)>0
+            h=pie3(curPie(:,2),repmat({''},size(curPie(:,2))));
+            colormap(typeCol);
+            %legend(typeNames);
+            pieLoc=[5*i,120,20];
+            pieTable{i}=pieLoc;
+            %movePie(h,1,5*i,120,20);
+            %scalePie = sum(curPie(:,2))/4;
+            scalePie = 1;
+            movePie(h,scalePie,ptListDS{i}(1),ptListDS{i}(2),ptListDS{i}(3));
+            
+            if Jimplot
+                k=pie3(jimPie,{'','','','','',''});
+                %colormap([0 0 1;1 1 0]);
+                movePie(k,scalePie,ptListDS{i}(1)+5,ptListDS{i}(2),ptListDS{i}(3));
+            end
+            %line([ptListDS{i}(1),pieLoc(1)],[ptListDS{i}(2),pieLoc(2)],[ptListDS{i}(3),pieLoc(3)]);
+        end
+        
+        
+    end
+end
+
+
+%% legend
+
+leg = figure
+image([1:length(typeNames)]')
+colormap(typeCol)
+for i = 1:length(typeNames)
+    text(1,i,typeNames{i})
+end
+
+
+%% UBERPLOT figure
+figure();
+hold on
+for ptIt=1:length(ptList)
+    if vgcCidList(ptIt) == 4
+        if ~isempty(SMs{vgcCidList(ptIt)})
+            curSM=SMs{vgcCidList(ptIt)};
+            scatter3(curSM.arbor.nodes.pos(:,1)/10,curSM.arbor.nodes.pos(:,2)/10,curSM.arbor.nodes.pos(:,3)/10,curSM.arbor.nodes.rad,'black')
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            %scatter3(curSM.syn.pos(:,1),curSM.syn.pos(:,2),curSM.syn.pos(:,3),20,'cyan');
+            %legendLabels=[legendLabels,'arbor'+string(vgcCidList(ptIt))];
+            
+        end
+    end
+end
+
+pieRack={};
+
+for i=1:length(closeInfluenceDat)
+    if vgcCidList(i) == 4
+        curPtInfDat=closeInfluenceDat{i};
+        if length(curPtInfDat)>0
+            curPtPieDat=zeros(10,2);
+            curPtPieDat(:,1)=cellTypeSubtype;
+            for j=1:10
+                curSubtypeInf=sum(curPtInfDat(curPtInfDat(:,7)==curPtPieDat(j,1),3));
+                curPtPieDat(j,2)=curSubtypeInf;
+            end
+            pieRack{i}=curPtPieDat;
+            curPtLoc=ptListDS{i};
+            if size(curPtLoc)>0
+                scatter3(curPtLoc(1),curPtLoc(2),curPtLoc(3),20,'red','filled');
+            end
+        end
+    end
+end
+
+%figure();
+%hold on
+pieTable={};
+for i=1:length(pieRack)
+    if vgcCidList(i) == 4
+        %subplot(6,5,i);
+        curPie=pieRack{i};
+        jimPie=jimPieDat(i,:);
+        if length(curPie)>0
+            h=pie3(curPie(:,2),repmat({''},size(curPie(:,2))));
+            colormap(typeCol);
+            pieLoc=[5*i,120,20];
+            pieTable{i}=pieLoc;
+            %movePie(h,1,5*i,120,20);
+            %scalePie = sum(curPie(:,2))/4;
+            scalePie = 1;
+            movePie(h,scalePie,ptListDS{i}(1),ptListDS{i}(2),ptListDS{i}(3));
+            
+            
+            if Jimplot
+                k=pie3(jimPie,{'','','','','',''});
+                %colormap([0 0 1;1 1 0]);
+                movePie(k,scalePie,ptListDS{i}(1)+5,ptListDS{i}(2),ptListDS{i}(3));
+            end
+            %line([ptListDS{i}(1),pieLoc(1)],[ptListDS{i}(2),pieLoc(2)],[ptListDS{i}(3),pieLoc(3)]);
+        end
+        
+        
+    end
+end
+%legend(typeNames);
+
+%% Outputs
+allOutputEdges=[];
+for i=1:length(closeOutputEdges)
+    if length(closeOutputEdges{i})>0
+        curOutputCids=closeOutputEdges{i}(:,1);
+        allOutputEdges=[allOutputEdges;curOutputCids];
+    end
+end
+allOutputEdges=unique(allOutputEdges);
+allOutputEdgeTypes=allOutputEdges;
+for i=1:length(allOutputEdges)
+    if ismember(allOutputEdges(i),tis.cells.cids)
+        allOutputEdgeTypes(i)=tis.cells.type.typeID(tis.cells.cids==allOutputEdges(i));
+    else
+        allOutputEdgeTypes(i)=0;
+    end
+end
+
+allOutputRGC100um=allOutputEdges(allOutputEdgeTypes==1);
+
+%% Double check that everything that is called a bpc has a subtype
+% at least on/off
+for i=1:length(closeInfluenceDat)
+    
+
+
+
+end
+
+%% get list of inputs close to output
+if 0
+    curSM=sm;
+    nearbyInputs={};
+    for i=1:length(curSM.syn.isOut)
+        curSynID=curSM.syn.isOut(i);
+        curSynDists=curSM.syn2Skel.syn2SkelDist(curSynID,:);
+        
+    end
+end
+
+%% Distance test
+if 0
+    testPt=[142.4,132.3,18.3];
+    for i=1:length(ptListDS)
+        if length(ptListDS{i})==3
+            curDist=sqrt(sum((ptListDS{i}-testPt).^2,2));
+            disp(curDist)
+        end
+    end
+end
+    
+    
+    
+   %%
+   typeColor = [1 0 0; 1 1 .2; .8 1 0]
+   
+cmap = typeCol(useType,:);
+
+colormap(hsv(100))
+
+    
+    
+%%
+figure();
+hold on
+
+for i=1:length(closeInfluenceDat)
+    if length(closeInfluenceDat{i})>0
+        histogram(closeInfluenceDat{i}(:,2));
+    end
+end

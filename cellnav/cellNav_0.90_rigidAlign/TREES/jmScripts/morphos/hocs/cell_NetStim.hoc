@@ -1,0 +1,22 @@
+/*
+This is a CellBuilder-like file written for the simulator NEURON
+by an automatic procedure "neuron_template_tree" part of the TREES package
+in MATLAB
+copyright 2009-2017 Hermann Cuntz
+heavy modifications by Marcel Beining, 2014
+*/
+
+begintemplate cell_NetStim
+
+public cell
+public is_artificial
+objref cell
+proc celldef() {
+cell = new NetStim()
+is_artificial = 1}
+proc init() {
+  celldef()
+}
+
+endtemplate cell_NetStim
+

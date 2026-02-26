@@ -1,0 +1,98 @@
+%function[focSec] = checkFocus(wif)
+
+%% Turn mosaics from waffer into viewable (centers and downsample) mosaics
+clear all 
+
+%% Define variables
+dsampy = 100; %down sample image reading
+dsampx = 100;
+        
+yshift = [ 0 0 1 2 1]; %shifts for contrast measurement
+xshift = [ 1 2 0 0 1];
+
+%% Get Waffer folder information
+wif = GetMyWafer;
+%% Parse XML
+[tree, rootname, dom]=xml_read(wif.xml{end});
+
+xs = tree.MosaicSetup.TileWidth;
+ys = tree.MosaicSetup.TileHeight;;
+
+%% Target Dir
+TPN = wif.dir; TPN = [TPN(1:end-1) 'Shaped\'];
+TPNsav = [TPN 'quality\'];
+if ~exist(TPNsav),mkdir(TPNsav);end
+
+%% test Focus
+colormap gray(256)
+
+
+for s = 1 : length(wif.sec) % run sections
+    sprintf('reading  section %d of %d',s,length(wif.sec))
+
+    %[tree, rootname, dom]=xml_read(wif.sec(s).xml);
+     rc = wif.sec(s).rc;
+     mosDim = max(rc,[],1);
+     mos = zeros(mosDim(1),mosDim(2),3);
+    for t = 1:length(wif.sec(s).tile)
+        
+        I1 = double(imread(wif.sec(s).tile{t},'PixelRegion',...
+            {[ round(ys/2) - dsampy round(ys/2)+dsampy],[round(xs/2)- dsampx round(xs/2)+dsampx]}));
+        %I1 = I1(1:end-1,:);
+       pause
+       
+%%       
+        I1 = rand(100)*100
+        I1(50:52,:) = 300;
+        I1(:,10:11) = 300;
+         subI = double(I1);
+        %subI = subI - mean(subI(:));
+        fftIy = abs(fft(subI,[],1));
+        fftIx = abs(fft(subI,[],2));
+        fftIy = fftshift(fftIy);
+        fftIx = fftshift(fftIx);
+        mfIy = mean(fftIy,2);
+        mfIx = mean(fftIx,1);
+%         mfIy = mfIy(2:fix(length(mfIy)/2));
+%         mfIx = mfIx(2:fix(length(mfIx)/2));
+        
+        subplot(1,2,1)
+        image(I1)
+        subplot(1,2,2)
+        plot(mfIy),hold on
+        plot(mfIx,'r'),hold off
+%         
+%         
+%         bgFFT = mean(mfI(end-10:end));
+%         mfI = mfI - bgFFT;
+%         mfIs(c,:) = mfI;
+% 
+%% 
+        scaledDif = mfIy(1:6)  
+        medDif = mfIx(1:6)
+        con = max(mfIy)
+        dmap = [scaledDif(2) scaledDif(4)];
+        mos(rc(t,1),rc(t,2),:) = [dmap(1) dmap(2) con];
+        
+       
+        focSec(s).tile(t).difX1X2Y1Y2XY1 = medDif;
+        focSec(s).tile(t).focY = scaledDif(4);
+        focSec(s).tile(t).focX = scaledDif(2);
+        focSec(s).tile(t).contrast = con;
+%         focSec(s).tile(t).focusTarget = focTarg;
+        
+    end
+    mosA(:,:,:,s) = mos;
+    
+end
+save([TPNsav 'qual.mat'],'mosA')
+save([wif.dir 'focSec.mat'],'focSec')
+
+
+
+
+
+
+
+
+

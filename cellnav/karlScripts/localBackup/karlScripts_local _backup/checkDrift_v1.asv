@@ -1,0 +1,49 @@
+roiList=[1005:1010 2001:2006];
+dataDir='G:\ixQ\Phys\PhysZprojection\';
+txDatDir='G:\ixQ\Phys\JimRegistered\CorrectRegistratedFiles\';
+outputImgs=struct;
+
+%% load'em up
+
+
+
+%% analysis
+
+for i=1:length(roiList)
+    rawImg=imread([dataDir 'SUM_Ai148_129SVG3_122618_' num2str(roiList(i)) '-1.tif']);
+    botThresh=prctile(rawImg(:),50);
+    imgPrcd=scaleImg(botThresh,98,[0 255],rawImg);
+    outputImgs(i).rawSum=imgPrcd;
+    txDat=load([txDatDir 'Ai148_129SVG3_Translation_122618_' num2str(roiList(i)) '.mat']);
+    txImgSeries=txDat.I;
+    txImgSum=sum(txImgSeries,3);
+    botThresh=prctile(txImgSum(:),50);
+    imgPrcd2=scaleImg(botThresh,98,[0 255],txImgSum);
+    outputImgs(i).txSum=imgPrcd2;
+    imgDiff=abs(imgPrcd2-imgPrcd);
+    outputImgs(i).diffSum=imgDiff;
+    c = normxcorr2(imgPrcd,imgPrcd2);
+    [max_c, imax] = max(abs(c(:)));
+    [ypeak, xpeak] = ind2sub(size(c),imax(1));
+    corr_offset = [(xpeak-size(imgPrcd,2)) (ypeak-size(imgPrcd,1))];
+    outputImgs(i).offset=corr_offset;
+end
+
+figure();
+hold on
+for i=1:length(roiList)
+    subplot(6,4,i)
+    imshow(outputImgs(i).diffSum*25);
+    %pause(1);
+end
+ha=get(gcf,'children');
+for k=1:length(ha)
+    set(ha(k),'position',[floor((k-1)/6)/2 mod((k-1),6)/6+.01 .49 .1])
+end
+
+function outputImg=scaleImg(dropThresh, topPerc, outputWind, inputImg)
+    topVal=prctile(inputImg(inputImg>dropThresh),topPerc);
+    imgScaled=double(inputImg)*(double(outputWind(2))/double(topVal));
+    imgInt=uint8(imgScaled);
+    outputImg=imgInt;
+end

@@ -1,0 +1,65 @@
+clear all
+%% get folder
+TPN = GetMyDir;
+checkedNams = {};
+
+%% loop continuously
+while 1
+[allNams allTimes]= getPics(TPN);
+
+%% check for new names
+checkit = ones(length(allNams),1);
+for i = 1:length(allNams)
+    for c = 1:length(checkedNams)
+        if strcmp(allNams{i},checkedNams{c})
+            checkit(i) = 0;
+            break
+        end
+    end
+end
+newNams = allNams(checkit>0);
+newTimes = allTimes(checkit>0,:);
+
+%% Run quality check
+for t = 1:length(newNams)
+    L = length(checkedNams)
+    sprintf('Running image %d of %d.',t,length(newNams))
+    clock -
+    checkFile = [TPN newNams{t}];
+    tile(L+1) = checkFileQual(checkFile);
+    checkedNams{L+1,1} = newNams{t};
+    
+end
+
+%% Organize data
+
+mos = parseTileNames(checkedNams);
+
+allQual = [tile.quality];
+[sortQual ranks] = sort(allQual);%sort(tile.use.quality,'ascend')
+worstNams = checkedNams(ranks);
+
+
+qualMos = zeros(mos.Dims);
+for i = 1:length(mos.Files)
+    qualMos(mos.Pos(i,1),mos.Pos(i,2)) = tile(mos.Files(i)).quality;
+end
+
+subplot(1,1,1)
+image(fitH(qualMos)),pause(.01)
+% 
+% qual.mos.qualMos = qualMos;
+% qual.mos.globMos = globMos;
+% qual.mos.satMos = satMos;
+qual.tile = tile;
+qual.nams = checkedNams;
+qual.worst = worstNams;
+qual.mos = mos;
+save([TPN 'qual.mat'],'qual')
+
+end
+
+
+
+
+

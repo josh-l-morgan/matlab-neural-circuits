@@ -1,0 +1,98 @@
+clear all
+colormap gray(256)
+TPN = GetMyDir;
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name; 
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+        iNam{length(iNam)+1} = nam;
+        end
+    end
+end
+
+for i = 1 : length(iNam)
+   rawI{i} = imread([TPN iNam{i}]); 
+   I(i,:,:) = double(rawI{i});
+end
+
+%% Scale 
+backGround = mean(mean(I(:,1:3,:),1),2);
+sI = I;
+sI(:,:,1) = sI(:,:,1)-  backGround(1);
+sI(:,:,2) = sI(:,:,2) - backGround(2);
+for i = 1:size(sI,1)
+   for c = 1:2
+       sI(i,:,c)=sI(i,:,c)/mean(sI(i,:,c));
+   end
+end
+image(uint8(sI * 50)),pause(.1)
+
+%%consolidate
+msI = squeeze(mean(sI,1));
+image(uint8(msI * 50))
+bar(msI)
+colormap([1 0 0; 0 1 0])
+
+
+
+
+I = imread([TPN TFN]);
+I = I * 256/max(I(:));
+Ir = double(I(:,:,1));
+Ig = double(I(:,:,2));
+subplot(2,2,1)
+image(255 - Ir)
+subplot(2,2,2)
+image(255 - Ig)
+
+
+[ys, xs] = size(Ir);
+
+%% auto Correlation
+sRange = 10;
+clear cc1 cc2
+for y = -sRange :1: sRange
+    for x = -sRange :1 : sRange
+        grabIg = Ig( sRange + 1 + y:ys - sRange + y, sRange + 1 + x:xs - sRange + x) ;
+        
+        cc = corrcoef(grabIg,Ig(sRange + 1:ys - sRange,sRange + 1:xs - sRange));
+        cc2(sRange + 1 + y,sRange + 1 +x) = cc(2,1);
+        
+        grabIr = Ir( sRange + 1 + y:ys - sRange + y, sRange + 1 + x:xs - sRange + x) ;
+        
+        cc = corrcoef(grabIr,Ir(sRange + 1:ys - sRange,sRange + 1:xs - sRange));
+        cc1(sRange + 1 + y,sRange + 1 +x) = cc(2,1);
+    end
+end
+subplot(2,2,3)
+image(cc1 * 255/max(cc1(:)))
+subplot(2,2,3)
+image(cc2 * 255/max(cc2(:)))
+
+corDif = cc2./cc1;
+%image(corDif * 255/max(corDif(:))),pause(.01)
+
+xfilt = cc2(sRange+ 1,:);
+%%
+% 
+for l = 2:7
+ [J , PSF] = deconvblind(Ig,ones(1,l));
+% J = deconvreg(Ig, xfilt,.6);
+% J = J - min(J(:));
+% J = J * 255/max(J(:));
+subplot(2,2,4)
+image(255 - J),pause
+% 
+% subplot(2,2,3)
+% image(255 - J) 
+end
+%%
+
+
+fminsearch
+
+%imwrite(uint8(255-If),[TPN 'Filt' TFN],'tif','Compression','none')

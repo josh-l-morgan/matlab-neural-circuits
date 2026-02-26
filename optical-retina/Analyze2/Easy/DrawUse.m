@@ -1,0 +1,28 @@
+%%Draw dAta from Use
+
+
+
+TPN=GetMyDir;
+
+load([TPN 'Use.mat'])
+
+DPos=fix(Use.DPos)+1;
+Mids=fix(Use.Mids)+1;
+
+DMax=max(DPos,[],1);
+MMax=max(Mids,[],1);
+Max=max(DMax,MMax);
+
+dUse=zeros(Max,'uint8');
+for i = 1:size(DPos,1)
+    dUse(DPos(i,1),DPos(i,2),DPos(i,3))=dUse(DPos(i,1),DPos(i,2),DPos(i,3))+1;
+end
+
+mUse=zeros(Max,'uint8');
+for i = 1:size(Mids,1)
+    mUse(Mids(i,1),Mids(i,2),Mids(i,3))=mUse(Mids(i,1),Mids(i,2),Mids(i,3))+1;
+end
+
+
+imwriteNP(TPN,dUse,'dUse')
+imwriteNP(TPN,mUse,'mUse')

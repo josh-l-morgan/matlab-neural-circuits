@@ -1,0 +1,116 @@
+%% {'File','Age','Retina','RGC','Bipolar','distance','bip class','rgc class','syn ',[],'notes'%%
+clear all
+
+[num txt dat] = xlsread('\\Wongraid2\wonglab\JoshDaniel\FixedCon.xls','TomA');
+
+
+%% find columns
+
+colStrings = dat(1,:);
+colFile = find(strcmp('File',colStrings));
+colRet = find(strcmp('Retina',colStrings));
+colAge = find(strcmp('Age',colStrings));
+colRGC = find(strcmp('Bipolar',colStrings));
+colDistance = find(strcmp('distance',colStrings));
+colBipClass = find(strcmp('bip class',colStrings));
+colRgcClass = find(strcmp('rgc class',colStrings));
+colSyn = find(strcmp('syn ',colStrings));
+colNotes = find(strcmp('notes',colStrings));
+colCenterRad = find(strcmp('center rad',colStrings));
+colToCenter = find(strcmp('to center',colStrings));
+colNumVox = find(strcmp('numVox',colStrings));
+colNumTer = find(strcmp('numTer',colStrings));
+colPolyArea = find(strcmp('polyArea',colStrings));
+colVoxAppo = find(strcmp('voxAppo',colStrings));
+colNumAppo = find(strcmp('numAppo',colStrings));
+
+%% Read Dat+
+curFile = 'none';    curAge = 21;    curRet = 'none';    curRGC = 'none';
+curRgcClass = 'none';
+type6 = []; type7 = []; type8 = []; typeRb = []; typeU = []; knownSyn = [];
+GU = [];
+for i = 1:22 G{i} = []; end
+for i = 1: size(dat,1)
+
+    if ~isnan(dat{i,colFile})
+        curFile = dat{i,colFile};
+    end
+    if ~isnan(dat{i,colAge}) & isnumeric(dat{i,colAge})
+        curAge = dat{i,colAge};
+    end
+    if ~isnan(dat{i,colRet})
+        curRet = dat{i,colRet};
+    end
+    if ~isnan(dat{i,colRGC})
+        curRGC = dat{i,colRGC};
+    end
+    if ~isnan(dat{i,colRgcClass})
+        curRgcClass = dat{i,colRgcClass};
+    end
+
+    if isempty(dat{i,colBipClass})
+        typeU = [typeU; i];
+    else
+        switch dat{i,colBipClass};
+            case 6
+                type6 = [type6 ; i];
+            case 7
+                type7 = [type7 ; i];
+            case 8
+                type8 = [type8 ; i];
+            case 'rb'
+                typeRb = [typeRb ; i];
+            otherwise
+                typeU = [typeU ; i];
+        end
+    end
+
+    if strcmp(curRgcClass(1), 'G');
+        rc = str2num(curRgcClass(2:length(curRgcClass)));
+        G{rc} = [G{rc} i];
+    else
+        GU = [GU i];
+    end
+
+
+    if ~strcmp(class(dat{i,colSyn}),'char')   & ~isnan(dat{i,colSyn})
+        knownSyn = [knownSyn; i];
+    end
+
+    Files{i} = curFile;
+    Ages(i) = curAge;
+    Rets{i} = curRet;
+    masked(i) = strcmp(class(dat{i,colPolyArea}),'double');
+    appoed(i) = isnumeric(dat{i,colVoxAppo}) & sum(dat{i,colVoxAppo}>0) % strcmp(class(dat{i,colVoxAppo}),'double')
+end
+
+myG = [G{1} G{2} G{6} G{10}];
+idTypes = {'type6', 'type7', 'type8','typeRb','typeU'};
+col = {'r','g,','b','c','m'};
+allAges = unique(Ages(~isnan(Ages)));
+
+
+for a = 1:length(allAges)
+    for i = 1:length(idTypes)
+        assignin('base',idTypes{i}, intersect(eval(idTypes{i}),knownSyn)); %restric type list to known syn number examples
+        synNum = cell2mat(dat(intersect(eval(idTypes{i}),find(Ages==allAges(a))),colSyn));
+        %
+        % subplot(2,1,1)
+        % scatter(ones(length(synNum),1)*i,synNum)
+        % xlim([-.5 length(idTypes)+ .5])
+
+        subplot(length(allAges),length(idTypes),i+ (a-1) * length(idTypes))
+
+        bins = (0:20);
+        hist(synNum,bins)
+        title(idTypes{i})
+        xlim([-0.5 20.5])
+        ylim([0 6])
+        synNums{i} = synNum;
+        meanNum(i) = mean(synNum);
+        varNum(i) = var(synNum);
+        scaledVar(i) = var(synNum)/mean(synNum);
+
+    end
+end
+

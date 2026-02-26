@@ -1,0 +1,105 @@
+%% Run all Programs up to 7/7/07
+
+%{
+Programs to run
+Skeletonize from Mask
+Dot Find
+
+%}
+
+
+TPN = GetMyDir;
+
+%YourGui
+
+
+%%if files are available
+
+if exist([TPN 'SKStatus.mat'])
+    load([TPN 'SKStatus.mat'])
+else
+    SKStatus.DF=0;
+end
+
+if ~isfield(SKStatus,'Read'),SKStatus.Read=0,end
+if ~isfield(SKStatus,'Sk'),SKStatus.Sk=0,end
+if ~isfield(SKStatus,'Ra'),SKStatus.Ra=0,end
+if ~isfield(SKStatus,'Ma'),SKStatus.Ma=0,end
+if ~isfield(SKStatus,'Rd'),SKStatus.Rd=0,end
+if ~isfield(SKStatus,'SG'),SKStatus.SG=0,end
+
+% SKStatus
+%% Get Status
+
+SKUser{1}=num2str(SKStatus.Read);
+SKUser{2}=num2str(SKStatus.Sk);
+SKUser{3}=num2str(SKStatus.DF);
+SKUser{4}=num2str(SKStatus.Ra);
+SKUser{5}=num2str(SKStatus.Ma);
+SKUser{6}=num2str(1);
+
+
+'getting image info', pause(.1)
+prompt = {'Read','Skeletonize ', 'Dot find',...
+    'Ratio','Mask', 'Group'};
+title = 'What analysis would you like to run';
+nLines = 1;
+
+SKUser= inputdlg(prompt,title,nLines,{SKUser{1},SKUser{2},SKUser{3},...
+    SKUser{4},SKUser{5},SKUser{6}});
+
+
+SKStatus.Sk = str2num(SKUser{1});
+SKStatus.Sk = str2num(SKUser{2});
+SKStatus.DF = str2num(SKUser{3});
+SKStatus.Ra = str2num(SKUser{4});
+SKStatus.Ma = str2num(SKUser{5});
+SKStatus.Group = str2num(SKUser{6});
+
+
+%% Check out files
+if ~SKStatus.Read
+    anaRead(TPN)
+    SKStatus.Read=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+
+%% Run Dot Processing
+if ~SKStatus.Sk
+    'Finding Skel'
+    anaSkc(TPN)
+    SKStatus.Sk=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.DF
+    'Finding Dots'
+    anaDFc(TPN)
+    SKStatus.DF=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.Ra
+    'Ratioing'
+    anaRaMc(TPN)
+    SKStatus.Ra=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+if ~SKStatus.Ma
+    'Masking'
+    anaMac(TPN)
+    anaCBc(TPN)
+%     anaFSc(TPN, DPN) %check for shifts
+    SKStatus.Ma=1
+    save([TPN 'SKStatus.mat'],'SKStatus')
+end
+
+    'Running SG once'
+    anaSGc(TPN)
+    
+ if SKStatus.Group
+    anaGroup(TPN)
+ end
+ 
+ anaMakeUseOnec(TPN)
+
+
+

@@ -1,0 +1,70 @@
+for i = 1:size(IM,3);
+    imshow(IM(:,:,i))
+    pause(.001);
+end
+
+test3=mean(I(25:27,126:128,1:1700),3);
+
+
+pt = [26 127];
+look = 40;
+bin = 1;
+
+%Define view window
+    wind = [pt(1,1)-look pt(1,1) + look; pt(1,2) - look pt(1,2)+ look];
+    wind(:,1) = max(wind(:,1),[1;1]);
+    wind(1,2) = min(wind(1,2),size(I,1));
+    wind(2,2) = min(wind(2,2),size(I,2));
+
+    %%Define kernal
+    wpt = [pt(1,1)-wind(1,1)+1 pt(1,2)-wind(2,1)+1]
+    kern = fspecial('disk',1);
+%     kern(kern>0) = 1;
+    
+    %%Make grouping mask
+    samp = I(wind(1,1):wind(1,2),wind(2,1):wind(2,2),1);
+    wMask = zeros(size(samp));
+    wMask(wpt(1,1),wpt(1,2)) = 1;
+    wMask = imfilter(wMask,kern,'same');
+    
+    image(wMask*256)
+    contrast = 20;
+    
+    %%Get Mean Image
+    sampAll = I(wind(1,1):wind(1,2),wind(2,1):wind(2,2),:);
+    sampMean = mean(sampAll,3);
+    
+    %%Generate random sample
+    ptVals =  sampMean(wMask>0);
+    medVal = median(ptVals);
+    medVal = 4;
+    [y x] = find(sampMean >= floor(medVal));
+    rInd = sub2ind(size(wMask),y,x);
+    maskVal = kern(:);
+    maskSize = length(maskVal);
+    
+    for i = 1: 10
+        rPicks(i,:) = rInd(randperm(length(rInd),maskSize));
+    end
+    
+    
+for i = 1 : size(I,3)
+   
+    wSamp = sampAll(:,:,i);
+    gSamp = wSamp .* wMask;
+    wCol = cat(3,sampMean, wSamp, wMask*20);
+    image(uint8(wCol * contrast));
+    pause(.1)
+    
+    
+    %%Measure
+    recMean(i) = sum(gSamp(:))/sum(wMask(:));
+    for n = 1:size(rPicks,1)
+        randMean(n,i) = sum(wSamp(rPicks(n,:)) .* maskVal)/sum(maskVal);
+    end
+    
+    
+    
+end
+
+

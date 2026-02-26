@@ -1,0 +1,66 @@
+%function[] = anaCrit(TPN, DPN)
+
+%% Get File
+TPN=GetMyDir
+load([TPN 'Dots.mat'])
+
+%% Default Thresholds
+Vol=4;
+Cut=2;
+ItSum=4;
+DFOf=1.5;
+DF=5;
+DistToMask=1;
+
+%% Gather Results
+%%Get eliminated regions
+rDM=Dots.DistToMask;
+rCut=Dots.Cut(1:Dots.Num);
+pCut=rCut<Cut;
+pDM=rDM>=DistToMask;
+eLim=logical(pCut .* pDM);
+
+%extract usable dot values
+rVol=Dots.Vol(eLim)';
+rSum=Dots.ItSum(eLim)';
+rDFOf=Dots.DFOf(eLim)';
+rDF=Dots.DF(eLim)';
+
+%% Normalize
+scaleVol=1/var(rVol(rVol<mean(rVol))*2)
+nVol=rVol * scaleVol;
+scaleSum= 1/var(rSum(rSum<mean(rSum))*2)
+nSum=rSum;
+nDFOf=rDFOf/var(rDFOf);
+nDF=rDF/var(rDF);
+
+%% Cluster
+Vars=[nVol nSum nDFOf nDF]; %create variable matrix 
+[Groups Centers SumDist]=kmeans(Vars,3,'distance','cityblock','replicates',5,...
+    'display','final');
+%[Groups Centers SumDist]=kmeans(Vars,2,'replicates',5, 'display','final');
+scatter3(Vars(:,1),Vars(:,2),Vars(:,3),100,Groups)
+
+[silh5,h] = silhouette(Vars,Groups,'city');
+xlabel('Silhouette Value')
+ylabel('Cluster')
+mean(silh5)
+
+
+
+
+scatter(rVol,rSum) %Strong Corrolation
+scatter(rVol,rDF) %No Corrolation
+scatter(rVol,rDFOf) %No Corrolation
+scatter(rDF,rDFOf) %Strong Corrolation
+scatter(rSum,rDF) %Weak Corrolation
+scatter(rSum,rDFOf) %No Corrolation
+
+
+
+
+
+
+
+
+

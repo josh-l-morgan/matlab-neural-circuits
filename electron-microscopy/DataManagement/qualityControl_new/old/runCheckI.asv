@@ -1,0 +1,23 @@
+TPN = GetMyDir
+
+nams = GetPics(TPN)
+
+
+for i = 1:length(nams)
+    allI{i} = imread([TPN nams{i}]);
+end
+
+for i = 1:length(allI)
+tiles(i) = checkIquallines(allI{i});
+end
+
+%%
+for i = 1:length(tiles)
+    reportQ{i,1} = nams{i};
+    reportQ{i,2} = tiles(i).quality(1); 
+        reportQ{i,3} = tiles(i).quality(2); 
+            reportQ{i,4} = tiles(i).quality(3); 
+                reportQ{i,5} = tiles(i).quality(4);  
+end
+
+reportQ

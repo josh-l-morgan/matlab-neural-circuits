@@ -1,0 +1,24 @@
+function[] =MyPlot(Data,Lab)
+
+[ys xs]=size(Data);
+
+if nargin == 1
+    Lab= 1:xs
+end
+
+%%Data
+
+plot(0)
+hold on
+for a = 1:xs
+    scatter(ones(ys,1)*Lab(a),Data(:,a) 
+    %%Find standard Error as StandardDeviation / sqrt(n)
+    E(a)=std(Data(Age==Ages(a)))/sqrt(sum(Age==Ages(a)));
+    M(a)=mean(Data(Age==Ages(a)));
+end
+errorbar([Ages],M,E,'r')
+ME=[M'  E'];
+hold off
+
+ys=YLim;
+ylim([0 ys(2)]);

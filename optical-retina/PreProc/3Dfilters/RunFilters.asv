@@ -1,0 +1,190 @@
+%% Seperate signals from two sources that are mixed into two channels. 
+%%written by Josh Morgan and Daniel Kerschensteiner
+
+
+%% Get image
+clear all
+
+colormap gray(256)
+
+
+'getting image info', pause(.1)
+prompt = {'Enter file type [3D tiff = 1, 2D RGBs in folder = 2, OIF = 3]'};
+title = 'Type of image';
+nLines = 1;
+
+ImageInfo= inputdlg(prompt,title,nLines,{'2'});
+
+if str2num(ImageInfo{1})==1
+    
+prompt = {'number of channels?'};
+title = 'number of channels';
+nLines = 1;
+NumberChannels= inputdlg(prompt,title,nLines,{'2'});
+
+end
+
+
+%% INPUTDLG GET RATIOS
+%  RedSig=[80 116];
+%  GreenSig=[33 87];
+%  BackSig=[18 7];
+% 
+'getting inputs', pause(.1)
+prompt = {'filter type [1 = Shave]', 'filter input:', 'kernal Size [] (1 1 or 2 2)'};
+title = 'Input Average Signal Intensities';
+nLines = 1;
+
+if exist('.\PreviousSettings.mat')
+    load('.\PreviousSettings.mat')
+    defAns = {PreviousSettings.FT, PreviousSettings.FI, PreviousSettings.kS};
+else
+    defAns = {'1','','1 1'};
+end
+answer = inputdlg(prompt,title,nLines,defAns);
+
+FilterType = str2num(answer{1}); %#ok<ST2NM>
+FilterInput = str2num(answer{2}); %#ok<ST2NM>
+kernelSize = str2num(answer{3}); %#ok<ST2NM>
+
+PreviousSettings.FT=num2str(FilterType);
+PreviousSettings.FI=num2str(FilterInput);
+PreviousSettings.kS=num2str(kernelSize);
+
+save('.\PreviousSettings.mat','PreviousSettings')
+pause(.01)
+
+%% Read Image
+
+'reading tiffs'
+if str2num(ImageInfo{1}) == 2
+    RPN = GetMyDir;
+    RPNd=dir(RPN);RPNd=RPNd(3:length(RPNd));
+    c=0;
+    for i = 1:length(RPNd)
+       Nam = RPNd(i).name;
+       if sum(Nam(length(Nam)-3:length(Nam))=='.tif')==4
+           c=c+1;
+           if c==1
+              Is=imread([RPN Nam]);
+              [ys,xs,cs]=size(Is);
+              I=zeros(ys,xs,cs,length(RPNd),'uint16');
+              I(:,:,:,c)=Is;
+           else
+            I(:,:,:,c)=imread([RPN Nam]);
+           end
+       end
+       
+    end
+    I=I(:,:,:,1:c);
+    Isum=find(sum(sum(sum(I,1),2),4));
+   
+    
+    TPN=[RPN(1:length(RPN)-1) '_Filter'];
+       if isdir(TPN), rmdir(TPN,'s'), end
+    mkdir(TPN)
+    name='filtered';
+    
+elseif str2num(ImageInfo{1}) == 3
+    RPN = GetMyDir;
+    I=oifread(RPN);
+
+    TPN=[RPN(1:length(RPN)-1) '_Filter'];
+    if isdir(TPN), rmdir(TPN,'s'), end
+    mkdir(TPN)
+        name='filtered';
+else
+    
+    [DFN DPN] = uigetfile('.tif');
+    TargFile=[DPN DFN];
+
+    [Iall Iinfo] = tiffread2(TargFile);
+    
+    Chans=str2num(NumberChannels{1});
+    zs=Iinfo/Chans;
+    I=zeros(Iall(1).height,Iall(1).width,3,zs,'uint16');
+    for i = 1: Iinfo
+        I(:,:,fix((i-1)/zs)+1,mod(i-1,zs)+1)=Iall(i).data;
+    end
+    
+    
+    
+    %clear Iall
+
+    name=DFN(1:find(DFN=='.')-1);
+    TPN=[DPN  name '_Filter'];
+    if isdir(TPN), rmdir(TPN,'s'), end
+    mkdir(TPN)
+    name=DFN(1:find(DFN=='.')-1);
+
+end
+
+
+%% Median filter
+% 'median filtering',pause(.1)
+% if kernelSize(1)>1
+%     for i = 1: size(channel1,3)
+%        channel1(:,:,i)=medfilt2(channel1(:,:,i),[kernelSize(1) kernelSize(1)]);
+%     end
+% end
+% if kernelSize(2)>1
+%     for i = 1: size(channel2,3)
+%        channel2(:,:,i)=medfilt2(channel2(:,:,i),[kernelSize(2) kernelSize(2)]);
+%     end
+% end
+% 
+
+%% Filter
+
+if FilterType==1
+   
+    If=Shave(I); 
+end
+
+
+
+
+%% Write image
+'writing image', pause(.1)
+
+
+Dims=size(size(If),2);
+[ys xs s3 s4]=size(If);
+siz=[ys xs s3 s4];
+zs=siz(Dims);
+
+if Dims==3
+    If=If*255/double(max(If(:)));
+else
+    for i = 1:s3
+        If(:,:,i,:)=double(If(:,:,i,:)*255/double(max(max(max(If(:,:,i,:)))));
+    end
+end
+If=uint8(If);
+
+
+
+NumDig=fix(log10(zs))+1; % get digits
+blank=zeros(NumDig,1);
+blank=num2str(blank)';
+
+for i=1:zs
+    Num=num2str(i);
+    Numi=blank;
+    Numi(size(Numi,2)-size(Num,2)+1:size(Numi,2))=Num;
+    name1=[TPN '\' name '_' Numi  '.tif'];
+    if Dims==3
+        
+        imwrite(If(:,:,i),name1,'tif','Compression','none')
+    else
+        imwrite(If(:,:,:,i),name1,'tif','Compression','none')
+    end
+    
+end
+
+
+
+
+
+
+

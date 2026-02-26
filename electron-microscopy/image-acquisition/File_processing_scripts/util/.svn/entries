@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="507"
+   name=""
+   committed-date="2008-02-01T01:38:21.608239Z"
+   url="svn+svntun://brainiac/net/data/subversion/repository/EM/util"
+   last-author="sturaga"
+   kind="dir"
+   uuid="0fef9260-1a76-4b51-8c6e-7327100da0b1"
+   revision="509"/>
+<entry
+   committed-rev="2"
+   name="arraycrop_full.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="180913275cda5d59038af25c49a81cde"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:12.000000Z"/>
+<entry
+   committed-rev="530"
+   name="crop_vector.m"
+   text-time="2007-05-15T20:43:56.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="e5734b0a21e999315e27f600f0a2fa0b"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="530"
+   name="print_pdf.m"
+   text-time="2007-04-23T17:48:38.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="61774666b1729d223acebbd56c837d7e"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="2"
+   name="randsample.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="2d599dbbb37508eb3f9689261dbc94b5"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:12.000000Z"/>
+<entry
+   committed-rev="2"
+   name="takeAway2.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="a2c9362e848afa0a37cc392b79454791"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:12.000000Z"/>
+<entry
+   committed-rev="555"
+   name="bundle_and_distribute.m"
+   text-time="2008-07-31T00:29:57.000000Z"
+   committed-date="2008-08-01T00:33:24.581460Z"
+   checksum="fe47b00e18c90cc0857bced2f7fdc638"
+   last-author="viren"
+   kind="file"
+   revision="555"/>
+<entry
+   committed-rev="142"
+   name="clearallbut.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T02:36:35.013645Z"
+   checksum="4b851f830a324f41968a917a5f6260f6"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:12.000000Z"/>
+<entry
+   committed-rev="2"
+   name="intrp.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="7f9d2ef677355407d60622638f04a295"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="boldify24.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="9d70681b28dd0bc770c4b662597e22e0"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="427"
+   name="mknhood.m"
+   text-time="2007-10-09T21:14:33.000000Z"
+   committed-date="2007-10-09T03:04:04.502839Z"
+   checksum="dae7800e112645501414cb02641cb9f1"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-10-09T21:14:33.000000Z"/>
+<entry
+   committed-rev="2"
+   name="xcorr3valid.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="fc310d419be2b3dee91242eabdb34e7b"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="10"
+   name="convn_fast.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-01-17T18:57:23.737098Z"
+   checksum="37c0d2aa506faffcff18c47afa8372a5"
+   last-author="viren"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="138"
+   name="upsmpl3.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T00:42:02.580339Z"
+   checksum="784c4e2853c278c261e9abefdb41bd78"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="14"
+   name="convn_frequency.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-01-17T19:24:32.198974Z"
+   checksum="3038bdd59eeb030541ea877edd3a3b7b"
+   last-author="viren"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="xcorr4valid_slow.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="58177f5654d15bb9c1930e9a79acffbc"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="138"
+   name="delete_components.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T00:42:02.580339Z"
+   checksum="75f4702938532c4153dc2090266e8a15"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="530"
+   name="df_square_loss.m"
+   text-time="2008-02-21T20:04:50.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="833625aafb2facee7ecf88253895793e"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="550"
+   name="read_jboost_output.m"
+   text-time="2008-07-15T15:54:54.000000Z"
+   committed-date="2008-07-17T02:40:18.965015Z"
+   checksum="ba71bcd4b377e2cfa28f1d40bfdce286"
+   last-author="viren"
+   kind="file"
+   revision="550"/>
+<entry
+   committed-rev="2"
+   name="xcorrn.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="94f3303b6f3f85d615160614f69a9193"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="montage2.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="0494f9bca740f250c3820b968c3c199e"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="141"
+   name="get_username.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T01:43:53.666668Z"
+   checksum="aa73db12c1a114a1c5086d9facac9ce6"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="397"
+   name="xcorr4valid_freq.m"
+   text-time="2007-08-14T00:04:50.000000Z"
+   committed-date="2007-08-11T17:40:12.065360Z"
+   checksum="955e2434dcdbc46a3bbc0b49529a29e8"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-08-14T00:04:50.000000Z"/>
+<entry
+   committed-rev="530"
+   name="adjust_stack.m"
+   text-time="2007-09-05T16:54:28.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="64ab0c5fae7ed2b9c91750863e59b455"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="428"
+   name="upSmpl.m"
+   text-time="2007-10-09T21:14:33.000000Z"
+   committed-date="2007-10-09T03:04:26.385926Z"
+   checksum="f082a61a7fc0f68ca3dba3e70d1c1aea"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-10-09T21:14:33.000000Z"/>
+<entry
+   committed-rev="2"
+   name="circ.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="4218898e8a130cd3d8fb7d127448883c"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="10"
+   name="comp2mat.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-01-17T18:57:23.737098Z"
+   checksum="2f01819d15a036f6539dd43cac25a6df"
+   last-author="viren"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="mkConnLabel.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="5f7a8f18d10f250707ad702ceb1d69fd"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="507"
+   name="conv4valid_freq.m"
+   text-time="2008-02-01T18:04:10.000000Z"
+   committed-date="2008-02-01T01:38:21.608239Z"
+   checksum="753414aed38371ff76f0b93de3759faf"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2008-02-01T18:04:10.000000Z"/>
+<entry
+   committed-rev="555"
+   name="test_fun.m"
+   text-time="2008-07-30T22:21:21.000000Z"
+   committed-date="2008-08-01T00:33:24.581460Z"
+   checksum="683478176f858894ae4479e8bd4f82a6"
+   last-author="viren"
+   kind="file"
+   revision="555"/>
+<entry
+   committed-rev="2"
+   name="boldify.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="f51dcbc8a5d16c42676a8bb189c6ef1a"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="mkSymmConn.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="9f995a5c440f8f86c3039e8634ad9732"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="530"
+   name="sigmoid.m"
+   text-time="2008-02-21T20:00:33.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="902d769a7454cd354f7c2415a2f38586"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="428"
+   name="dnSmpl.m"
+   text-time="2007-10-09T21:14:33.000000Z"
+   committed-date="2007-10-09T03:04:26.385926Z"
+   checksum="8bc5e9d7a476db99106bc76cf8d340b2"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-10-09T21:14:33.000000Z"/>
+<entry
+   committed-rev="2"
+   name="double_im.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="6acb49df8fb42c6210417a4330465caf"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="arraycrop2dims.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="b262ec4d60d2136c052c72ad3c7997ba"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="xcorr4valid.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="d3632ab19097c3601cb7fee0c0c05994"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="530"
+   name="df_sigmoid.m"
+   text-time="2008-02-21T20:05:01.000000Z"
+   committed-date="2008-06-24T17:39:13.772332Z"
+   checksum="ba04129a38819e86a11dcc1d18855e5a"
+   last-author="viren"
+   kind="file"
+   revision="530"/>
+<entry
+   committed-rev="2"
+   name="takeAway.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="269480d8f461d2def840cd793d54d1f0"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="flipdims.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="3ed5f8c419667e990455ef65ca7c9a21"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="56"
+   name="stack_min.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-02-08T20:19:31.508958Z"
+   checksum="a06b98df6f54a4d9669d820a25e2ae51"
+   last-author="viren"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="normcol.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="dac642958e918f79922ace15683e11cc"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="269"
+   name="rotateticklabel.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-04-15T18:46:41.134285Z"
+   checksum="07e50ac4f36f857f2bab70e4d4ed81a6"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="56"
+   name="stack_max.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-02-08T20:19:31.508958Z"
+   checksum="186c156bb0ec896f72baa853b6e8b3f8"
+   last-author="viren"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="checknumericargs.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="d09429f1dffb570d96cdae2e6899f3d2"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="2"
+   name="MakeConn3Label.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2006-11-15T21:18:29.030906Z"
+   checksum="e25f4da673e72629fcd5dc01a2943633"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="138"
+   name="tovec.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T00:42:02.580339Z"
+   checksum="c76f1852b11d26869215b88e0e467991"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="138"
+   name="dnsmpl3.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-03-23T00:42:02.580339Z"
+   checksum="9b8ab087a98e11d42e6395c2889e8d6b"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="29"
+   name="conn2mat.m"
+   text-time="2007-04-23T16:41:13.000000Z"
+   committed-date="2007-01-31T03:23:41.102106Z"
+   checksum="7d677f9a3ddb16fdbaed383de41eca97"
+   last-author="sturaga"
+   kind="file"
+   prop-time="2007-04-23T16:41:13.000000Z"/>
+<entry
+   committed-rev="555"
+   name="bundle_and_distribute_worker.m"
+   text-time="2008-07-30T22:33:35.000000Z"
+   committed-date="2008-08-01T00:33:24.581460Z"
+   checksum="738eeb3937aee0162915b7d73b04bf07"
+   last-author="viren"
+   kind="file"
+   revision="555"/>
+</wc-entries>

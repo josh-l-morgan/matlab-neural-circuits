@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<OverDriveMedia id="4729935A-EA3D-42C0-A898-06512F0F8E27-25" ODMVersion="1.0.0.0" OMCVersion="2.1.0.0">
+	<WMLicense>
+		<AcquisitionUrl>http://ofs.contentreserve.com/WM/WMLicense?AcquisitionID={7e3e1e0c-77f4-4070-8cc7-cbcb6316a35b}</AcquisitionUrl>
+	</WMLicense>
+<![CDATA[<Metadata>	<ContentType>Audio Book</ContentType>	<Title>Tell Me A Story</Title>	<SubTitle>Timeless Folktales From Around The World</SubTitle>	<SortTitle>Tell Me A Story</SortTitle>	<Publisher>Listen &amp; Live Audio, Inc.</Publisher>	<ThumbnailUrl>http://images.contentreserve.com/ImageType-200/0482-1\{4729935A-EA3D-42C0-A898-06512F0F8E27}Img200.jpg</ThumbnailUrl>	<Creators>		<Creator role="Author" file-as="Fiedman, Amy">Amy Fiedman</Creator>	</Creators>	<Subjects>		<Subject id="26">Fiction</Subject>		<Subject id="105">Folklore</Subject>	</Subjects>	<Languages>		<Language code="en">English</Language>	</Languages><Description>&lt;p&gt;This wonderful program contains eight magical folktales read by stage and screen&#39;s most talented actors, and music by renowned composer Laura Hall will delight listeners from 5 to 95. From the banks of the mighty Mississippi to a sparkling stream in Kyoto, from the misty moors of Scotland to Africa&#39;s folktale forests, listeners will be transported as legendary heroes, mythical maidens and talented tricksters weave their magic. The compilation is funny, wise, and richly compelling.</Description></Metadata>]]>
+	<DrmInfo><PlayOnPC>1</PlayOnPC><PlayOnPCCount>-1</PlayOnPCCount><BurnToCD>1</BurnToCD><BurnToCDCount>-1</BurnToCDCount><PlayOnPM>1</PlayOnPM><TransferToSDMI>1</TransferToSDMI><TransferToNonSDMI>1</TransferToNonSDMI><TransferCount>-1</TransferCount><CollaborativePlay>0</CollaborativePlay><PublicPerformance>0</PublicPerformance><TranscodeToAAC>1</TranscodeToAAC><ExpirationDate>2010-04-01T02:28:14Z</ExpirationDate><Hash>QQ0t2PBd46EwQVDe7pI8EWi4P+8=</Hash><Hash2>UnCCiPydDkSJSXU3soW8mnfBNvk=</Hash2></DrmInfo>
+	<Formats>
+		<Format name="Medium Quality">
+			<Quality level="Medium"/>
+			<Protocols>
+				<Protocol method="download" baseurl="http://wm.contentreserve.com/WMStore1"/>
+			</Protocols>
+			<Parts count="1">
+				<Part number="1" filesize="17380003" name="Part 1" filename="0482-1\{4729935A-EA3D-42C0-A898-06512F0F8E27}Fmt25-Part01.wma" duration="70:51"/>
+			</Parts>
+		</Format>
+	</Formats>
+	<Source id="Seattle">
+		<Name>The Seattle Public Library</Name>
+		<WebsiteUrl>http://spl.lib.overdrive.com</WebsiteUrl>
+		<BannerUrl>http://spl.lib.overdrive.com/ODMBanner.gif</BannerUrl>
+		<AccentColor>#eeeeee</AccentColor>
+	</Source>
+</OverDriveMedia>

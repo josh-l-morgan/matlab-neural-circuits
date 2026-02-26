@@ -1,0 +1,29 @@
+
+
+% TPNs={};
+% while 1
+%     tempPN=GetMyDir;  
+%     if length(tempPN) == 2, break, end
+%     TPNs{length(TPNs)+1,1}=tempPN;
+% end
+
+for i= 1:length(TPNs)
+   TPNs{i}
+   anaSkTC(TPNs{i}) 
+end
+
+
+for i= 1:length(TPNs)
+   TPNs{i}
+   load([TPNs{i} 'data\TotalLength.mat'])
+   TL{i}=TotalLength;
+end
+
+Results=[TPNs TL']
+
+
+%% Retrieve Length
+TPN=GetMyDir
+   load([TPN 'data\TotalLength.mat'])
+   TotalLength 
+

@@ -1,0 +1,673 @@
+%%Plot density of synapses relative to the RGC synapses
+
+global glob tis
+
+clf
+if 0
+    global glob tis
+
+    figure
+    SPN = [glob.datDir 'Analysis\Data\preproc\'];
+    load([SPN 'ptDat.mat']);
+    load([SPN 'ROI.mat']);
+    %load([SPN 'ROI2.mat']);
+    load([SPN 'SOI.mat']);
+    load([SPN 'GOI.mat']);
+    load([SPN 'NOI.mat']);
+    load([SPN 'MOI.mat']);
+    load([SPN 'COI.mat']);
+
+
+
+    %%Load all sms
+    smDir = [glob.dir.Volumes  glob.vol.activeName '\Analysis\SMs\'];
+    clear sms
+    roiCid = ptDat(:,3);
+    runCids = unique(roiCid);%MOI.cids;
+    for i = 1:length(runCids);
+        cid = runCids(i);
+        %%Get distances between nodes
+        disp(sprintf('loading data for cell %d.  Cell %d of %d.',cid,i,length(runCids)));
+        fileName = sprintf('sm_cid%d.mat',cid);
+        useSM(i) = 1;
+        %sm = load([smDir fileName],'skel2skel','nep','syn2skel','syn');
+        load([smDir fileName]);
+%         sm.nep.swcS = nep2swc(sm.nep);
+%         save([smDir fileName],'sm','-v7.3')
+        sms(i).sm = sm;
+    end
+
+end
+
+captureLength = 10; % How long a length of neurite to collect (from tip to upstream nodes)
+reuseNodes = 1; % allow the same nodes (and synapses) to be analyzed for multiple tips
+stopAtBranch = 0; % stop collecting neurite when you hit a branch
+normalizeToLastSyn = 0; % set synapse (bip) nearest to tip as zero position
+mustBeLong = 0; % neurite must be as long as capture length to be analyzed
+useGroup = 0; %only use neurites containing particular combinations of synapses
+tipL = 10; % length of tip used to define synapse groups
+
+clear n arborLength cellSyn8Num
+c = 0; %count tips
+for i  = 1:length(sms)
+
+    sm = sms(i).sm;
+    nep = sm.nep;
+    swc = sm.nep.swcS;
+    pred = swc.pred + 1;
+    wPos = swc.pos;
+    pos = nep.pos;
+    closest = sm.syn2Skel.closest;
+    syn = sm.syn;
+
+    %%Cell stats
+    arborLength(i) = sum(nep.props.nodeLength);
+    cellSyn8Num(i) = sum(syn.preClass~=8);
+
+    check = pred * 0 + 1;
+    uNodes = 1:length(pred);
+    hNodes = hist(pred,uNodes);
+    tips = find(hNodes == 0);
+    branches = hNodes >1;
+    
+    %% calculate downstream weights
+    tipD = pred*0;
+    tipD(tips) = 1;
+    predC = pred;
+    predC(1) = 1; %conditioned pred list
+
+    for p = 1:length(pred)
+        pTipD = tipD(predC);
+        isSmaller = pTipD<tipD;
+        if sum(isSmaller)
+            tipD(pred(isSmaller)) = pTipD(pred(isSmaller)) + 1;
+        else
+            break
+        end
+    end
+
+    clf
+    scat = scatter(wPos(:,1),wPos(:,2),'.','k')
+    scat.CData = tipD;
+    hold on
+    scatter(wPos(tips,1),wPos(tips,2),'o','g','filled')
+    scatter(wPos(find(pred==0),1),wPos(find(pred==0),2),'o','r','filled')
+
+    hold off
+    pause(.01)
+ 
+    useSynStart = find(sm.syn.postClass==1); %% get synapse idx that innervate RGC
+    refPos = syn.pos(useSynStart,:);
+
+    refNodes  = swc.arbor2swcID(closest(useSynStart)); %% get swc space nodes for those synapses
+    %tips = tips(randperm(length(tips)));
+    %%search back wards
+    for t = 1:length(refNodes)
+        %disp(sprintf('tip %d of %d',t,length(tips)))
+        nodeList = refNodes(t);
+        nodeL1 = 0;
+        L = 0;
+        last = nodeList;
+        check(last) = 0;
+        for p = 1:length(pred)
+
+            next = pred(last);
+            if next<1
+                break
+            end
+
+            dist = sqrt((wPos(last,1)-wPos(next,1)).^2 + ...
+                (wPos(last,2)-wPos(next,2)).^2 + ...
+                (wPos(last,3)-wPos(next,3)).^2);
+            L = L + dist;
+
+            shouldBreak = 0;
+            if~reuseNodes & ~check(next)
+                shouldBreak = 1;
+            end
+            if stopAtBranch & branches(next)
+                shouldBreak = 1;
+            end
+            if L>captureLength
+                shouldBreak = 1;
+            end
+
+            if shouldBreak
+                break
+            else
+                check(next) = 0;
+                nodeList = [nodeList next];
+                last = next;
+                nodeL1 = [nodeL1 L];
+            end
+
+        end
+        nodes1 = swc.swc2arborID(nodeList); %translate back to arbor node list
+
+        %%search back wards
+        %disp(sprintf('tip %d of %d',t,length(tips)))
+        nodeList = refNodes(t);
+        nodeL2 = 0;
+        L = 0;
+        last = nodeList;
+        check(last) = 0;
+        for p = 1:length(pred)
+
+            next = find(pred==last); %
+            if length(next)>1 %if branch point, pick longest
+                downStreamCount = tipD(next);
+                next = next(find(downStreamCount==max(downStreamCount),1));
+            end
+            if next<1
+                break
+            end
+
+            dist = sqrt((wPos(last,1)-wPos(next,1)).^2 + ...
+                (wPos(last,2)-wPos(next,2)).^2 + ...
+                (wPos(last,3)-wPos(next,3)).^2);
+            L = L + dist;
+
+            shouldBreak = 0;
+            if~reuseNodes & ~check(next)
+                shouldBreak = 1;
+            end
+            if stopAtBranch & branches(next)
+                shouldBreak = 1;
+            end
+            if L>captureLength
+                shouldBreak = 1;
+            end
+
+            if shouldBreak
+                break
+            else
+                check(next) = 0;
+                nodeList = [nodeList next];
+                last = next;
+                nodeL2 = [nodeL2 L];
+            end
+
+            if isempty(last)
+                break
+            end
+        end
+        nodes2 = swc.swc2arborID(nodeList); %translate back to arbor node list
+        nodes = [nodes1  nodes2];
+        nodeL = [nodeL1 -nodeL2];
+
+
+        %lookup syns using closest nodes
+        synList = []; 
+        synL = [];
+        for s = 1:length(nodes)
+            syns = find(closest == nodes(s));
+            syns = setdiff(syns,useSynStart(t)); % pull out self
+            synList = [synList syns'];
+            synL = [synL syns' * 0 + nodeL(s)];
+        end
+        
+
+
+        if 0 %Show nodes
+            clf
+            scatter(pos(:,1),pos(:,2),'.','k')
+            hold on
+            scatter(pos(refNodes,1),pos(refNodes,2),'o','g','filled')
+            scatter(pos(nodes1,1),pos(nodes1,2),'o','r','filled')
+            scatter(pos(nodes1(1),1),pos(nodes1(1),2),100,'d','m','filled')
+              scatter(pos(nodes2,1),pos(nodes2,2),'o','m','filled')
+            scatter(pos(nodes2(1),1),pos(nodes2(1),2),100,'d','g')
+            scatter(syn.pos(synList,1),syn.pos(synList,2),'s','b','filled') %found synapses
+            scatter(refPos(:,1),refPos(:,2),200,'o','b') %all reference points
+            scatter(refPos(t,1),refPos(t,2),200,'d','r') %current synapse
+            hold off
+            ylim([refPos(t,2)-5 refPos(t,2)+5])
+            xlim([refPos(t,1)-5 refPos(t,1)+5])
+
+            pause(.01)
+        end
+
+        if isempty(synList)
+            synType = [];
+        else
+            cid = sm.cid;
+            isOut = sm.syn.pre(synList) == cid;
+            synClasses = [sm.syn.preClass(synList) sm.syn.postClass(synList)];
+            synIDs =  [sm.syn.pre(synList) sm.syn.post(synList)];
+            partID = synIDs(sub2ind(size(synIDs),1:size(synIDs,1),isOut'+1));
+            partClass = synClasses(sub2ind(size(synIDs),1:size(synIDs,1),isOut'+1));
+            synType = isOut * 100 + partClass';
+            synType(synType == 0) = 8; %assume unknown ins are amacrines
+
+            %Check for redundant synapse
+            onTop = find((synType' == 101) & (synL == 0));
+            ok = setdiff(1:length(synType),onTop);
+            if onTop
+                syn.synPosRaw(synList(onTop),[2 1 3])
+                'bark'
+
+            end
+            synList = synList(ok);
+            synType = synType(ok);
+            synL = synL(ok);
+        end
+
+
+        %%Get branches
+           isBranch = find(branches(nodeList));
+
+        %%Record neurite
+        c = c+1;
+        n(c).L = L;
+        n(c).nodeList = nodeList;
+        n(c).cid = sm.cid;
+        n(c).synList = synList;
+        n(c).synL = synL;
+        n(c).isOut = isOut;
+        n(c).partID = partID;
+        n(c).partClass = partClass;
+        n(c).nodes = nodes;
+        n(c).nodeL = nodeL;
+        n(c).nodeLength = nep.props.nodeLength(n(c).nodes);
+        n(c).synType = synType;
+        n(c).branches = nodeList(isBranch);
+        n(c).branchL = nodeL(isBranch);
+
+    end
+    scatter(wPos(:,1),wPos(:,2),'.','k')
+    hold on
+    scatter(wPos(check==0,1),wPos(check==0,2),'.','r','filled')
+    hold off
+    pause(1)
+
+end
+
+
+
+if normalizeToLastSyn
+    for i = 1:length(n)
+        isBip = find(n(i).synType == 7);
+        if ~isempty(isBip)
+            minL = min(n(i).synL(isBip));
+            n(i).synL = n(i).synL - minL;
+            n(i).nodeL = n(i).nodeL - minL;
+            n(i).branchL = n(i).branchL - minL;
+        end
+    end
+end
+
+
+allTypes = cat(1,n(:).synType);
+%uTypes = unique(allTypes);
+
+uTypes = [7 8 101 108];
+hTypes = hist(allTypes,uTypes);
+bar(hTypes)
+clear typeLab
+for i = 1:length(uTypes)
+    typeLab{i} = num2str(uTypes(i));
+end
+xticklabels(typeLab)
+
+
+%% Analyze synapse combinations
+
+
+sg{1} = [7 8 101];
+sg{2} = [7 101];
+sg{3} = [7 8];
+sg{4} = [8 101];
+sg{5} = 7;
+sg{6} = 8;
+sg{7} = 101;
+sg{8} = 108;
+sg{9} = 100;
+sg{10} = [];
+
+nGroup = zeros(length(n),1);
+isMultiple = nGroup;
+for i = 1:length(n)
+
+    hitS = n(i).synL<=tipL;
+    hitT = n(i).synType(hitS);
+    uT = unique(hitT);
+
+    if length(hitT)>length(uT)
+        isMultiple(i) = 1;
+    end
+
+    for g = 1:length(sg)
+        intT = intersect(sg{g},uT);
+        if length(intT) == length(sg{g})
+            nGroup(i) = g;
+            break
+        end
+    end
+
+end
+
+fractionMultiple = mean(isMultiple)
+hTypes = hist(nGroup,1:length(sg))
+bar(hTypes)
+
+
+%% Pick tips
+useT = 1:length(n);
+if useGroup
+    isGroup = find(nGroup == useGroup);
+    useT = intersect(useT,isGroup);
+end
+if mustBeLong
+    La = [n(:).L];
+    longEnough = find(La>=captureLength);
+    useT = intersect(useT,longEnough);
+end
+
+%% quantify by bins
+subplot(2,1,1)
+bin = 2;
+binS = [-captureLength:.1:captureLength ];
+clear nB
+
+for uC = 1:length(useT)
+    c = useT(uC);
+    clear bL bS bT bB
+    for b = 1:length(binS)
+        nodeHit = find((n(c).nodeL >= (binS(b)-bin/2)) & (n(c).nodeL < (binS(b) + bin/2)));
+        sHit = find((n(c).synL >= (binS(b)-bin/2)) & (n(c).synL < (binS(b) + bin/2)));
+        hitType = n(c).synType(sHit);
+        hType = hist(hitType,uTypes);
+        bT(:,b) = hType;
+        bL(b) = sum(n(c).nodeLength(nodeHit));
+        bS(b) = length(sHit);
+        bB(b) = length(find((n(c).branchL >= binS(b)) & (n(c).branchL < (binS(b) + bin))));
+
+    end
+    nB(uC).bL = bL; %total length at that position
+    nB(uC).bS = bS; %Total synapses number
+    nB(uC).bT = bT; %Synapse number for each type
+    nB(uC).bB = bB; %Branch points
+
+end
+
+bLa  = cat(1,nB(:).bL);
+bSa = cat(1,nB(:).bS);
+bTa = cat(3,nB.bT);
+bDa = sum(bSa,1)./sum(bLa,1);
+bBa = cat(1,nB(:).bB);
+bNs = sum(bLa>0,1);
+
+cla
+typeCol = [0 .8 0; .8 0 0 ;0 0 .8; .8 0 .8];
+hold on
+for i = 1:length(uTypes)
+    typeS = squeeze(bTa(i,:,:))';
+    clear meanDs seDs
+    for b = 1:size(typeS,2) %calculate mean and standard error for each
+
+        useN = find(bLa(:,b) >0);
+        if isempty(useN)
+            typeDs = [];
+            meanDs(b) = 0;
+            seDs(b) = 0;
+        else
+            typeDs = typeS(useN,b)./bLa(useN,b);
+            meanDs(b) = mean(typeDs);
+            seDs(b) = std(typeDs)/sqrt(length(typeDs));
+        end
+        
+    end
+
+    seLow = meanDs - seDs;
+    seHigh = meanDs + seDs;
+    Y = [seLow fliplr(seHigh)];
+    X = [binS fliplr(binS)]
+    fill(X,Y,typeCol(i,:),'FaceAlpha', .2,'linestyle','none')
+    plot(binS,meanDs,'color', typeCol(i,:))
+end
+%legend({'seBip';'bip';'seAmcIn';'amcIn';'seRgcOut';'rgcOut';'seAmcOut';'amcOut'})
+
+%plot(binS,sum(bBa,1)./sum(bLa,1),'color','k')
+%%ylim([0 .3])
+pause(1)
+
+str = sprintf('N = %d, reuse = %d, stopAtBranch = %d, mustBeLong = %d, filterGroups = %d',...
+    length(useT),reuseNodes, stopAtBranch, mustBeLong, useGroup);
+title(str)
+
+
+%% quantify by chunks
+chunks = [0 .25; .25 .5; 2 8];
+Y = get(gca,'YLim');
+for i = 1:size(chunks,1)
+    plot([chunks(i,1) chunks(i,1)],Y,'k')
+    plot([chunks(i,2) chunks(i,2)],Y,'k')
+end
+
+
+subplot(2,1,2)
+
+clear nC
+
+for uC = 1:length(useT)
+    c = useT(uC);
+    clear bT bL bS bB
+    for b = 1:size(chunks,1)
+        nodeHit = find((n(c).nodeL >= (chunks(b,1))) & (n(c).nodeL < (chunks(b,2))));
+        sHit = find((n(c).synL >= (chunks(b,1))) & (n(c).synL < (chunks(b,2))));
+        hitType = n(c).synType(sHit);
+        hType = hist(hitType,uTypes);
+        bT(:,b) = hType;
+        bL(b) = sum(n(c).nodeLength(nodeHit));
+        bS(b) = length(sHit);
+        bB(b) = length(find((n(c).branchL >= binS(b)) & (n(c).branchL < (binS(b) + bin))));
+      
+
+    end
+    nC(uC).bL = bL; %total length at that position
+    nC(uC).bS = bS; %Total synapses number
+    nC(uC).bT = bT; %Synapse number for each type
+    nC(uC).bB = bB; %Branch points
+
+end
+
+cLa  = cat(1,nC(:).bL);
+cSa = cat(1,nC(:).bS);
+cTa = cat(3,nC.bT);
+cDa = sum(cSa,1)./sum(cLa,1);
+cBa = cat(1,nC(:).bB);
+cNs = sum(cLa>0,1);
+
+cla
+hold on
+clear sub
+for s = 1:size(chunks,1);
+    sub(s) = subplot(2,size(chunks,1),size(chunks,1) + s);
+    ax(s) = gca;
+    title(sprintf('chunk %0.02f to %0.02f',chunks(s,1),chunks(s,2)))
+    hold on
+end
+
+
+pieDs = []
+for i = 1:length(uTypes)
+    typeS = squeeze(cTa(i,:,:))';
+    clear meanDs seDs allDs
+    for b = 1:size(typeS,2) %calculate mean and standard error for each
+        useN = cLa(:,b) >0;
+        typeDs = typeS(useN,b)./cLa(useN,b);
+        meanDs(b) = mean(typeDs);
+        seDs(b) = std(typeDs)/sqrt(length(typeDs));
+        allDs{b} = typeDs;
+        
+    end
+
+        pieDs(i,:) = meanDs;
+
+    seLow = meanDs - seDs;
+    seHigh = meanDs + seDs;
+    
+    for s = 1:length(sub)
+        Ds = allDs{s};
+        %bar(sub(s),i,meanDs(s),'facecolor',typeCol(i,:))
+        swarmchart(ax(s),zeros(length(Ds),1)+i,allDs{s},'markerfacealpha',.2,...
+            'markerfacecolor',typeCol(i,:),'markeredgecolor','none')
+        scatter(ax(s),i,mean(Ds),300,'+','k')
+        %ylim(sub(s),[0 .5])
+    end
+
+%     Y = [seLow fliplr(seHigh)];
+%     X = [1:size(chunks,1) size(chunks,1):-1:1]
+%     fill(X,Y,typeCol(i,:),'FaceAlpha', .2,'linestyle','none')
+%     plot(1:size(chunks,1) ,meanDs,'color', typeCol(i,:))
+end
+%legend({'seBip';'bip';'seAmcIn';'amcIn';'seRgcOut';'rgcOut';'seAmcOut';'amcOut'})
+
+pause(1)
+%% pies
+
+for i = 1:size(pieDs,2)
+    hold(ax(i),'off')
+    pieD = pieDs(:,i);
+    pieD = pieD/sum(pieD);
+    pChart = pie(ax(i),pieD,typeLab)
+    c = 0;
+    for p = 1:length(pChart)
+        if strcmp(class(pChart(p)),    'matlab.graphics.primitive.Patch')
+            c = c+1;
+            pChart(p).FaceColor = typeCol(c,:);
+        end
+    end
+
+end
+
+%% display
+subplot(2,1,2)
+
+if 0
+    Ls = [n(:).L];
+    isLong = find(Ls>=captureLength);
+    isLong = isLong(1:min(100,length(isLong)));
+    useT = isLong;
+elseif 0
+    useT = [];
+    for t = 1:length(n)
+        isType = find(n(t).synType);
+        typeL = n(t).synL(isType);
+        if sum(typeL)
+            useT = [useT t];
+        end
+    end
+end
+
+showT = useT(1:min(100,length(useT)));
+
+clear scatSynType
+scatSynType{length(uTypes)} = [];
+scatSynTip = scatSynType;
+scatBranchT = [];
+scatBranchL = [];
+allNodeL = [];
+allNodeT = [];
+for t = 1:length(showT)
+    tip = showT(t);
+    for i = 1:length(uTypes)
+        isType = find(n(tip).synType == uTypes(i))';
+        scatSynType{i} = [scatSynType{i}  n(tip).synL(isType)];
+        scatSynTip{i} = [scatSynTip{i} isType*0+t];
+    end
+    scatBranchL = [scatBranchL n(tip).branchL];
+    scatBranchT = [scatBranchT n(tip).branchL * 0 + t];
+    allNodeL = [allNodeL n(tip).nodeL];
+    allNodeT = [allNodeT n(tip).nodeL * 0 + t];
+end
+
+cla
+scatter(allNodeT, allNodeL,'|','k')
+hold on
+%scatter(scatBranchT, scatBranchL,'x')
+hold on
+for i = 1:length(uTypes)
+    scatter(scatSynTip{i},scatSynType{i},10,'o','markerfacecolor',typeCol(i,:),...
+        'markeredgealpha',0)
+end
+
+
+
+a = gca;
+% a.XGrid = 'on';
+% a.XTick = [1:length(isLong)];
+% a.YLim = [-0.1 captureLength];
+a.XTickLabel = []
+
+
+
+
+%% Print figure
+if 0
+fDir = uigetdir;
+filename = [fDir 'tipProfile']
+set(gcf,'renderer','Painters')
+print('-depsc','-tiff','-r300', '-painters',[filename,'.eps'])
+
+end
+
+
+
+
+%% describe path between synapses
+clear upL upS downL downS
+upB = zeros(length(n),1,'logical');
+downB = upB;
+upL = zeros(length(n),1);
+upS = upL; downL = upL; downS =  upL;
+for i = 1:length(n)
+    nt = n(i);
+    
+    upBip = find((nt.synType == 7) & (nt.synL' >=0));
+    if ~isempty(upBip)
+        upB(i) = 1;
+        upL(i) = min(nt.synL(upBip));
+        upS(i) = sum((nt.synType == 8) & (nt.synL' < upL(i)) & (nt.synL' > 0));
+    end
+
+    downBip = find((nt.synType == 7) & (nt.synL' <0));
+    if ~isempty(downBip)
+        downB(i) = 1;
+        downL(i) = max(nt.synL(downBip));
+        downS(i) = sum((nt.synType == 8) & (nt.synL' > downL(i)) & (nt.synL' < 0));
+    end
+end
+
+%%Only use bips at least 1 um away
+upB = upB & (upL > 1);
+downB = downB & (downL < -1);
+
+upB = upB & (upL < 5);
+downB = downB & (downL > -5);
+
+
+meanUpB = mean(upB);
+meanDownB =  mean(downB);
+upD = upS(upB)./(upL(upB)+0.1);
+downD = downS(downB)./(downL(downB)+0.1);
+mean(upD)
+std(upD)/sqrt(length(upD))
+mean(downD)
+std(downD)/sqrt(length(downD))
+allD = [upD; abs(downD)];
+mean(allD)
+std(allD)/sqrt(length(allD))
+
+%%Cell stats
+arborLength
+cellSyn8Num
+
+cellSyn8Num./arborLength
+totDensity = sum(cellSyn8Num)/sum(arborLength);
+clf
+scatter(upL(upB),upS(upB),'.')
+hold on
+plot([0:10],[0:10]*totDensity)
+hold off
+

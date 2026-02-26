@@ -1,0 +1,74 @@
+%% Seperate signals from two sources that are mixed into two channels. 
+
+%% Get image
+clear all
+
+colormap gray(256)
+[DFN DPN] = uigetfile;
+TargFile=[DPN DFN]
+
+Iall = tiffread2(TargFile);
+for i = 1: size(Iall,2)
+I(:,:,i)=Iall(i).data;
+end
+
+r=I(:,:,1:size(I,3)/2);
+g=I(:,:,size(I,3)/2+1:size(I,3));
+g=double(g);
+r=double(r);
+
+%% Define rats
+RedSig=[80 116];
+GreenSig=[33 87];
+BackSig=[18 7];
+
+
+RedSig2=RedSig-BackSig;
+GreenSig2=GreenSig-BackSig;
+
+RedS=RedSig2./(RedSig2 + GreenSig2);
+GreenS=GreenSig2./(RedSig2+GreenSig2);
+
+
+% Runscaled = [Rg; Rr];
+% Rlength = sqrt(Runscaled'*Runscaled);
+% Ru = Runscaled / Rlength;
+% 
+% Gunscaled = [Gg; Gr];
+% Glength = sqrt(Gunscaled'*Gunscaled);
+% Gu = Gunscaled / Glength;
+% 
+% A = [Ru Gu];
+
+A = [RedS; GreenS];
+
+
+[ys xs zs]=size(r);
+nPixel = numel(r);
+
+b = [g(:)'-BackSig(1); r(:)'-BackSig(2)];
+
+
+x = A\b;
+
+xR=zeros(ys, xs, zs);
+xR(:)=x(1,:);
+
+xG=xR;
+xG(:)=x(2,:);
+
+
+S1 = xG;
+S2 = xR;
+
+image(max(S1,[],3)/50)
+image(max(S2,[],3)/50)
+
+C(:,:,1)=max(S1,[],3)*300/max(S1(:))-20;
+C(:,:,2)=max(S2,[],3)*256/max(S2(:));
+C(:,:,3)=C(:,:,2);
+image(uint8(C))
+
+
+
+

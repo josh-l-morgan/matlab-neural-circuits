@@ -1,0 +1,95 @@
+%%Get Numbers for Inner Half, Outer Half, Inner Third, Outer Third, 
+%%inner half - CB, Outer Half / Inner Half - CB
+
+clear all
+
+
+load('UseCells.mat')
+
+II=.1; %inner boarder
+
+for k = 1:size(UseCells,1)
+    k
+    TPN = char(UseCells(k));
+     
+    %% Run from areas
+    load([TPN 'CA.mat'])
+    load([TPN 'Grad.mat'])
+    load([TPN 'Use.mat'])
+    Outer=Grad.Outer;
+    
+    %Fix if BI
+    if size(CA.Arbor,2)>2
+        Area=CA.Arbor(2).Territory+CA.Arbor(3).Territory;
+        DotsA=CA.Arbor(2).DotMap + CA.Arbor(3).DotMap;
+        DendA=CA.Arbor(2).DendMap + CA.Arbor(3).DendMap;
+        
+    else
+        Area=CA.Arbor(1).Territory;
+        DotsA=CA.Arbor(1).DotMap;
+        DendA=CA.Arbor(1).DendMap;
+    end
+    
+    
+    DistMap=zeros(size(Area));
+    for y = 1:size(Area,1)
+        for x = 1: size(Area,2)
+            DistMap(y,x)=sqrt((y-Use.Cent(1))^2+(x-Use.Cent(2))^2);
+        end
+    end
+    
+    image(((DistMap>10) & (DistMap<(Outer)))*50+Area*50),pause(.01)
+    
+    Near=(DistMap>10) & (DistMap<(Outer/2));
+    Far=(DistMap>(Outer/2));
+    
+    for i = 11:Outer
+        BinD=(DistMap>=(i-5) & DistMap<=(i+5));
+        Bdot(i-10)=sum(sum((DotsA(BinD))))/sum(sum(Area(BinD)));
+        Bdend(i-10)=sum(sum((DendA(BinD))))/sum(sum(Area(BinD)));
+    end
+    BDD=Bdot./Bdend;
+    
+    GradPlot.Bdot=Bdot;
+    GradPlot.Bdend=Bdend;
+    GradPlot.BDD=BDD;
+    save([TPN 'GradPlot.mat'])
+    
+    NormBDD(k,:)=resample(GBDD,90,size(BDD,2));
+    NormBDD(k,:)=NormBDD(k,:)/mean(NormBDD(k,:));
+    
+    NormBdot(k,:)=resample(GBDD,90,size(BDD,2));
+    NormBdot(k,:)=NormBDD(k,:)/mean(NormBDD(k,:));
+    
+    NormBdend(k,:)=resample(GBDD,90,size(BDD,2));
+    NormBdend(k,:)=NormBDD(k,:)/mean(NormBDD(k,:));    
+    
+    %save([TPN 'Grad.mat'],'Grad')
+end
+
+clear NormBDD
+for k = 1: size(UseCells,1);
+    k
+    TPN = char(UseCells(k));
+     
+    %% Run from areas
+    load([TPN 'GradPlot.mat'])
+    load([TPN 'Cell.mat'])
+    
+    Age(k)=str2num(Cell.Age);
+    
+
+end
+
+
+Ages=find(Age>30);
+for i = 1:size(Ages,2)
+   plot(NormBDD(Ages(i),:),'r')
+   hold on   
+end
+
+plot(mean(NormBDD(Age>30,:),1))
+
+hold off
+
+

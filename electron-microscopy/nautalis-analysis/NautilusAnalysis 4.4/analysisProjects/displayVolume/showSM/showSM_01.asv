@@ -1,0 +1,39 @@
+%function[] = showSM_01(cid)
+
+cid = 111222333
+
+
+fileName = sprintf('sm_cid%d.mat',cid);
+if ~exist([WPN 'SMs\' fileName],'file')
+    sm = makeSM(cid);
+else
+    load([WPN 'SMs\' fileName],'sm')
+end
+
+
+clf
+
+%showArbor3D(arbor);
+%showRads3D(sm.arbor); 
+
+%bridgeArbor(arbor)
+%showArbor3D(arbor);
+%showRads3D(arbor); 
+%showRadSurf(pos,edge,rad,nodeCol)
+
+%showArborChunks3D(arbor);
+clf
+vert = sm.show.voxFV.vertices;
+renderFV(sm.show.voxFV,[1 0 0],.2)
+scatter3(vert(:,1),vert(:,2),vert(:,3),'.')
+hold on
+%showArborVox(sm.arbor)
+showRadSurf(sm.nep.pos,sm.nep.edges,sm.nep.nodeRad)
+hold off
+
+
+
+
+
+
+

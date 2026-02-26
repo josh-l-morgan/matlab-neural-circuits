@@ -1,0 +1,78 @@
+function[qual] = checkQuality(TPN)
+
+
+if ~exist('TPN','var')
+    TPN = GetMyDir;
+end
+
+dsamp = 100;  %number of samples in each dimension
+
+%% Get Tiles
+picNams = GetPics(TPN);
+
+ct = 0;
+for i = 1:length(picNams)
+    nam = picNams{i}
+    rs = regexp(nam,'_r');
+    us= regexp(nam,'_');
+    cs = regexp(nam,'-c');
+    if ~isempty(rs) & ~isempty(cs)
+        r = str2num(nam(rs(1)+2:cs(1)-1))
+        c = str2num(nam(cs(1)+2:us(2)-1))
+        ct = ct+1;
+        row(ct) = r;
+        col(ct) = c;
+        nams{ct} = nam;
+    end
+    
+end
+
+if isempty(nams)
+    nams = picNams;
+end
+
+for t = 1:length(nams)
+    
+    sprintf('Running image %d of %d.',t,length(nams))
+    
+    %% Read Kernals
+    checkFile = [TPN nams{t}];
+    tile(t) = checkFileQual(checkFile);
+end
+
+
+%% Organize data
+
+allQual = [tile.quality];
+[sortQual ranks] = sort(allQual);%sort(tile.use.quality,'ascend')
+
+if ct>0
+    
+    qual.row = row;
+    qual.col = col;
+for i = 1:length(allQual)
+    qualMos(row(i),col(i)) = allQual(i);
+    satMos(row(i),col(i)) = tile(i).percentSaturation;
+    globMos(row(i),col(i)) = tile(i).range;
+end
+subplot(1,1,1)
+image(fitH(qualMos))
+
+qual.mos.qualMos = qualMos;
+qual.mos.globMos = globMos;
+qual.mos.satMos = satMos;
+
+end
+
+qual.tile = tile;
+qual.nams = nams;
+
+
+save([TPN 'qual.mat'],'qual')
+
+
+
+
+
+
+

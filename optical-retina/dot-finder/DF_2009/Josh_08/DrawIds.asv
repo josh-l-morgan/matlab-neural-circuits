@@ -1,0 +1,13 @@
+
+TPN = GetMyDir;
+
+load([TPN 'Dots.mat'])
+load([TPN '\find\SG.mat'])
+pass=SG.passF;
+ID=uint8(zeros(Dots.ImSize));
+P=find(pass); %% list of passing puncta
+for i =1:length(P)
+  ID(Dots.Vox(P(i)).Ind)=fix(rand*254)+1; 
+end
+image(max(ID,[],3))
+imwriteNp([TPN 'pics\Ids'],ID,'ID')

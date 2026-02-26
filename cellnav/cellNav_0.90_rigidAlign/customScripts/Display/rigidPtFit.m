@@ -1,0 +1,225 @@
+function[rigid] = rigidPtFit(movePts, fixedPts,showRes)
+
+shouldRotate = 1;
+if ~exist('showRes','var'),showRes = 0;end
+
+
+minPts = 4;
+
+
+%% testdata
+if 0
+    disp('Running on random data')
+    pNum = 20;
+    fixedPts = rand(pNum,2) * 100;
+    mAng = 2;
+    R = [   cos(mAng) -sin(mAng) ;  sin(mAng) cos(mAng)];
+    movePts = fixedPts * R;
+    moveX = rand * 100;
+    moveY = rand * 100;
+    movePts(:,1) = movePts(:,1) + moveY;
+    movePts(:,2) = movePts(:,2) + moveX;
+    scramFrac = 0;
+    movePts = movePts + randn(size(movePts)) * 1;
+    movePts = movePts + (randn(size(movePts)) .* (rand(size(movePts))<scramFrac) * 100);
+
+end
+
+%%
+if ~exist('movePts','var'),
+    pNum = 0;
+else
+    pNum = size(movePts,1);
+end
+rigid.n = pNum;
+rigid.R = [1 0; 0 1];
+rigid.T = [0 0];
+rigid.A = [1 0 0; 0 1 0; 0 0 1];
+rigid.D = [];
+rigid.newD = [];
+rigid.difD = [];
+rigid.betterFrac = 0;
+
+
+if pNum >= minPts
+
+    if pNum == 1
+        rigid.R = [1 0; 0 1];
+        rigid.T = fixedPts - movePts;
+    else
+        if  pNum == 2
+            %% add third reference point to break symmetry
+            mAng = pi/3;
+            tiltR = [   cos(mAng) -sin(mAng) ;  sin(mAng) cos(mAng)];
+            midF = mean(fixedPts,1);
+            normFix = fixedPts-midF;
+            rotFix = normFix * tiltR;
+            newFix = rotFix(1,:) + midF;
+            fixedPts = cat(1,fixedPts,newFix);
+
+            mAng = pi/3;
+            tiltR = [   cos(mAng) -sin(mAng) ;  sin(mAng) cos(mAng)];
+            midF = mean(movePts,1);
+            normFix = movePts-midF;
+            rotFix = normFix * tiltR;
+            newFix = rotFix(1,:) + midF;
+            movePts = cat(1,movePts,newFix);
+
+        end
+
+        %% Define number to use
+        optNum = max(0,pNum - 4);
+        useFrac = mean([1 1 - min(1,optNum/100)]);
+        useNum = ceil(size(movePts,1) * useFrac);
+
+        %% Find rotation
+
+        %%Normalize points
+        meanMove = median(movePts,1);
+        normPts = movePts - meanMove;
+        meanFix = median(fixedPts,1);
+        normFixPts = fixedPts - meanFix;
+
+        %%First rotation
+        rotNum = 100;
+        rotStep = 2 * pi/rotNum;
+        if shouldRotate
+        angles1 = [-pi:rotStep : pi];
+        else
+        angles1 = 0;
+        end
+        V1 = zeros(length(angles1),1);
+        
+        for i = 1:length(angles1)
+            a = angles1(i);
+            R = [   cos(a) -sin(a) ;  sin(a) cos(a)];
+            rotPts = normPts * R;
+            D = sqrt((normFixPts(:,1)-rotPts(:,1)).^2 + (normFixPts(:,2)-rotPts(:,2)).^2);
+            if 0
+                E = D - median(D);
+                [Es idxE] = sort(E,'ascend');
+                V1(i) = var(D(idxE(1:useNum)));
+            else
+                [Es idxE] = sort(D,'ascend');
+                V1(i) = mean(D(idxE(1:useNum)).^2);
+            end
+        end
+
+        %%Second rotation
+        [V1s idxV1] = sort(V1,'ascend');
+        useTop = min(5,length(V1));
+        topA1 = angles1(idxV1(1:useTop));
+        rotNum2 = rotNum^2;
+        rotStep2 = 2 * pi/rotNum2;
+        topA1round = round(topA1/rotStep2)*rotStep2;
+        checkNear = [0:rotStep2:rotStep * 1.2];
+        checkNear = [checkNear -checkNear];
+        checkRots = topA1 + checkNear';
+        checkRots = unique(checkRots(:));
+
+        if shouldRotate
+        angles2 = checkRots;
+        else
+        angles2 = 0;
+        end
+        V2 = zeros(length(angles2),1);
+        for i = 1:length(angles2)
+            a = angles2(i);
+            R = [   cos(a) -sin(a) ;  sin(a) cos(a)];
+            rotPts = normPts * R;
+            D = sqrt((normFixPts(:,1)-rotPts(:,1)).^2 + (normFixPts(:,2)-rotPts(:,2)).^2);
+            if 1
+                E = D - median(D);
+                [Es idxE] = sort(E,'ascend');
+                V2(i) = var(D(idxE(1:useNum)));
+            else
+                [Es idxE] = sort(D,'ascend');
+                V2(i) = mean(D(idxE(1:useNum)).^2);
+            end
+        end
+
+        [V2s idxV2] = sort(V2,'ascend');
+        useTop = min(1,length(V2));
+        topA2 = median(angles2(idxV2(1:useTop)));
+
+        %%Choose best angle
+        bestAngle = topA2;
+
+        %% Find offset
+        R = [   cos(bestAngle) -sin(bestAngle) ;  sin(bestAngle) cos(bestAngle)];
+        bestRotPts = movePts * R;
+
+        difPts = fixedPts-bestRotPts;
+        medDif = mean(difPts,1);
+        E = sqrt((difPts(:,1)-medDif(:,1)).^2 + (difPts(:,2)-medDif(:,2)).^2);
+        [Es idxE] = sort(E,'ascend');
+        useDifPts = difPts(idxE(1:useNum),:);
+        bestDif = median(useDifPts,1);
+       % bestDif = mean(difPts,1); %%!!!!!!!!
+
+        %% Record result
+
+        tm1 = [R(1,:) 0; R(2,:) 0; 0 0 1]^(-1);
+        %tm1 = [R(1,:) 0; R(2,:) 0; 0 0 1]^(-1);
+        tm2 = [1 0 bestDif(1); 0 1 bestDif(2); 0 0 1];
+        A = tm2 * tm1;
+
+        %A = [R(1,:) bestDif(1);R(2,:) bestDif(2);0 0 1]
+        rigid.R = A(1:2,1:2);
+        rigid.T = A(1:2,3)';
+        rigid.A = A;
+    end
+
+
+
+    %% Measure performance
+    testPts = movePts;
+   
+    testPts = testPts * rigid.R^-1;
+    testPts = testPts + rigid.T;
+    
+    testPts2 = rigidPts(movePts,A);
+    % alpha = ones(size(movePts,1),1);
+    % tp1 = movePts(:,1) * A(1,1) + movePts(:,2) * A(1,2) + A(1,3) * alpha;
+    % tp2 = movePts(:,1) * A(2,1) + movePts(:,2) * A(2,2) + A(2,3) * alpha;
+    % testPts2 = [tp1 tp2];
+
+    refPts = bestRotPts + bestDif;
+    rigid.oldD = sqrt((fixedPts(:,1)-movePts(:,1)).^2 + (fixedPts(:,1)-movePts(:,2)).^2);
+    rigid.newD = sqrt((fixedPts(:,1)-testPts(:,1)).^2 + (fixedPts(:,1)-testPts(:,2)).^2);
+    rigid.difD = rigid.newD-rigid.oldD;
+    rigid.betterFrac = sum(rigid.difD<0)/length(rigid.difD);
+
+
+    %%show result
+    if showRes
+
+        f = gcf;
+        clf(f)
+
+        sp1 = subplot(2,1,1,'parent',f);
+        sp2 = subplot(2,1,2,'parent',f);
+
+        sp1.NextPlot = "add";
+        sp2.NextPlot = "add";
+
+        scatter(sp1,angles1,V1','k');
+        scatter(sp1,angles2,V2,'r','.');
+
+        scatter(sp2,fixedPts(:,1),fixedPts(:,2),50,'k')
+        scatter(sp2,movePts(:,1),movePts(:,2),100,'m','s')
+        scatter(sp2,testPts(:,1),testPts(:,2),'r','.')
+        scatter(sp2,testPts2(:,1),testPts2(:,2),'b','*')
+
+        % scatter(sp2,refPts(:,1),refPts(:,2),'c','.')
+
+        pause(1)
+        %close(f)
+
+    end
+
+
+
+
+
+end %if enought pts

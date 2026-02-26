@@ -1,0 +1,18 @@
+
+    
+%MPN = GetMyDir;
+load([MPN 'obI.mat'])
+
+
+%%
+
+
+targCell = 108;
+synapses = obI.nameProps.edges;
+preWithTarg = unique(synapses(synapses(:,1)==targCell,2));
+preWithTarg = preWithTarg(preWithTarg>0);
+synWithPre = [];
+for i = 1:length(preWithTarg)
+    synWithPre = cat(1,synWithPre, find((synapses(:,2)==preWithTarg(i)) & ...
+        (synapses(:,1)>0)));
+end

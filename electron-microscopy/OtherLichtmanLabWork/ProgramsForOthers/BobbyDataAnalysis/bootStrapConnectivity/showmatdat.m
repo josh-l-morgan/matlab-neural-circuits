@@ -1,0 +1,42 @@
+ %load('C:\Users\joshm\Documents\MATLAB\models\bootStrapConnectivity\redCylinder01.mat')
+
+ sumdat = sum(dat,2);
+ showdat = [sumdat dat]';
+ subplot(10,1,1)
+ image(([1:9]*40))
+ subplot(10,1,2:10)
+ image(showdat'*40)
+ 
+ cmap = [ 1 1 1; 1 0 0 ; 1 1 0 ; 0 1 1 ; 1 0 1; 0 0 1;0 0 0 ]
+ cmap = flipud(cmap)
+ %cmap = jet(6)
+ %cmap(1,:) = [0 0 0];
+ cmap = hsv(256);
+ cmap(1,:) = 0;
+ colormap(cmap)
+ 
+ showdat = showdat * 25;
+ colorIm = zeros(size(showdat,1),size(showdat,2),3);
+ grabvals = showdat;
+ showdat(showdat>(size(cmap,1)-1)) = size(cmap,1)-1;
+ for c = 1:3
+     grabvals(:) = cmap(showdat+1,c);
+     
+     colorIm(:,:,c) = grabvals;
+ end
+ image(colorIm)
+ 
+ grid = colorIm;
+ for i = 1:size(grid,2)
+    grid(:,i,1) = mod(i,2) ;
+        
+ end
+ for i = 1:size(grid,1)
+         grid(i,:,2) = mod(i,2) ;
+
+ end
+ 
+ 
+ showColor = colorIm + grid*.15;
+ showColor(showColor>1) = 1;
+ image(showColor)

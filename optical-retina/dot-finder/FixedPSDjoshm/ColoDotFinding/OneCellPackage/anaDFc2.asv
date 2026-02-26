@@ -1,0 +1,255 @@
+%function[]=anaDFc(TPN) %#ok<INUSL>
+tic
+
+%Get directory name
+
+colormap gray(255) %standard grey colormap
+if isdir([TPN 'temp'])==0, mkdir([TPN 'temp']); end %create directory to store steps
+if isdir([TPN 'data'])==0, mkdir([TPN 'data']); end %create directory to store steps
+if isdir([TPN 'pics'])==0, mkdir([TPN 'pics']); end %create directory to store steps
+
+
+
+%% Enter Variables
+%%Image Variables
+% xyum=.103;
+% zum=.3;
+% % aspect=zum/xyum;% ratio of z to xy dimentions
+% channels=3;
+
+%%Dot criteria
+step=2; %Sensitivity=grey value step of iterative threshold (2 was standard)
+MaxDot=7^3;  %Maximum Dot Volume (in pixels)= maximum dot size for iterative threshold (6^3 was standard)
+MinDot=3;  %Minimum Dot Volume (in pixels)= minimum dot size for iterative threshold   (10 was standard)
+% PunctaThreshold=1; %Minimum Number of Steps Passed = centroids less than puncta threshold are zeroed.
+% EdgeOfPeak=.5; %Determine Dot Edge = ratio of edge brightness to peak brightness (.5 was standard)
+% minFilledVolume=3; %minimum number of pixels in final object contour (20 was standard)
+% RoundThreshold=50; %minimum roundness threshold (60 was standard)
+
+
+%% READ IMAGE
+
+load([TPN 'Post.mat']);
+IgRaw=Post; clear Post;
+[Rys Rxs Rzs] = size(IgRaw);
+save([TPN 'temp\IgRaw.mat'],'IgRaw')
+image(max(IgRaw,[],3)),pause(.01)
+
+IgStat = sort(IgRaw(:));
+Gmode = IgStat(round(0.95*Rxs*Rys*Rzs));
+clear IgStat
+
+
+%% Run Blocks
+
+Ig = single(IgRaw);
+clear IgRaw
+[ys,xs,zs]=size(Ig);
+
+%% Median filter
+Igm=zeros(ys,xs,zs,'single');
+for i=1:zs
+    Igm(:,:,i)=medfilt2(Ig(:,:,i),[3,3]);
+end
+clear Ig
+
+
+%% FIND DOTS Green Channel%%
+peakMap = zeros(ys,xs,zs,'uint8');  %set up matrix to map peaks
+thresholdMap = zeros(ys,xs,zs,'uint8');   %set up matrix to sum passed thresholds
+% indVect = 1:ys*xs*zs;
+maxIntensity = uint8(max(Igm(:)));
+
+for i = maxIntensity:-1:Gmode
+    ['Running ' num2str(i) ' from ' num2str(maxIntensity) ' to ' num2str(Gmode)]
+    %run thresholds through all relevant intensities
+    clear Igl labels
+    [Igl,labels] = bwlabeln(Igm>i,6);%label each area to check
+
+    %reduce bitdepth if possible
+    if labels<65536
+        Igl=uint16(Igl);
+    end
+    if labels <= 1
+        labels =2;
+    end
+    nPixel = hist(Igl(Igl>0), 1:labels);
+    %run all lables
+    for p=1:labels
+        % Morphology Filter, Puncta size criteria
+        pixelIndex = find(Igl==p);
+        if nPixel(p) < MaxDot && nPixel(p) > MinDot
+            %identify peak in labeled object
+            if sum(peakMap(pixelIndex))== 0
+                peakValue = max(Igm(pixelIndex));
+                peakIndex = find(Igl==p & Igm==peakValue);
+                if numel(peakIndex) > 1
+                    peakIndex = peakIndex(round(numel(peakIndex)/2)); %?
+                end
+                [y,x,z] = ind2sub([ys xs zs], peakIndex);
+                %Register in peak map
+                peakMap(y,x,z) = 1;
+            end
+        else
+            Igl(pixelIndex)=0;
+        end
+    end
+    %%Add all passing labeled objects to thresholdMap
+    thresholdMap(Igl>0)=thresholdMap(Igl>0)+1;
+end
+disp('iterative threshold done')
+clear Igl peakIndex
+
+
+%% FIND DOT CONTOUR AND DIVIDE IF MULTIPLE PEAKS WITHIN
+[thresholdLabel nLabels] = bwlabeln(thresholdMap, 6);
+
+if nLabels<65536 %reduce bit depth if possible
+    thresholdLabel = uint16(thresholdLabel);
+end
+
+for i = 1:nLabels
+    ['runnning ' num2str(i) ' of ' num2str(nLabels)]
+    peakIndex = find(thresholdLabel==i & peakMap>0);
+    thresholdPeak = thresholdMap(peakIndex);
+    nPeaks = numel(peakIndex);
+    [yPeak xPeak zPeak] = ind2sub([ys xs zs], peakIndex);
+    if nPeaks == 1
+        cutOff = 0.5 * thresholdPeak;
+        contourIndex = find(thresholdLabel==i & thresholdMap>=cutOff);
+        [yContour xContour zContour] = ind2sub([ys xs zs],contourIndex);
+        if ~exist('Dots','var')
+            lastEntry = 0;
+        else
+            [lastEntry dummy] = size(Dots.Pos);  %#ok<NASGU>
+        end
+        next = lastEntry+1;
+        Dots.Pos(next,:) = [yPeak, xPeak,...
+            zPeak];
+        Dots.Vox(next).Pos = [yContour,...
+            xContour, zContour];
+        Dots.Vox(next).Ind = sub2ind([Rys Rxs Rzs],...
+            Dots.Vox(next).Pos(:,1), Dots.Vox(next).Pos(:,2),...
+            Dots.Vox(next).Pos(:,3));
+        Dots.Vol(next) = numel(contourIndex);
+        Dots.ITMax(next) = thresholdPeak;
+        Dots.ItSum(next) = sum(thresholdMap(contourIndex));
+        Dots.Vox(next).RawBright = Igm(contourIndex);
+        Dots.MeanBright(next) = mean(Igm(contourIndex));
+
+    else
+
+        %% Cut out region
+        [ylab xlab zlab] = ind2sub([ys xs zs], find(thresholdLabel==i));
+        lystart=min(ylab);lystop=max(ylab);
+        lxstart=min(xlab);lxstop=max(xlab);
+        lzstart=min(zlab);lzstop=max(zlab);
+
+        tLsamp=thresholdLabel(lystart:lystop,lxstart:lxstop,lzstart:lzstop);
+        tMsamp=thresholdMap(lystart:lystop,lxstart:lxstop,lzstart:lzstop);
+        tMsamp(tLsamp~=i)=0;
+        pMsamp=peakMap(lystart:lystop,lxstart:lxstop,lzstart:lzstop);
+        pMsamp(tLsamp~=i)=0;
+        image(sum(tMsamp,3)*30),pause(1) % !!!!!!!!!!!!! Delete for final
+        peaked=tLsamp*0; %register ide of peak for each voxel
+
+
+        [syPeak sxPeak szPeak] = ind2sub(size(pMsamp), find(pMsamp>0));
+        peakID=peaked;
+        for id = 1: size(syPeak,1)
+            peakID(syPeak(id),sxPeak(id),szPeak(id))=id;
+        end
+
+        for sy = 1: size(syPeak,1)
+            passT=tMsamp>(pMsamp(syPeak(sy),sxPeak(sy),szPeak(sy))*.5);
+            passTl=bwlabeln(passT,6);
+            TargTl=passTl(syPeak(sy),sxPeak(sy),szPeak(sy));
+            numPeaks=length(find((passTl==TargTl)&(pMsamp>0)));
+            if numPeaks == 1
+                peaked(passTl==TargTl)=sy;  %assign peak number to peaked field
+                tLsamp(passTl==TargTl)=0;
+            else
+                pIDs=peakID((passTl==TargTl)&(peakID>0));  %identify peaks
+                currentID=find(pIDs==sy);
+                contourIndex=find(passTl==TargTl);
+                [yContour xContour zContour] = ind2sub(size(passTl),contourIndex);
+                unassignedContour = [yContour xContour zContour];
+                nContours = numel(contourIndex);
+                distance = zeros(nContours, numPeaks);
+                hight=distance*0;
+                hightSc=hight;
+                for j=1:numPeaks
+
+                    distance(:,j) = sqrt(...
+                        (unassignedContour(:,1) - syPeak(pIDs(j))).^2 +...
+                        (unassignedContour(:,2) - sxPeak(pIDs(j))).^2 +...
+                        (unassignedContour(:,3) - szPeak(pIDs(j))).^2);
+                    hight(:,j)=tMsamp(syPeak(pIDs(j)),sxPeak(pIDs(j)),szPeak(pIDs(j)));
+                end
+                hightMx=max(hight,[],2);
+
+                for j = 1:numPeaks
+                    hightSc(:,j)=hight(:,j)./hightMx;
+                end
+                weight=(1./hightSc).*distance;
+
+                [dummy, peakAllegiance] = min(weight,[],2);
+
+                OwnVox=peakAllegiance==currentID;
+
+                peaked(contourIndex(OwnVox))=sy; %assign the voxels it received
+            end % if multiple sub peaks
+
+        end % run each peak
+
+
+        image(max(peaked,[],3)*00),pause(1)
+
+        clear peak
+        for k=1:max(peaked(:))
+            cI=find(peaked==k);
+            [cSy cSx cSz]=ind2sub(size(peaked),cI);
+            cSy=cSy+lystart-1; cSx=cSx+lxstart-1; cSz=cSz+lzstart-1;
+            cI=sub2ind([ys xs zs],cSy, cSx, cSz);
+            peak(k).contour = [cSy cSx cSz]; %#ok<AGROW>
+            peak(k).contourIndex = cI; %#ok<AGROW>
+        end
+
+
+        for l=1:nPeaks
+
+            if ~exist('Dots','var')
+                lastEntry = 0;
+            else
+                [lastEntry dummy] = size(Dots.Pos); %#ok<NASGU>
+            end
+            next = lastEntry+1;
+            Dots.Pos(next,:) = [yPeak(l), xPeak(l),...
+                zPeak(l)];  %% possible shift in peak IDs
+            Dots.Vox(next).Pos = [peak(l).contour(:,1),...
+                peak(l).contour(:,2),...
+                peak(l).contour(:,3)];
+            Dots.Vox(next).Ind = sub2ind([Rys Rxs Rzs],...
+                Dots.Vox(next).Pos(:,1), Dots.Vox(next).Pos(:,2),...
+                Dots.Vox(next).Pos(:,3));
+            Dots.Vol(next) = numel(peak(l).contourIndex);
+            Dots.ITMax(next) = thresholdPeak(l);
+            Dots.ItSum(next) = sum(thresholdMap(peak(l).contourIndex));
+            Dots.Vox(next).RawBright = Igm(peak(l).contourIndex);
+            Dots.MeanBright(next) = mean(Igm(peak(l).contourIndex));
+
+
+        end % record each peak multiple peaks
+
+
+
+
+
+    end %if multiple peaks
+end % run each labled region
+Dots.ImSize = [Rys Rxs Rzs];
+Dots.Num = size(Dots.Pos,1); %#ok<NASGU>
+save([TPN 'Dots.mat'],'Dots')
+toc
+
+

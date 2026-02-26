@@ -1,0 +1,57 @@
+
+TPN = GetMyDir;
+dTPN = dir(TPN);
+
+if ~exist([TPN 'samps']),mkdir([TPN 'samps']),end
+
+nams = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name;
+    if length(nam) > 4
+        if nam(1:5) == 'Tile_'
+            nams{length(nams)+1} = nam;
+        end
+    end
+end
+
+for i = 1:length(nams)
+   nam = nams{i};
+   rs = find(nam == 'r'); 
+   und = find(nam == '_');
+   dash = find(nam == '-');
+   cs = find(nam == 'c');
+   row(i) = str2num(nam(rs(1)+1:dash(1)-1));
+   col(i) = str2num(nam(cs(1) + 1: und(2)-1));   
+end
+
+siz = [max(row) max(col)];
+fsize = 200;
+info = imfinfo([TPN nams{1}]);
+ys = info.Height;
+xs = info.Width;
+
+samps= zeros(fsize,fsize,length(nams),'uint8');
+for i = 1:length(nams)
+   sprintf('Running %d of %d',i,length(nams))
+   samp = imread([TPN nams{i}],'PixelRegion',{[ys/2-fsize/2+1, ys/2+fsize/2] [xs/2-fsize/2+1, xs/2+fsize/2]});
+   samp = 255 - samp;
+   samps(:,:,i) = samp;
+   newNam = ['samp_' nams{i}];
+   imwrite(samp,[TPN 'samps\' newNam],'Compression','none');
+end
+
+focMos = zeros(max(row) * fsize,max(col) * fsize,'uint8');
+for i = 1:size(samps,3)
+   sprintf('Running %d of %d',i,size(samps,3)) 
+   startY = (row(i)-1) * fsize;
+   startX = (col(i) - 1) * fsize;
+   focMos(startY+1:startY+fsize,startX+1:startX + fsize) = samps(:,:,i);
+end
+imwrite(focMos,[TPN 'focMos.tif'],'Compression','none')
+
+subplot(1,1,1)
+for i = 1:size(samps,3)
+   image(samps(:,:,i)),pause(.5) 
+end
+
+

@@ -1,0 +1,96 @@
+function[] = retakeControl(wif,retake)
+if ~exist('wif','var')
+wif = GetMyWafer;
+end
+if ~exist('retake','var')
+load([wif.dir 'retake.mat'])
+end
+
+%% Activate ActiveX
+sm = actxserver('VBComObjectWrapperForZeissAPI.KHZeissSEMWrapperComClass')
+sm.InitialiseRemoting
+sm.Fibics_Initialise();
+%This should give enough time for initialization process
+sprintf(' Fibics Initializing, pausing 15 seconds...')
+pause(15)
+
+
+%% Generate fake imaging parameters
+
+
+%% Set auto parameters
+focusMag = 25000;
+
+%% Run retakes
+
+tileNum = length(retake.tiles);
+for t = 1:tileNum
+    
+    FOV = retake.tiles(t).FOV;
+    W = retake.tiles(t).TileWidth;
+    H = retake.tiles(t).TileHeight;
+    DwellMicroSec = retake.tiles(t).DwellTime;
+    nam = retake.tileInfo.name;
+    ImageFileNameStr = [nam(1:end-4) '+retake.tif']; 
+    
+    %%Backlash
+    sm.Execute('CMD_STAGE_BACKLASH');
+    smwait(sm,'DP_STAGE_IS')
+    
+    %%Set probable imaging parameters
+    param = retake.tiles(t);
+    sm.Set_PassedTypeSingle('AP_WD',param.startWD);
+    sm.Set_PassedTypeSingle('AP_STIG_X',param.startSX);
+    sm.Set_PassedTypeSingle('AP_STIG_Y',param.startSY);
+    %sm.Set_PassedTypeSingle('AP_STIG_X',0);  %replace in targeting program
+    %sm.Set_PassedTypeSingle('AP_STIG_Y',0);
+    
+    %%Goto focus position
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_X',param.focTargX(1));
+    smwait(sm,'DP_STAGE_IS');
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',param.focTargY(1));
+    smwait(sm,'DP_STAGE_IS');
+    
+    %%Autofocus
+    sm.Set_PassedTypeSingle('AP_MAG',focusMag);
+    sm.Execute('CMD_AUTO_FOCUS_FINE');
+    smwait(sm,'DP_AUTO_FUNCTION');
+    sm.Execute('CMD_AUTO_STIG');
+    smwait(sm,'DP_AUTO_FUNCTION');
+    sm.Execute('CMD_AUTO_FOCUS_FINE');
+    smwait(sm,'DP_AUTO_FUNCTION');
+    
+    autoWD = sm.Get_ReturnTypeSingle('AP_WD');
+    autoSX = sm.Get_ReturnTypeSingle('AP_STIG_X');
+    autoSY = sm.Get_ReturnTypeSingle('AP_STIG_Y');
+    
+    %%Goto final position
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_X',param.imTargX);
+    smwait(sm,'DP_STAGE_IS');
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',param.imTargY);
+    smwait(sm,'DP_STAGE_IS');
+    
+    sm.Execute('CMD_STAGE_BACKLASH');
+    smwait(sm,'DP_STAGE_IS');
+    
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_X',param.imTargX);
+    smwait(sm,'DP_STAGE_IS');
+    sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',param.imTargY);
+    smwait(sm,'DP_STAGE_IS');
+    
+    
+     tic;
+    sm.Fibics_WriteFOV(FOV)
+    sm.Fibics_AcquireImage(W,H,DwellMicroSec,ImageFileNameStr);
+    while(sm.Fibics_IsBusy),  pause(.2),  end
+
+    sprintf('Image took %d seconds',toc)
+    
+    
+    
+   sprintf('Finished tile %d of %d',t,tileNum)
+end
+
+
+
+

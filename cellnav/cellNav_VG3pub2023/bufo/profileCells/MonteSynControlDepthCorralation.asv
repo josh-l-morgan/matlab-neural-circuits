@@ -1,0 +1,434 @@
+
+%% load data
+if 0
+
+    global glob tis
+
+    figure
+    SPN = [glob.datDir 'Analysis\Data\preproc\'];
+    load([SPN 'ptDat.mat']);
+    load([SPN 'ROI.mat']);
+    %load([SPN 'ROI2.mat']);
+    load([SPN 'SOI.mat']);
+    load([SPN 'GOI.mat']);
+    load([SPN 'NOI.mat']);
+    load([SPN 'MOI.mat']);
+    load([SPN 'COI.mat']);
+
+    %%Load all sms
+    smDir = [glob.dir.Volumes  glob.vol.activeName '\Analysis\SMs\'];
+    clear sms
+    roiCid = ptDat(:,3);
+    runCids = unique(roiCid);%MOI.cids;
+    for i = 1:length(runCids);
+        cid = runCids(i);
+        %%Get distances between nodes
+        disp(sprintf('loading data for cell %d.  Cell %d of %d.',cid,i,length(runCids)));
+        fileName = sprintf('sm_cid%d.mat',cid);
+        useSM(i) = 1;
+        %sm = load([smDir fileName],'skel2skel','nep','syn2skel','syn');
+        load([smDir fileName]);
+        sm.nep.swcS = nep2swc(sm.nep);
+        sms(i).sm = sm;
+    end
+    useVgc = runCids(useSM>0);
+
+    s = makeSynapseClassifyer(COI); %make structure describing types of synapses
+end
+
+%% set variables
+useVgc = [2 3 4 5 13 14];
+zJit = .5;
+reps = 1000;
+lc = 16;
+
+
+%% colect data on cells
+
+cellSynCount = zeros(length(s),length(useVgc));
+clear synPos cellSynPos cellSource sClose synIdsA
+countG = zeros(length(s),1);
+for i = 1:length(s)
+    synPos{i} = [];
+    cellSource{i} = [];
+    sClose{i} = [];
+    synIdsA{i} = [];
+end
+% allPos = [];
+% for v = 1:length(useVgc)
+% 
+%     cid = useVgc(v);
+%     useSM(v) = 1;
+%     disp(sprintf('loading sm %d, %d of %d',cid,v,length(useVgc)))
+%     sm = sms(v).sm;%load([smDir fileName],'syn','syn2Skel','nep');
+% 
+%     syn = sm.syn; % get syn information
+%     synD = sm.syn2Skel.syn2SynDist;
+%     skelD = sm.syn2Skel.syn2SkelDist;
+%     nodeLengths = sm.nep.props.nodeLength;
+%     closest = sm.syn2Skel.closest;
+% 
+% 
+%     allPos = cat(1,allPos,sm.arbor.subs);
+% 
+%     %%Create synapse groups filled with relevant IDs using COI and subtypes
+% 
+% 
+% 
+% 
+% end
+% 
+% allSynCount = sum(cellSynCount,2);
+
+
+%%  pick synapses
+
+sNames = {s.name};
+clear sg
+sg(1).names = {'off'};
+sg(1).col = [0 1 0];
+sg(2).names = {'on'};
+sg(2).col = [1 0 0];
+sg(3).names = {'1wt'};
+sg(3).col = [0 0 1];
+sg(4).names = {'2aw'};
+sg(4).col = [0 0 1];
+sg(5).names = {'2an'};
+sg(5).col = [0 0 1];
+sg(6).names = {'4i'};
+sg(6).col = [0 0 1];
+sg(7).names = {'4ow'};
+sg(7).col = [.6 .6 0];
+sg(8).names = {'28'};
+sg(8).col = [0 0 1];
+sg(9).names = {'37'};
+sg(9).col = [.6 .6 0];
+sg(10).names = {'5si'};
+sg(10).col = [.6 .6 0];
+sg(11).names = {'5ti'};
+sg(11).col = [.6 .6 0];
+sg(12).names = {'6sw'};
+sg(12).col = [.6 .6 0];
+sg(13).names = {'63'};
+sg(13).col = [.6 .6 0];
+sg(14).names = {'8w'};
+sg(14).col = [.6 .6 0];
+
+
+
+
+%% pick s's for sgs
+expNames = cat(1,{sg(:).names});
+for g = 1:length(sg)
+    nams = sg(g).names;
+    for n = 1:length(nams)
+        m1 = find(strcmp(sNames,sg(g).names{n}));
+        if ~isempty(m1)
+            sg(g).sT(n) = m1;
+        else
+            sg(g).sT(n) = [];
+        end
+    end
+end
+
+
+
+%% Find depths
+%binDepths(sg,nDepth)
+
+%% rand each cell
+
+pol = zeros(length(sg)-2,length(useVgc));
+rPol = zeros(length(sg)-2,length(useVgc),reps);
+
+for v = 1:length(useVgc)
+    cid = useVgc(v);
+    useSM(v) = 1;
+    disp(sprintf('running sm %d, %d of %d',cid,v,length(useVgc)))
+    
+    targ = find(runCids==cid);
+    sm = sms(targ).sm;%load([smDir fileName],'syn','syn2Skel','nep');
+
+    syn = sm.syn; % get syn information
+    synD = sm.syn2Skel.syn2SynDist;
+    skelD = sm.syn2Skel.syn2SkelDist;
+    D = sm.skel2skel.linDist; %use distance of every skeleton node to every other skeleton node
+    nodeLengths = sm.nep.props.nodeLength;
+    closest = sm.syn2Skel.closest;
+    synIds = classifySynInCell(syn,s,cid);
+
+
+    %allPos = cat(1,allPos,sm.arbor.subs);
+    %%Get new node positions
+    pos = sm.nep.pos;
+    [zGCL,zINL,nDepth] = getIPLdepth(pos(:,3),pos(:,1),pos(:,2),[],[]);
+    iplDepth = mean(zINL)-mean(zGCL);
+    nDepth = nDepth * iplDepth;
+
+    zDif = abs(nDepth-nDepth');
+    zMask = zDif<zJit;
+
+    %%Measure
+
+    for g = 1:length(sg)
+        sgIds = [synIds{sg(g).sT}];
+        sgClose{g} = closest(sgIds);
+        sNum(g,v) = length(sgIds);
+    end
+    clear minD meanD wD %% wD is influence of every group on every group
+    for g1 = 3:length(sg)
+        for g2 = 1:2
+            d = D(sgClose{g1},sgClose{g2});
+            W = exp(-d/lc);
+            if sum(d(:))
+                minD(g1-2,g2) = mean(min(d,[],1));
+                meanD(g1-2,g2) = mean(d(:));
+                wD(g1-2,g2) = sum(W(:));
+            else
+                minD(g1-2,g2) = 0;
+                meanD(g1-2,g2) = 0;
+                wD(g1-2,g2) = 0;
+
+            end
+        end
+    end
+
+
+    %%Randomize
+    rMinD = zeros(length(sg)-2,2,reps);
+    rWD = rMinD;
+
+    if 1 %show synapses
+        clf
+        scatter3(pos(:,1),pos(:,2),pos(:,3),'k','.');
+        hold on
+        axis equal
+        set(gca,'clipping', 'off')
+        view([0 0])
+        %scatter3(pos(closest(isBip),1),pos(closest(isBip),2),pos(closest(isBip),3),'m','o','filled');
+        synCol = hsv(length(sg));
+        for g = 1:length(sg)
+            scatter3(pos(sgClose{g},1),pos(sgClose{g},2),pos(sgClose{g},3),'markerfacecolor',synCol(g,:));
+        end
+        pause (.1)
+    end
+
+
+
+
+
+    for r = 1:reps
+        disp(sprintf('running sm %d, %d of %d, rep %d',cid,v,length(useVgc),r))
+
+        %make random pointers from nodes to node with similar z
+        tic
+        closeMask = zMask(closest,:);
+        while 1
+            zRand = rand(size(closeMask)) .* closeMask;
+            zMax = repmat(max(zRand,[],1),[size(zRand,1) 1]);
+            [rClose x] = find(zRand==zMax);
+            if length(rClose) == size(zMax,1)
+                break
+            end
+        end
+        toc
+        tic
+        zRand = rand(size(zMask)) .* zMask;
+        zRand = zRand(closest,:);
+        [sZRand idx] = sort(zRand,2,'descend');
+        newClose = idx(:,1);
+        toc
+
+
+
+
+        %%Measure Random
+        for g = 1:length(sg)
+            sgIds = [synIds{sg(g).sT}]; % Get IDs of synapses for rgc subtype
+            sgClose{g} = rClose(closest(sgIds)); % Get nodes closest to synapses
+        end
+        for g1 = 3:length(sg) % For every cell type
+            for g2 =  1:2%for every cell type
+                d = D(sgClose{g1},sgClose{g2});
+                W = exp(-d/lc);
+                if sum(d(:))
+                    rMinD(g1-2,g2,r) = mean(min(d,[],1));
+                    rWD(g1-2,g2,r) = sum(W(:));
+                else
+                    rMinD(g1-2,g2) = 0;
+                    rWD(g1-2,g2) = 0;
+
+                end
+            end
+        end
+
+
+        if 0 %show scramble
+            clf
+            isBip = find(syn.preClass == 7);
+            scatter3(pos(:,1),pos(:,2),pos(:,3),'k','.');
+            hold on
+            %scatter3(pos(closest(isBip),1),pos(closest(isBip),2),pos(closest(isBip),3),'m','o','filled');
+            scatter3(pos(oldClose,1),pos(oldClose,2),pos(oldClose,3),'r','filled');
+            scatter3(pos(newClose,1),pos(newClose,2),pos(newClose,3),'g','filled');
+            hold off
+            axis equal
+            set(gca,'clipping', 'off')
+            view([0 0])
+            pause (.1)
+        end
+    end
+
+    %%Get polarities
+    
+    pol(:,v) = (wD(:,2)-wD(:,1))./(wD(:,2)+wD(:,1)); %Calculate polarity
+    rPol(:,v,:) = (rWD(:,2,:)-rWD(:,1,:))./(rWD(:,2,:)+rWD(:,1,:)); % random polarity
+
+
+    if 1 %%Show hist
+        polRange = [-1:.01:1];
+        clear hPol;
+        clf
+        for p = 1:size(pol,1)
+            subplot(size(pol,1),1,p)
+            hold on
+            hPol(p,:) = hist(squeeze(rPol(p,v,:)),polRange);
+            bar(polRange,hPol(p,:),'k');
+            scatter(pol(p),0,'r','filled')
+        end
+        pause(.5)
+    end
+
+end
+mrPol = squeeze(mean(rPol,3)); %mean random polarity
+
+sPol = (sNum(2,:)-sNum(1,:))./(sNum(2,:)+sNum(1,:));
+%% Display
+clf
+for g = 1:size(pol,1)
+    
+    subplot(1,size(pol,1),g)
+    hold on
+    plot([ones(1,length(useVgc));ones(1,length(useVgc))+1],[pol(g,:); mrPol(g,:)],'k','linewidth',2)
+    plot([ones(1,length(useVgc))+1;ones(1,length(useVgc))+2],[mrPol(g,:); sPol],'color',[.3 .3 1],'linewidth',2)
+
+    scatter(ones(1,length(useVgc)),pol(g,:),'markerfacecolor',[.8 .8 .8],'markeredgecolor',[0 0 0]);
+    scatter(ones(1,length(useVgc))+1,mrPol(g,:),'markerfacecolor',[.8 .8 .8],'markeredgecolor',[0 0 0]);
+     scatter(ones(1,sum(~isnan(pol(g,:))))+2,sPol(~isnan(pol(g,:))),'markerfacecolor',[.7 .7 1],'markeredgecolor',[.3 .3 1]);
+
+    ylim([-1 1])
+    title(sg(g+2).names)
+end
+
+
+meanSem(pol(1,:))
+meanSem(pol(2,:))
+meanSem(mrPol(1,:))
+meanSem(mrPol(2,:))
+
+%%
+hRange = [0:.2:2];
+physPol2 = [  1 1 1 1 1 0.1 -0.5 -0.5  0 -1 -0.8 -1] *-1;
+realSac = [];
+randSac = [];
+for g = 1:size(pol,1);
+    realPol = pol(g,:);
+    randPol = mrPol(g,:);
+
+    isReal = ~isnan(realPol) & ~isnan(randPol);
+    realSac = [realSac abs(physPol2(g) - realPol(isReal))];
+    randSac = [randSac abs(physPol2(g) - randPol(isReal))];
+
+
+end
+
+
+hReal = hist(realSac,hRange);
+hRand = hist(randSac,hRange);
+
+
+%% Get correlation coefficent for dandoms and real cells
+isnum = find(~isnan(pol));
+
+expected = repmat(physPol2', [1 size(rPol,2)]);
+cc = corrcoef(pol(isnum),expected(isnum));
+cco = cc(2,1); % observed cell to cell correlation coeficient
+ccr = zeros(reps,1);
+for r = 1:reps
+
+    testR = rPol(:,:,r);
+    cc = corrcoef(testR(isnum),expected(isnum));
+    ccr(r) = cc(2,1);
+
+end
+
+sCCR = sort(ccr,'ascend');
+medianCCR = median(ccr)
+ci95 = [sCCR(ceil(reps * 0.05)) sCCR(ceil(reps * 0.95))]
+realFrac = mean(sCCR>=cco)
+
+%% Analyze trend
+
+
+
+%{
+function binDepths(sg,nDepth)
+
+%% binDepths
+clf
+bin = .04;
+dRange = -.1:.001:1.1;
+
+maxCount = 0;
+
+for i = 1:length(sg)
+
+    dCount = dRange*0;
+    for b = 1:length(dRange)
+        d = dRange(b);
+        dCount(b) = sum((sg(i).depth>(d-bin/2)) & (sg(i).depth<=(d+bin)));
+    end
+    sg(i).dCount = dCount;
+    maxCount = max(maxCount,max(dCount));
+end
+
+clf
+subplot(2,1,1)
+hold on
+for i = 1:length(sg)
+    plot(dRange,sg(i).dCount/maxCount,'color',sg(i).col)
+end
+
+subplot(2,1,2)
+hold on
+nCount = dRange*0;
+bin2 = .1;
+for b = 1:length(dRange)
+    d = dRange(b);
+    nCount(b) = sum((nDepth>(d-bin2/2)) & (nDepth<=(d+bin2)));
+end
+nCount = nCount/max(nCount(:));
+plot(dRange,nCount,'color',[.3 .3 .3])
+
+
+ei = sg(1).dCount./sg(2).dCount;
+plot(dRange,ei,'color',[0 0 1])
+
+
+
+iDens = (sg(2).dCount/maxCount)./(nCount/max(nCount(:)));
+plot(dRange,iDens,'color',[1 0 0])
+% 
+% 
+% eDens = (sg(1).dCount/maxCount)./(nCount/max(nCount(:)));
+% plot(dRange,eDens,'color',[0 1 0])
+
+end
+
+%}
+
+
+
+
+
+

@@ -1,0 +1,59 @@
+
+
+% 
+% 
+% [TFN TPN] = GetMyFile
+% fileName = ([TPN TFN]);
+% Iraw = imread(fileName);
+
+
+%%
+sI = Iraw(12350:14000,6100:16540);
+tooHigh = 240;
+[ys xs] = size(sI);
+image(255-sI)
+pause(1)
+%% expand maxes
+for i = 1:10
+maxed = find(sI>=tooHigh);
+shiftInd = getShift(size(sI),maxed);
+sI(shiftInd) = tooHigh;
+image(255-sI)
+pause(1)
+end
+%% erode
+for i = 1:100
+maxed = find(sI>=tooHigh);
+size(maxed)
+if isempty(maxed)
+    break
+end
+shiftInd = getShift(size(sI),maxed);
+shiftVals = sI(shiftInd);
+
+shiftVals(shiftVals >= tooHigh) = 0;
+hasVal = shiftVals>0;
+numVals = sum(hasVal,2);
+passVals = numVals>2;
+sumVals = sum(shiftVals(find(passVals),:),2);
+meanVals = sumVals./numVals(passVals);
+
+sI(maxed(passVals)) = meanVals;
+
+image(255 - sI)
+pause(.1)
+end
+
+%% 
+
+
+
+
+
+
+
+
+
+
+
+

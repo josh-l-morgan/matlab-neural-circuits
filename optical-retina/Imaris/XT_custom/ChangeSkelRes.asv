@@ -1,0 +1,4 @@
+
+[TFN TPN]=GetMyFile('*.mat')
+load([TPN TFN])
+

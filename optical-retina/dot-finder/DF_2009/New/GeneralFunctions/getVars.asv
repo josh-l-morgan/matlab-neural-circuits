@@ -1,0 +1,27 @@
+function[structIn] = getVars(structIn)  
+
+%%Input dialouge for changing Structure array
+    
+    
+    prompt = fieldnames(structIn)
+    title = 'Define Variables';
+    nLines = 1;
+    for i = 1:length(prompt)
+        var=getfield(structIn,prompt{i});
+        if isstr(var)
+            notstr(i)=0;
+            gVars{i} = var;
+        else
+            gVars{i} = num2str(var);
+            notstr(i) = 1;
+        end
+    end
+    gVars= inputdlg(prompt,title,nLines,gVars);
+    pause(.1)
+    for i = 1:length(prompt)
+        if notstr(i)
+        structIn=setfield(structIn,prompt{i},str2num(gVars{i}));
+        else
+        structIn=setfield(structIn,prompt{i},gVars{i}));
+        end
+ 

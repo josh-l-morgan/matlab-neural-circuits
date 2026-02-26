@@ -1,0 +1,82 @@
+wif = GetMyWafer;
+
+qualityThresh = 20;
+saturationThresh = 5;
+
+retake.qualityThresh = 20;
+retake.saturationThresh = 5;
+retake.time = datestr(clock);
+
+load([wif.dir 'focSec.mat'])
+
+rNum = 0;
+numSec = length(wif.sec)
+for s = 1:numSec
+
+    [tree, rootname, dom]=xml_read(wif.sec(s).xml);
+
+
+    numTiles = length(wif.sec(s).tile);
+    for t = 1:numTiles
+        quality = focSec(s).tile(t).quality;
+        percentSat = focSec(s).tile(t).percentSaturation;
+        if isfield(focSec(s).tile(t),'userEval')
+            userEval = 0;
+        else
+            userEval = focSec(s).tile(t).userEval;
+        end
+                
+        bad = quality< qualityThresh;
+        bad = bad + (percentSat > saturationThresh);
+        
+        
+        if bad
+            rNum = rNum + 1;
+            
+            if ~exist('tree','var')
+                [tree, rootname, dom]=xml_read(wif.sec(s).xml);
+            end
+
+            %% Find focus target
+            TargetX = tree.Tiles.Tile(t).TargetStageX;
+            TargetY = tree.Tiles.Tile(t).TargetStageY;
+            FOV = tree.TileInfo.FOV.CONTENT;
+            focTarg = focSec(s).tile(t).focusTarget;
+            focTargYum = TargetY - FOV/2 + FOV * focTarg(1);
+            focTargXum = TargetX - FOV/2 + FOV * focTarg(2);
+
+            %% Record
+            tile(rNum).quality = quality;
+            tile(rNum).percentSaturation = percentSat;
+            tile(rNum).imTargX = TargetX;
+            tile(rNum).imTargY = TargetY;
+            tile(rNum).focTargX = focTargXum;
+            tile(rNum).focTargY = focTargYum;
+            tile(rNum).startWD = tree.Tiles.Tile(t).WD;
+            tile(rNum).startSX = 0;
+            tile(rNum).startSY = 0;
+            tile(rNum).TileWidth = tree.TileInfo.TileWidth;
+            tile(rNum).TileHeight = tree.TileInfo.TileHeight;
+            tile(rNum).FOV = FOV;
+            tile(rNum).DwellTime = tree.DwellTime.CONTENT;
+            
+            tileInfo(rNum).name = wif.sec(s).tile{t};
+            tileInfo(rNum).sectionNum = s;
+            tileInfo(rNum).rc = tree.Tiles.Tile(t).ATTRIBUTE;
+        end
+     
+        
+    end
+
+end %end tiles
+clear tree
+
+
+retake.tiles = tile;
+retake.tileInfo = tileInfo;
+save([wif.dir 'retake.mat'],'retake')
+
+
+
+
+

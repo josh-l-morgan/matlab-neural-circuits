@@ -1,0 +1,19 @@
+%% find Nearest Neighbor of all cells in Raid
+
+clear all
+%%Map Raid folders
+Raid='\\128.208.64.36\wonglab\Josh\Analyzed\Output';
+RaidDir=dir(Raid);
+RD=struct2cell(RaidDir);
+RD=RD(1,:); RD=RD(3:size(RD,2));
+
+global TPN
+
+for i = 1: size(RD,1)
+    TPN = [Raid '\' char(RD(i)) '\']
+    if exist([TPN 'data\DotStats.mat'])
+        anaNN
+    end
+    
+    
+end

@@ -1,0 +1,6 @@
+pixSize = .008;
+megPSec = 2 * 10 ^6;
+umPSec = pixSize * pixSize * megPSec 
+
+
+128 - My fast sca

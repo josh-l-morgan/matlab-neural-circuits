@@ -1,0 +1,51 @@
+
+
+
+
+
+
+
+
+Data1=WholeMntP12.TFreq;
+Data2=WholeMntP12.CFreq;
+%%Data
+scatter(ones(size(Data,1),1),Data1,'b')
+hold on
+scatter(ones(size(Data,1),1)*2,Data2,'b')
+%%Find standard Error as StandardDeviation / sqrt(n)
+E(1)=std(Data1)/sqrt(size(Data1,1));
+E(2)=std(Data2)/sqrt(size(Data2,1));
+errorbar([1 2],[mean(Data2) mean(Data2)],E,'r')
+
+hold off
+
+
+
+%%Data
+Age=EDev.Age;
+Age(Age==8)=7;
+Age(Age==13)=12;
+Age(Age==6)=5;
+
+Data=EDev.Freq;
+
+scatter(Age,Data)
+hold on
+%%Find standard Error as StandardDeviation / sqrt(n)
+c=0; A=0; M=0
+for i = min(Age):1:max(Age)
+   Ages=find(Age==i);
+   if ~isempty(Ages)
+      c=c+1; 
+      A(c,1)=i;
+      M(c,1)=mean(Data(Age==i));
+   end
+end
+clear E
+for i = 1: size(A,1)
+    E(i,1)=std(Data(Age==A(i)))/sqrt(sum(Age==A(i)));
+end
+
+errorbar(A,M,E,'r')
+
+hold off

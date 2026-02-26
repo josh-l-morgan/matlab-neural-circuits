@@ -1,0 +1,47 @@
+KPN=GetMyDir
+Kdir=dir(KPN); Kdir=Kdir(3:size(Kdir,1));
+
+colormap gray(255)
+
+for k = 1:size(Kdir,1) %run all files in directory
+
+    DPN = [ KPN Kdir(k).name] %get image name
+    if isdir(DPN) %if a tif
+        load([DPN '\Cnum.mat'])
+        load([DPN '\Anum.mat'])
+           
+    end
+end
+
+ Csum=sum(Cnum,1)';
+        Asum=sum(Anum,1)';
+        CoA=Csum./Asum;
+        plot(CoA),pause(.01)
+        bar(Asum)
+        bar(Csum)
+        bar(CoA)
+        bar(CoA(2:200))
+        %ylim([-max(CoA(:))/10 max(CoA(:))])
+
+%         save([TPN 'Cnum.mat'],'Cnum')
+%         save([TPN 'Anum.mat'],'Anum')
+%         xlswrite([TPN Name '.xls'],Cnum,'Cnum')
+%         xlswrite([TPN Name '.xls'],Anum,'Anum')
+
+        %% Bin
+        Bin=6;
+        for d = 1 : size(Asum,1)
+            Cbin(d)=sum(Csum(max(d-Bin/2,2):min(d+Bin/2,size(Csum,1))));
+            Abin(d)=sum(Asum(max(d-Bin/2,2):min(d+Bin/2,size(Asum,1))));
+        end
+        CAbin=Cbin./Abin;
+        plot(CAbin)
+        bar(Abin)
+        bar(Cbin)
+        bar(CAbin(1:200)),pause(.01)
+        
+        
+        
+        
+        
+        

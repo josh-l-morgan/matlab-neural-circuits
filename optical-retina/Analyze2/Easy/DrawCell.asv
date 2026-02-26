@@ -1,0 +1,54 @@
+
+TPN=GetMyDir
+
+load([TPN 'Use.mat'])
+load([TPN 'NNL.mat'])
+load([TPN 'Dots.mat'])
+load([TPN 'find\SG.mat'])
+load([TPN 'Branch.mat'])
+
+DPos=round(Use.DPos*3)+1;
+Mids=round(Use.Mids*3)+1;
+
+
+for i=1:size(Mids,1)
+    DStack(Mids(i,1),Mids(i,2),Mids(i,3))=100;
+end
+
+for i = 1:size(DPos,1)
+    DStack(DPos(i,1),DPos(i,2),DPos(i,3))=200;
+end
+
+YXsize=Dots.ImSize(1)*Dots.ImSize(2);
+maxPassed2=zeros(Dots.ImSize(1),Dots.ImSize(2),'uint8');
+VoxI=Dots.Vox;
+VoxI=VoxI(SG.passF);
+for i = 1: size(NNL.DorL,2)
+   %maxID(mod(Dots.Vox(P(i)).Ind-1,YXsize)+1)=P(i);  
+   maxPassed2(mod(VoxI(i).Ind-1,YXsize)+1)=NNL.minDist(i); %ContrastV(P(i)); 
+end
+
+%load Raw
+if ~exist([TPN 'images\maxRaw.mat'])
+        maxRaw=imread([TPN 'images\RawMax.tif']);
+        save([TPN 'images\maxRaw.mat'],'maxRaw');        
+else
+    load([TPN 'images\maxRaw.mat'])
+end
+
+%%combine and save and image Comparison
+ShowDat=maxRaw;
+ShowDat(:,:,1)=ShowDat(:,:,1);
+ShowDat(:,:,2)=ShowDat(:,:,2);
+FindEmpty=sum(sum(ShowDat,1),2)==0;
+if sum(FindEmpty), Empty=find(FindEmpty,1); else Empty=1; end
+ShowDat(:,:,3)=maxPassed2*10;
+imwrite(ShowDat,[TPN 'find\ShowDat.tif'],'Compression','none')
+%imwrite(TestID,[TPN 'images\TestID.tif'],'Compression','none')
+image(ShowDat),pause(.01)
+
+
+
+
+
+imwriteNp(TPN,DStack,'DStack')

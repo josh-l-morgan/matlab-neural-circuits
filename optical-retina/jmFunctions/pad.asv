@@ -1,0 +1,4 @@
+function[I2] = pad(I,buf)
+
+I2 = zeros(size(I,1)+buf * 2, size(I,2) + buff * 2);
+I2(buf+1:end-buf-1,

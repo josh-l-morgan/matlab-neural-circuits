@@ -1,0 +1,32 @@
+
+rawRes = [4 4 30];
+targetRes = [8 8 8];
+
+targetSize = [196 196 196];
+
+zSamp = targetRes(3) / rawRes(3);
+zDup = ceil(1/zSamp);
+
+pullSize = ceil(targetSize.*targetRes./rawRes);
+pullSize(3) = targetSize(3)/zDup;
+
+rawI = rand(pullSize(1),pullSize(2),pullSize(3));
+
+xySamp = targetRes(1)/rawRes(1);
+
+
+
+%%Find new zplanes for each raw section
+newZ = [1:size(rawI,3)]';
+newZ = newZ * zDup - zDup;
+newZ = newZ + [1 2 3 4];
+
+newI = zeros(size(rawI,1)/xySamp,size(rawI,2)/xySamp,max(newZ(:)));
+
+for i = 1:size(rawI,3)
+
+    I = rawI(:,:,i);
+    Is = imresize(I,1/xySamp,'bicubic');
+    newI(:,:,newZ(i,:)) = repmat(Is,[1 1 zDup]);
+end
+

@@ -1,0 +1,84 @@
+clear all
+colormap gray(256)
+[DPN DFN] = uigetfile;
+TargFile=[DFN DPN]
+
+Iall = tiffread2(TargFile);
+for i = 1: size(Iall,2)
+I(:,:,i)=Iall(i).data;
+end
+
+Ib=I(:,:,1:size(I,3)/2);
+Ig=I(:,:,size(I,3)/2+1:size(I,3));
+Ib=double(Ib);
+Ig=double(Ig);
+image(max(Ib,[],3)/8)
+image(max(Ig,[],3)/12)
+
+%% match medians and set Green minimallly brighter then blue with same
+
+Ib2=Ib;
+% for i = 1: size(Ib2,3)
+%     Ib2(:,:,i)=medfilt2(Ib(:,:,i),[3 3]);
+% end
+
+%find backgrounds
+V=sort(Ib2(:));
+Mb=mean(V(1:fix(size(V,1)/10)+1));
+V=sort(Ig(:));
+Mg=mean(V(1:fix(size(V,1)/10)+1));
+
+%find min difference
+Is=Ig-Ib2;
+Mindif=min(Is(:));
+[y x z] = find3(Is==Mindif);
+Bb=Ib2(y(1), x(1), z(1));
+Bg=Ig(y(1), x(1), z(1));
+
+%Fix contrast
+Db=Bb-Mb; %find differences
+Dg=Bg-Mg;
+
+Ib2=Ib2*(Dg/Db); % change blue contrast
+V=sort(Ib2(:));
+Mb2=mean(V(1:fix(size(V,1)/10)+1)); %find new backgrounds
+Ib2=Ib2+(Mg-Mb2); %Shift blue curve to match green
+Ib2(Ib2<1)=1;
+
+%% Find ratio
+Ir=Ig./Ib2;
+
+%% Scale to 8 bit
+Ir8=Ir-min(Ir(:));
+Ir8=Ir8*255/max(Ir8(:));
+Ir8=uint8(Ir8);
+
+Ib8=Ib-min(Ib(:));
+Ib8=Ib8*255/max(Ib8(:));
+Ib8=uint8(Ib8);
+
+Ig8=Ig-min(Ig(:));
+Ig8=Ig8*255/max(Ig8(:));
+Ig8=uint8(Ig8);
+
+image(max(Ir8,[],3))
+
+subplot(2,1,1)
+I1(:,:,1)=max(Ib8,[],3);
+I1(:,:,2)=max(Ig8,[],3);
+I1(:,:,3)=max(Ig8,[],3);
+image(uint8(I1))
+
+subplot(2,1,2)
+I2(:,:,1)=max(Ib8,[],3)*1.2;
+I2(:,:,2)=max(Ir8,[],3)-20;
+I2(:,:,3)=max(Ir8,[],3)-20;
+image(uint8(I2))
+
+for i = 1 : size(Ir,3)
+   Ic8(:,:,1,i)=Ib(:,:,i);
+   Ic8(:,:,2,i)=Ir(:,:,i);
+   Ic8(:,:,3,i)=Ir(:,:,i);
+end
+imwrite(
+

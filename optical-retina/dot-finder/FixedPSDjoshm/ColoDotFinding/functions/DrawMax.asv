@@ -1,0 +1,9 @@
+function[Imax]=DrawMax(TPN DPN)
+
+Idir=dir(DPN); Idir=Idir(3:size(Idir,3));
+
+Imax=imread([DPN Idir(1).name]);
+
+for i = 2:size(Idir,3)
+   Ip=imread(
+end

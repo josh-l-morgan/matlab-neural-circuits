@@ -1,0 +1,36 @@
+clear all
+[TFN TPN] = GetMyFile;
+[tree, RootName, DOMnode] = xml_read([TPN TFN])
+
+numTiles = length(tree.Tiles.Tile);
+for i = 1:numTiles
+    WD(i) = tree.Tiles.Tile(i).WD * 1000;
+    StigX(i) = tree.Tiles.Tile(i).StigX;
+    StigY(i) = tree.Tiles.Tile(i).StigY;  
+    col(i) = tree.Tiles.Tile(i).ATTRIBUTE.col;
+    row(i) = tree.Tiles.Tile(i).ATTRIBUTE.row;
+end
+
+%% make image
+siz = [tree.TileInfo.NumTilesY tree.TileInfo.NumTilesX];
+mapF = zeros(siz(1),siz(2));
+mapSY = mapF; mapSX = mapF;
+id = sub2ind(siz, row,col);
+mapF(id) = WD * 10;
+mapSY(id) = StigY * 10;
+mapSX(id) = StigX * 10;
+mapC = uint8(cat(3,mapF,mapSY,mapSX));
+image(mapC)
+mapF = mapF - min(mapF(:));
+mapF = mapF * 255/max(mapF(:));
+image((mapF -median(mapF(:))) * 20 + 100)
+colormap  gray(255)
+%%
+dat = cat(2,row',col',WD',StigX',StigY');
+plot((WD-median(WD)) *1000,'r')
+hold on 
+plot(StigX,'g')
+plot(StigY,'b')
+hold off
+xlswrite([TPN 'AutoSettings'],dat)
+

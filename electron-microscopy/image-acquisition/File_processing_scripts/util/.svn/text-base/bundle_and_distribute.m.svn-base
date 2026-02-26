@@ -1,0 +1,57 @@
+function [all_results]=bundle_and_distribute(job_function, distributed_args, max_workers, job_manager, path_dependencies)
+
+permutation=randperm(length(distributed_args));
+
+% split job into bundles
+bundle_size=ceil(length(distributed_args)/max_workers);
+distributed_bundle=[];
+
+arg_num=0;
+for i=1:max_workers
+
+	bundle=[];
+	
+	for j=1:bundle_size
+		arg_num=arg_num+1;
+		if(arg_num<=length(distributed_args))
+			
+			arguments=distributed_args{permutation(arg_num)};
+			arguments{end+1}=job_function;			
+			bundle{j}=arguments;
+		end
+	end
+	
+	distributed_bundle{i}={bundle};
+	
+end
+
+% prepare the parallel job
+EMroot='/home/viren/EM';
+sched=get_sched(job_manager);
+j=sched.createJob();
+evaldiff=createTask(j, @bundle_and_distribute_worker, 1, distributed_bundle);
+set(j, 'MaximumNumberOfWorkers', max_workers);
+set(j, 'PathDependencies',path_dependencies);
+set(evaldiff,'CaptureCommandWindowOutput',true);
+jobID=j.ID;
+display(['distributed processing on job id ', num2str(jobID),'.']);
+% run the job
+submit(j);
+tic, waitForState(j);, toc
+errmsgs=get(evaldiff,{'ErrorMessage'});
+msgs=get(evaldiff,{'CommandWindowOutput'});
+
+% combine all bundled results
+results=get(evaldiff,'OutputArguments');
+all_results=[];
+arg_num=0;
+
+for i=1:max_workers
+	bundle_results=results{i}{1};
+	for j=1:bundle_size
+		arg_num=arg_num+1;
+		if(arg_num<=length(distributed_args))
+			all_results{permutation(arg_num)}=bundle_results{j};			
+		end
+	end	
+end

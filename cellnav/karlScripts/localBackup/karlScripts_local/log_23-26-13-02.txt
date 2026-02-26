@@ -1,0 +1,210 @@
+- - - - - - - - - - - - - - - - -
+cid7010 syn cid4 ||| cid0 syn cid4 | 0.07um
+33695 32506 547 ||| 33693 32488 547
+size=15 vox || size=17 vox -- overlap=15 vox
+keeping cid7010 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3009 syn cid4 ||| cid3009 syn cid4 | 0.23um
+33900 32682 551 ||| 33860 32687 550
+size=9 vox || size=6 vox -- overlap=6 vox
+keeping cid3009 syn cid4 ; removing cid3009 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3056 syn cid4 ||| cid3056 syn cid4 | 0.10um
+33270 31945 574 ||| 33282 31922 574
+size=6 vox || size=8 vox -- overlap=6 vox
+keeping cid3056 syn cid4 ; removing cid3056 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3056 syn cid0 ||| cid3056 syn cid3124 | 0.56um
+33307 31784 578 ||| 33207 31693 579
+size=7 vox || size=3 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid7011 syn cid4 ||| cid4 syn cid3100 | 0.59um
+32117 35919 508 ||| 32205 36005 510
+size=18 vox || size=4 vox -- overlap=0 vox
+keeping both cid4 syn cid3100 and cid7011 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7011 syn cid4 ||| cid0 syn cid4 | 0.18um
+32117 35919 508 ||| 32132 35904 507
+size=18 vox || size=19 vox -- overlap=16 vox
+keeping cid7011 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid4 ||| cid0 syn cid4 | 0.08um
+33848 33747 556 ||| 33835 33733 556
+size=11 vox || size=7 vox -- overlap=7 vox
+keeping cid7014 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid7014 syn cid4 ||| cid4 syn cid1138 | 0.45um
+33848 33747 556 ||| 33870 33645 557
+size=11 vox || size=12 vox -- overlap=0 vox
+keeping both cid4 syn cid1138 and cid7014 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid2001 amc-amc ||| cid0 syn cid4 | 0.47um
+33939 28898 587 ||| 34018 28868 585
+size=10 vox || size=14 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid2001 amc-amc
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3056 ||| cid0 syn cid4 | 0.25um
+33247 31877 658 ||| 33233 31831 657
+size=7 vox || size=11 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3056
+
+- - - - - - - - - - - - - - - - -
+cid6858 syn cid4 ||| cid6859 syn cid4 | 0.42um
+33139 32391 547 ||| 33093 32305 546
+size=20 vox || size=17 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid6859 syn cid4 ||| cid6860 syn cid4 | 0.54um
+33093 32305 546 ||| 33139 32348 543
+size=17 vox || size=15 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.60um
+36181 28806 714 ||| 36039 28784 715
+size=19 vox || size=9 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.57um
+39923 31733 602 ||| 39976 31837 600
+size=8 vox || size=15 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid4 syn cid2003 | 0.33um
+39293 29780 681 ||| 39348 29842 681
+size=7 vox || size=17 vox -- overlap=0 vox
+keeping both cid4 syn cid2003 and cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3051 ||| cid0 syn cid4 | 0.54um
+34347 37139 388 ||| 34235 37215 388
+size=7 vox || size=3 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3051
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3034 ||| cid0 syn cid4 | 0.35um
+34593 37678 366 ||| 34656 37725 367
+size=23 vox || size=17 vox -- overlap=0 vox
+keeping both cid0 syn cid4 and cid4 syn cid3034
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3028 recip ||| cid3028 syn cid4 recip | 0.51um
+34359 28456 593 ||| 34374 28493 596
+size=8 vox || size=9 vox -- overlap=3 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid2016 syn (cid4 cid3017) ||| cid3020 syn cid3017 | 0.34um
+33009 27596 518 ||| 32926 27608 518
+size=3 vox || size=6 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3011 recip ||| cid3011 syn cid4 recip | 0.04um
+32817 26845 530 ||| 32813 26854 530
+size=7 vox || size=9 vox -- overlap=3 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 ||| cid4 syn cid0 | 0.58um
+33552 32649 545 ||| 33647 32722 543
+size=8 vox || size=3 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.16um
+37165 35649 526 ||| 37165 35642 527
+size=9 vox || size=8 vox -- overlap=4 vox
+keeping cid0 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid0 recip ||| cid0 syn cid4 recip | 0.39um
+36908 35692 538 ||| 36961 35715 540
+size=17 vox || size=23 vox -- overlap=3 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3069 ||| cid4 syn cid0 | 0.38um
+35875 26302 927 ||| 35866 26250 925
+size=19 vox || size=5 vox -- overlap=0 vox
+keeping cid4 syn cid3069 ; removing cid4 syn cid0
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.54um
+39832 24824 684 ||| 39880 24860 681
+size=11 vox || size=14 vox -- overlap=4 vox
+keeping cid0 syn cid4 ; removing cid0 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3074 ||| cid3075 syn cid4 | 0.56um
+40718 25261 646 ||| 40657 25164 644
+size=10 vox || size=8 vox -- overlap=0 vox
+keeping both cid3075 syn cid4 and cid4 syn cid3074
+
+- - - - - - - - - - - - - - - - -
+cid3075 syn cid4 ||| cid3075 syn cid4 | 0.41um
+40738 24959 668 ||| 40823 25001 667
+size=3 vox || size=14 vox -- overlap=0 vox
+keeping cid3075 syn cid4 ; removing cid3075 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3080 ||| cid4 syn cid3082 | 0.34um
+41619 26121 614 ||| 41646 26137 616
+size=3 vox || size=9 vox -- overlap=0 vox
+keeping cid4 syn cid3082 ; removing cid4 syn cid3080
+
+- - - - - - - - - - - - - - - - -
+cid3081 syn cid4 ||| cid4 syn cid3081 | 0.48um
+41932 26206 613 ||| 42051 26211 613
+size=14 vox || size=7 vox -- overlap=0 vox
+keeping both cid4 syn cid3081 and cid3081 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3089 syn cid4 ||| cid4 syn cid3089 | 0.53um
+42829 26040 653 ||| 42823 25934 651
+size=8 vox || size=7 vox -- overlap=0 vox
+keeping both cid4 syn cid3089 and cid3089 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid3089 syn cid4 ||| cid4 syn cid3090 | 0.20um
+42829 26040 653 ||| 42831 26011 654
+size=8 vox || size=4 vox -- overlap=0 vox
+keeping both cid4 syn cid3090 and cid3089 syn cid4
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3089 ||| cid4 syn cid3090 | 0.57um
+42823 25934 651 ||| 42831 26011 654
+size=7 vox || size=4 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.46um
+30726 37426 495 ||| 30736 37534 496
+size=11 vox || size=14 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid4 syn cid3114 ||| cid4 syn cid3102 | 0.25um
+30460 37521 471 ||| 30454 37475 472
+size=6 vox || size=9 vox -- overlap=0 vox
+leaving both intact
+
+- - - - - - - - - - - - - - - - -
+cid0 syn cid4 ||| cid0 syn cid4 | 0.49um
+31761 32321 487 ||| 31853 32393 486
+size=9 vox || size=12 vox -- overlap=0 vox
+leaving both intact
+

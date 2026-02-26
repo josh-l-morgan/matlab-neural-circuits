@@ -1,0 +1,13 @@
+SPN = '\\storage1.ris.wustl.edu\jlmorgan\Active\morganLab\DATA\LGN_Adult\LGNs1\Josh_LGN_aligned_v3\em\mip7\'
+TPN = '\\storage1.ris.wustl.edu\jlmorgan\Active\morganLab\DATA\LGN_Adult\LGNs1\Josh_LGN_aligned_v3\mip7stack\'
+
+dSPN = dir([SPN 'slice*'])
+slices = {dSPN.name};
+numSlices = length(slices);
+
+for i = 1:numSlices
+    disp(sprintf('Copying %d of %d',i,numSli
+    copyfile([SPN slices{i}],[TPN slices{i}]);
+
+
+end

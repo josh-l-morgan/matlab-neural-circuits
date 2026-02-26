@@ -1,0 +1,16 @@
+%%testOverlaps
+
+
+%%-Josh Morgan
+[TFN TPN] = GetMyFile;  %Get Tif
+I = imread([TPN TFN]);
+lI =double(imread([TPN 'labeled\lab' TFN]));
+
+if ~exist([TPN 'edited']),mkdir([TPN 'edited']); end
+
+
+[ys, xs] = size(I);
+I3 = cat(3,I,I,I); %Color image
+subplot(1,2,1)
+image(I)
+subplot(1,2,2)

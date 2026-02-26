@@ -1,0 +1,90 @@
+%%Turn J OLE montage into fiji readable
+colormap gray(255)
+TPN = GetMyDir;
+
+dTPN = dir(TPN);
+dTPN = dTPN(3:end);
+
+iNam = [];
+for i = 1:length(dTPN)
+    nam = dTPN(i).name;
+    if length(nam)>4
+        if strcmp(nam(end-3:end), '.tif' )
+            iNam{size(iNam,1)+1,1} = nam;
+        end
+    end
+end
+
+
+%% Create hollow gaussian with negative surround
+
+R = 6;
+
+fsize = R * 2 + 1;
+distMap = zeros(fsize,fsize);
+for x = 1:fsize,
+    for y = 1:fsize
+        distMap(y,x) = sqrt((y-R-1)^2 + (x-R-1)^2);
+    end
+end
+useK = find(distMap<=R);
+blankK = find(distMap>R);
+
+centA =6;
+centSD = 2;
+center = centA * exp(-.5 * ((distMap)/centSD)^2);
+%center(center > mean([mean(center(:)) max(center(:))])) = mean(center(:));
+
+surA = 10;
+surSD = 10;
+surround = surA * exp(-.5 * ((distMap)/surSD)^2);
+
+kRat = mean(center(useK))/mean(surround(useK));
+kern =  center - surround * kRat;
+kern(blankK) = 0;
+%image(kern * 155/max(kern(:)) + 100 )
+%subplot(1,2,2)
+%plot(kern(R+1,:))
+%ylim([-1 2])
+
+
+% freak = [0 .1 .2 .3 .4 .5 .6 .7 .8 .8 1];
+% amp = [1 1 1 1 1 1 1 1 1 1 1];
+% myBP = fir2(20, freak, amp);
+% myBPr = ftrans2(myBP);
+% myBPr = (myBPr-mean(myBPr(:)));
+% subplot(1,2,1),freqz2(myBPr)
+% subplot(1,2,2),image(myBPr * 120/max(myBPr(:))+120);
+
+    
+    %%
+colormap gray(255)
+subplot(1,1,1)
+    
+    Istak = zeros(200,200,length(iNam));
+for i = 1:length(iNam)
+    Ir = imread([TPN iNam{i}]);
+    I = 255 - single(Ir(1201:1600,1201:1600));
+    image(I * 255/max(I(:)) ),pause(.01)
+    If =imresize(I,.5,'bicubic');
+    If = imfilter(If,kern,'same');
+    image(If* 250/max(If(:))),pause(.01)
+    Istak(:,:,i) = If;
+end
+
+
+maxIS = max(Istak(:));
+for i = 1:size(Istak,3)
+        image(Istak(:,:,i)* 250/maxIS),pause(.04)
+end
+
+
+
+
+
+
+
+
+
+
+

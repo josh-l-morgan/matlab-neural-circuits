@@ -1,0 +1,174 @@
+%%Take fast image of entire stage area
+
+if ~exist('TPN','var')
+    TPN = GetMyDir; %% Get directory to place all images
+end
+rawDir = [TPN 'raw\'];
+isoDir = [TPN 'isoDir\'];
+if ~exist(isoDir),mkdir(isoDir),end
+colormap gray(255)
+
+%% Build map out of acquired images
+nams = getPics(rawDir);
+nams = getPics(isoDir);
+
+if length(
+
+xSamp = 31;
+
+for i = 1:length(nams)
+    
+    sprintf('reading %d of %d',i,length(nams))
+    
+    nam = nams{i};
+    info = imfinfo([rawDir nam]);
+    width = info.Width;
+    Cols = [1: xSamp : width(1) width(1)];
+    Rows = info.Height;
+    Is{i} = 255-imread([rawDir nams{i}],'PixelRegion',{[1,1,Rows(1)],[1,xSamp,width(1)]});
+    
+end
+
+%% Correct flips
+
+maxdim = [0 0];
+
+%shrinkFlip = Ymove/(Ymove + FOV * .75);
+
+shrinkFlip = (10432-5984)/(7632-3488);
+%shrinkFlip = 1/shrinkFlip;
+for i = 1: length(Is)
+    flip = 1 - mod(i,2);
+    I = Is{i};
+    if flip
+        I = flipud(I);
+        
+        I = imresize(I,[size(I,1)*shrinkFlip,size(I,2)],'nearest');
+        I = circshift(I,[-600 0]);
+    end
+    maxdim = max(maxdim,[size(I,1) size(I,2)]);
+    %imwrite(I,[isoDir nam])
+    %image(I),pause(.01)
+    It{i} = I;
+end
+
+
+%% Resize
+subplot(1,1,1)
+for i = 1 :length(It)
+    I = It{i};
+    if size(I,1)< maxdim(1)
+        I(maxdim(1),maxdim(2)) = 0;
+    end
+    
+    image(I)
+    It{i} = I;
+    pause(.01)
+end
+
+%% Align Strips
+shiftRange = [0 : 3000];
+x=0:1:10;
+gfilt=gaussmf(x,[1 length(x)/2]);
+gfilt = gfilt/sum(gfilt);
+plot(gfilt)
+
+Islide = It{1};
+useSlide = fix(maxdim(1)/5:(maxdim(1)-maxdim(1)/5));
+bestShift = 0;
+
+
+for i = 2:length(Is)
+    posProd = shiftRange * 0;
+    negProd = shiftRange * 0;
+    Iref = It{i-1};
+    ref = double(Iref(useSlide,end));
+    ref = filter(gfilt,sum(gfilt),ref);
+    
+    Islide = It{i};
+    posSlide = double(Islide(useSlide,1));
+    posSlide = filter(gfilt,sum(gfilt),posSlide);
+    negSlide = posSlide;
+    
+    maxNeg = 0; maxProd = 0;
+    sprintf('sliding %d of %d', i,length(It))
+    goN = 1; goP =1;
+    for s = shiftRange
+        if goP
+            posSlide = circshift(posSlide,[1 0]);
+            posProd(s+1) = sum(posSlide .* ref);
+            maxProd = max(maxProd,posProd(s+1));
+        end
+        if goN
+            negSlide = circshift(negSlide,[-1  0]);
+            negProd(s+1) = sum(negSlide .* ref);
+            maxNeg = max(maxNeg,negProd(s+1));
+        end
+        
+        if s>200
+            if mean((negProd(s-20:s-1)-negProd(s-19:s))>0)> 0.9
+                %if mean(negProd(s-20))<maxNeg
+                goN = 0;
+            end
+            if mean((posProd(s-20:s-1)-posProd(s-19:s))>0)> 0.9
+                %if mean(posProd(s-20))<maxPos
+                
+                goP = 0;
+            end
+            if ~goN & ~goP
+                break
+            end
+        end
+        
+     end    
+        
+        subplot(2,1,1)
+        showSlide = [negSlide'; ref'; posSlide'];
+        image(showSlide)
+        subplot(2,1,2)
+        plot(posProd,'g'),hold on
+        plot(negProd,'r'),hold off
+        pause(.01)
+        
+   
+    
+    maxPos = max(posProd);
+    maxNeg = max(negProd);
+    if maxPos > maxNeg
+        bestShift(i) = find(posProd == maxPos,1)-1 ;
+    else
+        bestShift(i) = find(negProd == maxNeg,1) *-1 + 1;
+    end
+end
+bestShift
+
+%% Build single image
+buildDir = [TPN 'build'];
+if ~exist(buildDir), mkdir(buildDir), end
+
+bI = zeros(size(It{1},1), size(It{1},2)*length(It),'uint8');
+
+startStrip = 1;
+for i = 1:length(It)
+    I = It{i};
+    I = circshift(I,[sum(bestShift(1:i)) 0]); % excecute shift
+    stopStrip = startStrip + size(I,2)-1;
+    bI( : , startStrip : stopStrip) = I;
+    startStrip = stopStrip + 1;
+end
+
+subplot(1,1,1)
+image(bI),pause(.1)
+
+%% Save
+if ~exist(buildDir),mkdir(buildDir),end
+imwrite(bI,[buildDir '\bI.tif'])
+
+
+
+
+
+
+
+
+

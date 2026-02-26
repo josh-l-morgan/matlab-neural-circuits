@@ -1,0 +1,19 @@
+%%Bootstrap elimination
+
+randOb = 17;
+acOb = 17
+randStay = 15;
+acStay = 14;
+reps = 10000;
+realDif = abs(randStay-acStay);
+
+prob = 1/17;
+
+for r = 1:reps
+    fakeRand = rand(randOb,1)<prob;
+    fakeAc = rand(acOb,1)<prob;
+    difs(r) = abs(sum(fakeRand)-sum(fakeAc));
+end
+    
+    
+    

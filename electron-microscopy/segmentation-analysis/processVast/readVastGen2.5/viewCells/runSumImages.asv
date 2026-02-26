@@ -1,0 +1,21 @@
+function[] = cells2Dir(obI,dsObj,cellList,Dim,sum)
+
+
+
+load([MPN 'dsObj.mat'])
+load([MPN 'obI.mat'])
+
+TPN = [MPN 'sumImages\'];
+mkdir(TPN);
+
+%%
+Dim = 1;
+fsize = findObSize(dsObj);
+
+
+for i = 1:length(obI.cell.obIDs)
+    cellName = obI.cell.name(i);
+    I_Sum = showCellSum(obI,dsObj,cellName,[1,1,1],Dim,fsize)*30;
+    image(I_Sum),pause(.01)
+    imwrite(I_Sum,[TPN sprintf('%d.png',cellName)])
+end

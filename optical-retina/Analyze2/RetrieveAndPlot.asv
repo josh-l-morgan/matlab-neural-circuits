@@ -1,0 +1,10 @@
+
+load(['UseCells.mat'])
+
+
+for k = 1: 1%size(UseCells,1)
+   load([TPN 'Dots.mat'])
+    
+    
+    
+end

@@ -1,0 +1,225 @@
+%% find ratioed puncta brightness
+
+%Puncta variable should contain yxz position, puncta number, brightness of 
+%dend channel and brightness of green channel.
+% Dendrite matrix should include  position and both channels 
+
+%record the raw and median filtered
+
+%matched variables
+%vDot in the form [Ir Irm Ig Igm]
+%DotID in the form [ID]
+%DotPos in the form [y x z]
+%Puncta in the form [y x z ID]
+
+%Output Variables
+%Center = [y x z] in pixels
+%Stats = [ID volume(in pixels) Delta-F-over-f]
+%DotStats = [ Stats ; Center ; Center in um]
+
+colormap gray(255)
+clear all
+tic
+
+TPN=GetMyDir
+load([TPN 'data\D.mat'])
+
+
+%% Vectorize BigFilled
+load([TPN 'data\BigFilled.mat']);
+Puncta=zeros(1,4);
+PidCount=0; %start counter for puncta ID
+for i=1:max(BigFilled(:)) % run all puncta
+    clear y x z p Dis
+    [y x z]=find3(BigFilled==i);
+    p=[y x z]; 
+    p(:,4)=0;
+    Checked=ones(size(p,1),1);
+    %% ID puncta
+    while sum(Checked) %while there are more pixels to check
+        Targ=find(Checked,1);  %find first unchecked pixel
+        PidCount=PidCount+1;  %increase puncta ID counter
+        p(Targ,4)=PidCount;
+        while sum(p(:,4)==PidCount & Checked) %find all pixels for that ID
+                Targ=find(p(:,4)==PidCount & Checked,1);
+                for d=1:3;    Dis(:,d)=abs(p(:,d)-p(Targ,d))>1;   end  %find distances
+                Con=~sum(Dis,2);  %finds all connected 
+                p(Con,4)=PidCount;  %convert all new connected to current ID
+                Checked(Targ)=0;  % Clear checked pixel       
+        end %while more from group not checked
+    end %while Checked (when there are more to check)
+    Puncta=cat(1,Puncta,p);
+    PercentDoneVectorizing=(single(i)/single(max(BigFilled(:))))*100
+end %end i , run all puncta
+Puncta=Puncta(2:size(Puncta,1),:);
+
+
+%}
+%% Vectorize Dendrite
+load([TPN 'data\Threshold.mat']); %create Thresh
+
+
+%%READ IMAGE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'reading image'
+ns=size(DFN,2); %find size of name
+
+%%Get number of planes and spacer zeros
+d=dir(DPN); %get number of files in directory
+planes=size(d,1)-2; %find number of planes
+pdiddy=fix(log10(planes))+1;
+
+%%Figure out channels
+nameD=[DPN DFN(1:ns-4-pdiddy) num3str(1,pdiddy) DFN(ns-3:ns)];
+Ic(:,:,:)=imread(nameD); %read
+if size(Ic,3)==1, 'crash= only one channel read' %if only one channel
+elseif size(Ic,3)==2, rchannel=2; gchannel=1; %if only two channels
+elseif sum(sum(Ic(:,:,3)))==0, rchannel=2; gchannel=1; %if third channel is blank
+else rchannel=3; gchannel=2; %if third channel is not blank
+end
+
+clear I Ic pvD cvD bvD vDend BackGround
+vDend=zeros(1,4); %start counter for vectorized dendrites
+vDot=zeros(1,4); %start counter for vectorized dendrites
+DotID=0;
+DotPos=zeros(1,3); %start matrix for dot positions
+for i=1:planes
+    nameD=[DPN DFN(1:ns-4-pdiddy) num3str(i,pdiddy) DFN(ns-3:ns)];
+    Ic(:,:,:)=imread(nameD); %read
+    Ig=Ic(:,:,gchannel); %color seperate green channel
+    Ir=Ic(:,:,rchannel);%ColorSeperate
+    Irm=medfilt2(Ir,[3,3]); %median filter
+    Igm=medfilt2(Ig,[3,3]); %median filter
+    
+    %Find Dendrite Values
+    mask=Irm>Thresh; % Threshold plane to make mask
+    mask(BigFilled(:,:,i)>0)=0;  %remove suspected centroids
+    vD=[Ir(mask) Irm(mask) Ig(mask) Igm(mask)];
+    vDend=cat(1,vDend,vD);
+    
+    %Find Dot Values
+    BF=double(BigFilled(:,:,i));
+    DotPlane=find(Puncta(:,3)==i);
+    for dp=1:size(DotPlane,1)
+        BF(Puncta(DotPlane(dp),1),Puncta(DotPlane(dp),2))=Puncta(DotPlane(dp),4);
+    end %dp
+    DotMask=BF>0;
+    
+    vDo=[Ir(DotMask) Irm(DotMask) Ig(DotMask) Igm(DotMask)];
+    vDot=cat(1,vDot,vDo);
+    Dotid=BF(DotMask);
+    DotID=cat(1,DotID,Dotid);
+    
+    [y x]=find(DotMask); %find all puncta positions
+    Dotpos=[y x];
+    Dotpos(:,3)=i;
+    DotPos=cat(1,DotPos,Dotpos);
+    
+    %Find BackGround Values
+    BMask=~(DotMask | mask);
+    BG=[mean(Ir(BMask)) mean(Ig(BMask)) sum(BMask(:))];
+    BackGround(i,:)=BG;
+    
+    PercentRead=i/planes*100
+    image((Irm>Thresh)*300), pause(.1)
+end
+
+vDend=vDend(2:size(vDend),:); %eliminate vDend seed
+vDot=vDot(2:size(vDot,1),:);
+DotID=DotID(2:size(DotID,1));
+DotPos=DotPos(2:size(DotPos,1),:);
+RedBackGround=sum(BackGround(:,1).*BackGround(:,3))/sum(BackGround(:,3))
+GBG=sum(BackGround(:,2).*BackGround(:,3))/sum(BackGround(:,3))
+
+%%make look up table for predicted Green value for ever red value
+for i=0:255
+    clear ID
+    ID=vDend(:,1)==i;
+    IDm=vDend(:,2)==i;
+    if sum(ID(:))>0
+        meanPred(i+1)=mean(double(vDend(ID,3)));
+    else
+        meanPred(i+1)=0;
+    end
+    if sum(IDm(:))>0
+        meanPredm(i+1)=mean(double(vDend(ID,4)));
+    else
+        meanPredm(i+1)=0;
+    end
+end %run all values
+plot(meanPred)
+hold on
+plot(meanPredm,'r'),pause(1)
+hold off
+
+%% Find values of each puncta
+
+%Find Predicted values
+for i=1:size(vDot,1)
+    PredvDot(i,1)=meanPred(vDot(i,1)+1);
+    PredvDot(i,2)=meanPredm(vDot(i,2)+1);
+end %run all dots
+
+%%Find Delta F over f:  ((F-background)-(f-Background))/ (f-background)
+DFfPix(:,1)=(double(vDot(:,3)-GBG)-(PredvDot(:,1)-GBG))./ (PredvDot(:,1)-GBG);
+
+%%sort by puncta
+for i=1:max(DotID)
+    if sum(DotID==i) >0
+        DFOf(i)=mean(DFfPix(DotID==i));
+    else
+        DFOf(i)=0;
+    end
+end %run all dots (i)
+
+
+%%Zero saturated areas
+SatDots=DotID(vDot(:,2)==255); %identifiy dots where median of red channel is saturated
+for i=1:size(SatDots,1)
+    DFOf(SatDots(i))=0; %set brightness to zero
+end
+hist(DFOf,-1:.3:50),pause(.01)
+
+%% Draw new filled
+[ys xs zs]=size(BigFilled)
+clear BigFilled
+DeltaFill=zeros(ys,xs,zs,'uint8');
+for i=1:size(Puncta,1)
+    DeltaFill(Puncta(i,1),Puncta(i,2),Puncta(i,3))=uint8(DFOf(Puncta(i,4))*10);
+end
+
+%imwriteNp(TPN,DeltaFill,'DeltaFill')
+clear DeltaFill
+
+%% Make cool vector map of centroids and puncta and sizes and brighnesses
+%%and coolness
+'make master list'
+for i = 1: max(Puncta(:,4))
+  
+           tPos=DotPos(DotID==i,:); %ge positions of pixels in given puncta
+           tVal=double(vDot(DotID==i,4)); %get median values of green channel of given puncta
+           ym=sum(tPos(:,1).*tVal)/sum(tVal);xm=sum(tPos(:,2).*tVal)/sum(tVal);zm=sum(tPos(:,3).*tVal)/sum(tVal);
+           Center(i,:)=[ym xm zm];
+           Stats(i,1)= i;
+           Stats(i,2)= size(tVal,1);
+           Stats(i,3)= DFOf(i);
+end % run all puncta
+DotStats(:,:,1)=Stats;
+DotStats(:,:,2)=Center;
+DotStats(:,1:2,3)=Center(:,1:2)*.103;
+DotStats(:,3,3)=Center(:,3)*.3;
+
+%save([TPN 'data/DotStats.mat'],'DotStats')
+
+%% Finish
+
+TotalHours=toc/60/60
+[TPN(size(TPN,2)-6:size(TPN,2)-1)]
+RatioedAt=uint16(clock)
+%save([TPN 'data/RatioedAt.mat'],'RatioedAt')
+
+clear all
+'Done Ratioing'
+
+

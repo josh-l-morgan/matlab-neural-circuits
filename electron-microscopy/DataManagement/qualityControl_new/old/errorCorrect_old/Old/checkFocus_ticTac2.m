@@ -1,0 +1,139 @@
+%function[focSec] = checkFocus(wif)
+
+%% Turn mosaics from waffer into viewable (centers and downsample) mosaics
+clear all 
+
+%% Define variables
+dsampy = 100; %down sample image reading
+dsampx = 100;
+        
+yshift = [ 0 0 0 1 1 1 2 2 2]; %shifts for contrast measurement
+xshift = [ 0 1 2 0 1 2 0 1 2];
+
+
+
+%% Get Waffer folder information
+wif = GetMyWafer;
+%% Parse XML
+[tree, rootname, dom]=xml_read(wif.xml{end});
+
+xs = tree.MosaicSetup.TileWidth;
+ys = tree.MosaicSetup.TileHeight;
+
+%% Target Dir
+TPN = wif.dir; TPN = [TPN(1:end-1) 'Shaped\'];
+TPNsav = [TPN 'quality\'];
+if ~exist(TPNsav),mkdir(TPNsav);end
+
+%% test Focus
+colormap gray(256)
+
+
+for s = 1 : length(wif.sec) % run sections
+    sprintf('reading  section %d of %d',s,length(wif.sec))
+
+    %[tree, rootname, dom]=xml_read(wif.sec(s).xml);
+     rc = wif.sec(s).rc;
+     mosDim = max(rc,[],1);
+     mos = zeros(mosDim(1),mosDim(2),3);
+    for t = 1:length(wif.sec(s).tile)
+        
+        I1 = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1 dsampy ys],[1 dsampx xs]}));
+        %I1 = I1(1:end-1,:);
+        Id = zeros(size(I1,1),size(I1,2),length(yshift));
+        
+        for i = 1:length(yshift)
+            Is = double(imread(wif.sec(s).tile{t},'PixelRegion',{[ 1+yshift(i) dsampy ys],[1 + xshift(i) dsampx xs]}));
+            Is = Is(1:size(I1,1),1:size(I1,2));
+            Id(:,:,i) = abs(Is-I1);
+            trackId(i,1:2) = [yshift(i) xshift(i)];
+        end
+        %Ic(:,:) = min(abs(Is-circshift(I1,[5 0])),abs(Is-circshift(I1,[0 5])));
+        Ic(:,:) = abs(Is - circshift(I1,[23 0]));
+        vals = sort(Ic(:),'descend');
+        difC = median(vals(:));
+
+%%     Find contrasts
+        %1 %2 %3
+        %4 %5 %6
+        %7 %8 %9
+          
+        I = double(imread(wif.sec(s).tile{t},'PixelRegion',...
+            {[ round(ys/2) - 50 round(ys/2)+50],[round(xs/2)- 100 round(xs/2)+100]}));
+        subplot(2,1,1)
+        image(I)
+        
+        fronts = {[1 4 7 ],[1 2 3 ],[1 2 4], [2 3 6]};
+        mid = {[2 5 8], [4 5 6], [5], [5]};
+        backs = {[ 3 6 9],[ 7 8 9],[6 8 9],[4 7 8]};
+        
+         cols = ['r' 'b' 'm' 'c']
+            subplot(2,1,2) 
+        for f = 1: length(fronts)
+            difFront = mean(Id(:,:,fronts{f}),3) - mean(Id(:,:,mid{f}),3);
+            difBack = mean(Id(:,:,mid{f}),3) - mean(Id(:,:,backs{f}),3);
+            dd = abs(difFront-difBack);
+            %dd = sort(dd(:),'descend');
+            meanDD(f) = mean(dd(:));
+            
+            sumDif = abs(difFront + difBack);
+            sortSumDif = sort(sumDif(:),'descend');
+            thresh = sortSumDif(round(length(sortSumDif)/10));
+            highCons = find(sumDif>=thresh);
+            ratDif = dd(highCons)./sumDif(highCons);
+            meanSD(f) = mean(sumDif(:));
+            subplot(4,1,3)
+            H = hist(dd(highCons),1:1:100);
+            plot(H,cols(f))
+            ylim([0 200])
+            xlim([0 30])
+            hold on
+            subplot(4,1,4)
+            H2 = hist(ratDif,0:.4:3);
+            plot(H2,cols(f))
+            ylim([0 300])      
+            hold on
+            rats(f) = mean(ratDif);
+        end
+        hold off
+        %%Center
+        Icenter = Id(:,:,5) - (sum(Id,3) - Id(:,:,5))/8;
+        mIcenter = mean(abs(Icenter(:)))
+
+        [s t]
+        difx = meanDD./meanSD;
+        dify = mIcenter;
+        con = difC;
+        
+        dmap = [(mIcenter-5)*100 (mIcenter-5)*100];
+        mos(rc(t,1),rc(t,2),:) = [dmap(1) dmap(2) con];
+        
+%% Make contrast image
+        freqMap = sum(Id,3);
+        bKern = ones(4,10);
+        freqReg = fastCon(freqMap,bKern);
+        [h w] = find(freqReg == max(freqReg(:)),1);
+        focTarg = [h/size(freqMap,1) w/size(freqMap,2)];
+%% Record data        
+        focSec(s).tile(t).mIcenter5 = mIcenter-5;
+        focSec(s).tile(t).focY = rats(2);
+        focSec(s).tile(t).focX = rats(1);
+        focSec(s).tile(t).contrast = meanSD;
+        focSec(s).tile(t).focusTarget = focTarg;
+%%
+        
+    end
+    mosA(:,:,:,s) = mos;
+    
+end
+save([TPNsav 'qual.mat'],'mosA')
+save([wif.dir 'focSec.mat'],'focSec')
+
+
+
+
+
+
+
+
+
